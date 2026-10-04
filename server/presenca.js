@@ -5,7 +5,7 @@
 import crypto from 'node:crypto';
 import { store } from './store.js';
 
-const ONLINE_MS = 75e3; // sem aviso há mais que isso: saiu (o navegador avisa a cada 60 s)
+const ONLINE_MS = 65e3; // sem aviso há mais que isso: saiu (o navegador avisa a cada 60 s)
 const FLUSH_MS = 20e3;
 const INSTANCIA_VIVA_MS = 90e3; // instância que não grava há mais que isso deixa de contar
 const CHAVE = 'apuracao2026:presenca';
