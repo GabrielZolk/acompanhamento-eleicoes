@@ -13,6 +13,7 @@ const instancia = crypto.randomUUID().slice(0, 12);
 
 const vistos = new Map(); // id -> último aviso
 let total = 0;
+let fonte = 'local'; // 'redis' quando a soma entre instâncias funcionou na última gravação
 let ultimoFlush = 0;
 let gravando = null;
 
@@ -30,6 +31,7 @@ async function gravar(agora) {
   const local = contarLocal(agora);
   if (!store.pipeline) {
     total = local; // sem Redis: só esta instância (servidor local)
+    fonte = 'local';
     return;
   }
   try {
@@ -46,8 +48,11 @@ async function gravar(agora) {
     }
     if (mortas.length) store.pipeline([['HDEL', CHAVE, ...mortas]]).catch(() => {});
     total = Math.max(soma, local);
-  } catch {
+    fonte = 'redis';
+  } catch (err) {
+    console.error('[presenca] Redis indisponível:', err.message);
     total = local;
+    fonte = 'local';
   }
 }
 
@@ -58,5 +63,5 @@ export async function registrarPresenca(id) {
     gravando = gravar(agora).finally(() => (gravando = null));
   }
   if (!total && gravando) await gravando; // primeira chamada da instância espera o número real
-  return Math.max(total, contarLocal(agora));
+  return { total: Math.max(total, contarLocal(agora)), fonte };
 }
