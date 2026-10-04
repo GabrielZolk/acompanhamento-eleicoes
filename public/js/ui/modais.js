@@ -1,6 +1,6 @@
 import { int, pct, esc, nomeProprio, ufLabel } from '../format.js';
 import { UF_BY_CODE } from '../ufs.js';
-import { avatar, avatarPartido } from './common.js';
+import { avatar, avatarPartido, linhaLista } from './common.js';
 import { pills } from './disputa.js';
 import { linhaAtualizacao } from './paineis.js';
 
@@ -31,32 +31,15 @@ document.addEventListener('keydown', (ev) => {
 });
 
 function linhaCand(c, i) {
-  const det = [c.partido, c.agremiacao ? `${c.agremiacao.tipo} ${nomeProprio(c.agremiacao.nome)}` : null, c.vice ? `${c.vice.tipo === 's' ? 'Suplente' : 'Vice'}: ${nomeProprio(c.vice.nome)}` : null]
+  const det = [c.partido, c.n, c.agremiacao ? `${c.agremiacao.tipo} ${nomeProprio(c.agremiacao.nome)}` : null, c.vice ? `${c.vice.tipo === 's' ? 'Suplente' : 'Vice'}: ${nomeProprio(c.vice.nome)}` : null]
     .filter(Boolean)
     .join(' · ');
-  return `<div class="mrow" style="--c:${c.cor}">
-    <span class="mrow__n">${i + 1}º</span>
-    ${avatar(c, 'avatar--sm')}
-    <div style="min-width:0">
-      <div class="mrow__nome">${esc(nomeProprio(c.nome))} <span style="color:var(--muted);font-weight:500">${esc(c.n)}</span>${pills(c)}</div>
-      <div class="mrow__det" title="${esc(det)}">${esc(det)}</div>
-    </div>
-    <div class="bar" style="margin:0"><i style="width:${Math.min(100, c.pct).toFixed(2)}%"></i></div>
-    <div class="mrow__num"><b>${pct(c.pct)}</b><small>${int(c.votos)} votos</small></div>
-  </div>`;
+  return linhaLista({ pos: `${i + 1}º`, avatarHtml: avatar(c, 'avatar--sm'), nome: nomeProprio(c.nome), selo: pills(c), det, valor: c.pct, votos: c.votos, cor: c.cor });
 }
 
 function linhaPartido(p, i) {
-  return `<div class="mrow" style="--c:${p.cor}">
-    <span class="mrow__n">${i + 1}º</span>
-    ${avatarPartido(p, 'avatar--sm')}
-    <div style="min-width:0">
-      <div class="mrow__nome">${esc(p.sigla)}</div>
-      <div class="mrow__det">${p.nome !== p.sigla ? `${esc(nomeProprio(p.nome))} · ` : ''}${int(p.candidatos)} candidatos${p.eleitos ? ` · ${p.eleitos} eleitos` : ''}</div>
-    </div>
-    <div class="bar" style="margin:0"><i style="width:${Math.min(100, p.pct).toFixed(2)}%"></i></div>
-    <div class="mrow__num"><b>${pct(p.pct)}</b><small>${int(p.votos)} votos</small></div>
-  </div>`;
+  const det = [p.nome !== p.sigla ? nomeProprio(p.nome) : null, `${int(p.candidatos)} candidatos`, p.eleitos ? `${p.eleitos} eleitos` : null].filter(Boolean).join(' · ');
+  return linhaLista({ pos: `${i + 1}º`, avatarHtml: avatarPartido(p, 'avatar--sm'), nome: p.sigla, det, valor: p.pct, votos: p.votos, cor: p.cor });
 }
 
 function grade(secoes, votos) {

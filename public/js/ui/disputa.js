@@ -22,8 +22,8 @@ function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
     ${selo(i, c.n, ranking)}
     ${avatar(c)}
     <div class="cand__info">
-      <div class="cand__nome" title="${esc(nomeProprio(c.nomeCompleto || c.nome))}">${esc(nomeProprio(c.nome))}${pills(c)}</div>
-      <div class="cand__partido">${esc(c.partido)}</div>
+      <div class="cand__nome" title="${esc(nomeProprio(c.nomeCompleto || c.nome))}">${esc(nomeProprio(c.nome))}</div>
+      <div class="cand__partido">${esc(c.partido)}${pills(c)}</div>
       <div class="bar"><i style="width:${Math.min(100, c.pct).toFixed(2)}%"></i></div>
     </div>
     <div class="cand__nums">

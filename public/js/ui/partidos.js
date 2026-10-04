@@ -2,7 +2,7 @@
 // no país e por estado, com os candidatos do partido.
 import { int, pct, esc, nomeProprio, semAcento } from '../format.js';
 import { UFS } from '../ufs.js';
-import { avatar, avatarPartido } from './common.js';
+import { avatar, avatarPartido, linhaLista } from './common.js';
 import * as modal from './modais.js';
 
 let resumo = null; // cache do /api/partidos
@@ -75,14 +75,20 @@ function tabelaEstados(p) {
 function listaCands(titulo, cands, cargo, cor) {
   if (!cands.length) return '';
   return `<h4 class="psec">${titulo}</h4><div class="mlist">${cands
-    .map((c) => `<div class="mrow" style="--c:${cor}">
-      <span class="mrow__n">${ord(c.pos)}</span>
-      ${avatar({ nome: c.nome, cor, foto: c.foto }, 'avatar--sm')}
-      <div style="min-width:0"><div class="mrow__nome">${esc(nomeProprio(c.nome))} <span style="color:var(--muted);font-weight:500">${esc(c.n)}</span>${situacao(c, cargo)}</div>
-        <div class="mrow__det"><span class="uf-chip">${c.uf.toUpperCase()}</span>${cargo === 'senado' && c.vagas > 1 ? `${c.vagas} vagas no estado` : ''}</div></div>
-      <div class="bar" style="margin:0"><i style="width:${Math.min(100, c.pct).toFixed(2)}%"></i></div>
-      <div class="mrow__num"><b>${pct(c.pct, 2)}</b><small>${int(c.votos)} votos</small></div>
-    </div>`)
+    .map((c) =>
+      linhaLista({
+        pos: ord(c.pos),
+        avatarHtml: avatar({ nome: c.nome, cor, foto: c.foto }, 'avatar--sm'),
+        nome: nomeProprio(c.nome),
+        selo: situacao(c, cargo),
+        uf: c.uf.toUpperCase(),
+        det: [c.n, cargo === 'senado' && c.vagas > 1 ? `${c.vagas} vagas no estado` : null].filter(Boolean).join(' · '),
+        valor: c.pct,
+        votos: c.votos,
+        cor,
+        casas: 2,
+      }),
+    )
     .join('')}</div>`;
 }
 

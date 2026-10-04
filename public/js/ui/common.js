@@ -1,4 +1,4 @@
-import { esc, iniciais, pct } from '../format.js';
+import { esc, iniciais, pct, int } from '../format.js';
 
 // Fotos que falharam não são pedidas de novo (evita piscar a cada atualização).
 const fotosQuebradas = new Set();
@@ -13,6 +13,21 @@ export function avatar(c, cls = '') {
     <div class="avatar__inner"><span>${esc(iniciais(c.nome))}</span>${
       foto ? `<img src="${esc(foto)}" alt="" loading="lazy" decoding="async" onerror="__fotoFalhou(this)">` : ''
     }</div></div>`;
+}
+
+// Linha das listas dos modais. O nome fica sozinho na 1ª linha (pode ser cortado com "…");
+// o selo (Eleito, Dentro, 2º turno…), a UF e os detalhes vão na 2ª, com o selo sempre visível.
+export function linhaLista({ pos, avatarHtml, nome, titulo = '', selo = '', uf = '', det = '', valor, votos, cor, casas = 1 }) {
+  return `<div class="mrow" style="--c:${cor}">
+    <span class="mrow__n">${pos}</span>
+    ${avatarHtml}
+    <div class="mrow__info">
+      <div class="mrow__nome" title="${esc(titulo || nome)}">${esc(nome)}</div>
+      <div class="mrow__det">${selo}${uf ? `<span class="uf-chip">${esc(uf)}</span>` : ''}${det ? `<span class="mrow__txt" title="${esc(det)}">${esc(det)}</span>` : ''}</div>
+    </div>
+    <div class="bar" style="margin:0"><i style="width:${Math.min(100, valor || 0).toFixed(2)}%"></i></div>
+    <div class="mrow__num"><b>${pct(valor, casas)}</b><small>${int(votos)} votos</small></div>
+  </div>`;
 }
 
 export function avatarPartido(p, cls = '') {

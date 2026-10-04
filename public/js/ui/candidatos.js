@@ -3,7 +3,7 @@
 import { int, pct, esc, nomeProprio, semAcento, ufLabel } from '../format.js';
 import { CARGOS, UF_BY_CODE, nomeDoCargo, tituloDoCargo } from '../ufs.js';
 import { corPartido } from '../colors.js';
-import { avatar, ICON } from './common.js';
+import { avatar, linhaLista, ICON } from './common.js';
 import { pills } from './disputa.js';
 import * as modal from './modais.js';
 
@@ -38,17 +38,19 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
   const fotoDe = (c) => c.foto || (st.lista?.fotoBase && c.uf === uf ? st.lista.fotoBase.replace('{sq}', c.sq) : null);
 
   function linha(c, comUF) {
-    const det = [c.partido, c.situacao && !c.eleito && !/2º turno/i.test(c.situacao) ? c.situacao : null].filter(Boolean).join(' · ');
-    return `<div class="mrow" style="--c:${corDe(c.partido)}">
-      <span class="mrow__n">${c.pos}º</span>
-      ${avatar({ nome: c.nome, cor: corDe(c.partido), foto: fotoDe(c) }, 'avatar--sm')}
-      <div style="min-width:0">
-        <div class="mrow__nome">${esc(nomeProprio(c.nome))} <span style="color:var(--muted);font-weight:500">${esc(c.n)}</span>${pills(c)}</div>
-        <div class="mrow__det">${comUF ? `<span class="uf-chip">${ufLabel(c.uf)}</span>` : ''}${esc(det)}</div>
-      </div>
-      <div class="bar" style="margin:0"><i style="width:${Math.min(100, c.pct).toFixed(2)}%"></i></div>
-      <div class="mrow__num"><b>${pct(c.pct, 2)}</b><small>${int(c.votos)} votos</small></div>
-    </div>`;
+    const det = [c.partido, c.n, c.situacao && !c.eleito && !/2º turno/i.test(c.situacao) ? c.situacao : null].filter(Boolean).join(' · ');
+    return linhaLista({
+      pos: `${c.pos}º`,
+      avatarHtml: avatar({ nome: c.nome, cor: corDe(c.partido), foto: fotoDe(c) }, 'avatar--sm'),
+      nome: nomeProprio(c.nome),
+      selo: pills(c),
+      uf: comUF ? ufLabel(c.uf) : '',
+      det,
+      valor: c.pct,
+      votos: c.votos,
+      cor: corDe(c.partido),
+      casas: 2,
+    });
   }
 
   function filtrar(lista) {
