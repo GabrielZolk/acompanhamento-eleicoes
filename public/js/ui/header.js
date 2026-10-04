@@ -1,4 +1,4 @@
-import { esc, hora, dataExtenso, semAcento, nomeProprio, pct } from '../format.js';
+import { esc, hora, dataExtenso, semAcento, nomeProprio, pct, int } from '../format.js';
 import { UFS } from '../ufs.js';
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
@@ -186,7 +186,10 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
       sub = passou ? `${dia} · ${turno} · nenhuma seção divulgada ainda` : `${dia} · ${turno} · início às 17h`;
     }
     live.className = `live ${cls}`;
-    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}</div></div>`;
+    const online = state.presenca > 0
+      ? `<div class="live__online" title="Pessoas com o painel aberto e visível agora"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="currentColor"/><path d="M1.5 21c.6-4.2 3.6-6.5 7.5-6.5s6.9 2.3 7.5 6.5z" fill="currentColor"/><circle cx="17.5" cy="9" r="3" fill="currentColor" opacity=".6"/><path d="M17 14.6c3 .3 5 2.3 5.5 5.4h-4.3c-.3-2.1-1.2-3.9-2.6-5.1z" fill="currentColor" opacity=".6"/></svg>${int(state.presenca)} ${state.presenca === 1 ? 'pessoa acompanhando' : 'pessoas acompanhando'}</div>`
+      : '';
+    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}</div>${online}</div>`;
   }
 
   return { renderStatus };

@@ -19,6 +19,12 @@ function redisStore() {
       const { result } = await r.json();
       return result ? JSON.parse(result) : null;
     },
+    // Vários comandos numa única requisição (conta como um comando cada no Upstash).
+    async pipeline(cmds) {
+      const r = await fetch(`${REDIS_URL}/pipeline`, { method: 'POST', headers, body: JSON.stringify(cmds), signal: AbortSignal.timeout(4000) });
+      if (!r.ok) throw new Error(`Redis HTTP ${r.status}`);
+      return (await r.json()).map((x) => x.result);
+    },
     // Trava simples (SET NX EX): só uma instância recalcula a mesma coisa por vez.
     async travar(key, segundos) {
       const r = await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}/1/NX/EX/${segundos}`, { headers, signal: AbortSignal.timeout(4000) });

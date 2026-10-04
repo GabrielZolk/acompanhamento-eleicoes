@@ -40,6 +40,8 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   no país e por estado (`/api/partidos`).
 - **Histórico de resultado**: percentual dos dois primeiros colocados a cada divulgação do TSE (gravado pelo servidor
   a partir de 04/10 às 18h21; o TSE não publica histórico).
+- **Pessoas acompanhando**: cada aba visível avisa a cada minuto; cada instância conta na memória e grava só o seu
+  total no Redis a cada 20 s (custo fixo, não cresce com o número de visitantes).
 - **Mapa por cidade**: 5.570 municípios coloridos pelo vencedor (`/api/municipios-mapa`).
 - **Lista completa de candidatos** de qualquer cargo estadual, com pesquisa por nome, número ou partido, filtro de
   eleitos e busca em todos os estados (`/api/candidatos`).
@@ -75,6 +77,7 @@ Arquivos usados (eleição `6257` = Presidente, `6259` = estaduais):
 | `TSE_ELE_ESTADUAL` | `6259` | Código da eleição estadual. **2º turno: `6260`** |
 | `ELEICAO_DATA` | `2026-10-04` | Dia da eleição (eixo de 17h da curva de evolução) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | — | Redis (Upstash) para o histórico compartilhado |
+| `PRESENCA` | — | `0` desliga o contador "pessoas acompanhando" |
 
 Para o 2º turno, use os códigos novos e `ELEICAO_DATA=2026-10-25` (o histórico é separado por eleição).
 

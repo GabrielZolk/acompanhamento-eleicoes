@@ -322,11 +322,55 @@ setInterval(() => {
   if (document.visibilityState === 'visible') carregarMapaCidades();
 }, 90000);
 
+// ------------------------------------------------------------------ pessoas acompanhando
+// A aba avisa o servidor a cada minuto enquanto está visível. Se o contador estiver desligado
+// (404) ele some; se falhar seguidamente, passa a tentar só a cada 5 minutos.
+const presenca = {
+  id: (() => {
+    try {
+      let v = localStorage.getItem('apuracao2026:id');
+      if (!v) localStorage.setItem('apuracao2026:id', (v = crypto.randomUUID().replace(/-/g, '')));
+      return v;
+    } catch {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+  })(),
+  falhas: 0,
+  pulos: 0,
+  desligado: false,
+};
+function mostrarPresenca(total) {
+  if (state.presenca === total) return;
+  state.presenca = total;
+  header.renderStatus(vista(), state);
+}
+async function avisarPresenca() {
+  if (presenca.desligado || document.visibilityState !== 'visible') return;
+  if (presenca.falhas >= 3 && ++presenca.pulos % 5) return;
+  try {
+    const r = await fetch(`/api/presenca?id=${presenca.id}`, { cache: 'no-store' });
+    if (r.status === 404) {
+      presenca.desligado = true;
+      return mostrarPresenca(null);
+    }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    presenca.falhas = 0;
+    mostrarPresenca((await r.json()).total);
+  } catch {
+    if (++presenca.falhas >= 3) mostrarPresenca(null);
+  }
+}
+setInterval(avisarPresenca, 60000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') avisarPresenca();
+});
+
 // ------------------------------------------------------------------ início
 (async () => {
   render();
   const geo = await mapa.init();
   prepararIcones(geo, REGIOES.map((r) => ({ id: r.id, ufs: UFS.filter((u) => u.regiao === r.id).map((u) => u.uf) })));
+  avisarPresenca();
   await carregar();
   carregarMapaCidades(true);
 })();
