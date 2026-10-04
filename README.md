@@ -35,9 +35,11 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
 
 ## Como funciona
 
-O navegador consulta `/api/painel` a cada 30 s. A função busca os arquivos do TSE (com ETag, então arquivos sem
-mudança custam um `304`) e a resposta fica 20 s no cache de borda da Vercel, o que limita as consultas ao TSE
-independentemente do número de visitantes.
+O TSE não oferece push (WebSocket/SSE): ele publica arquivos num CDN, com cache de ~30 s, e numera cada
+publicação (`idg`). O navegador consulta `/api/versao` a cada 5 s (resposta de ~50 bytes, com 2 s de cache de
+borda) e só baixa o `/api/painel` completo quando a numeração muda. As funções buscam os arquivos do TSE com ETag
+(arquivos sem mudança custam um `304`) e o cache de borda da Vercel faz com que muitos visitantes não multipliquem as
+consultas ao TSE. Abas em segundo plano param de consultar.
 
 O TSE publica só o estado atual. A curva de evolução e o feed de atualizações são montados comparando cada
 publicação com a anterior; ficam no Redis (Vercel), em `data/` (local) e também no `localStorage` do navegador.

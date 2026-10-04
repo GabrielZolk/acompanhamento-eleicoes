@@ -2,8 +2,9 @@ import { CARGOS } from '../public/js/ufs.js';
 import { obterPainel } from '../server/core.js';
 import { json, query } from './_util.js';
 
-// Cache de borda curto: o TSE atualiza seu CDN a cada ~30 s.
-const CACHE = 'public, max-age=0, s-maxage=20, stale-while-revalidate=40';
+// O navegador pede uma versão específica (?v=) quando detecta publicação nova; o cache curto evita
+// que muitos visitantes multipliquem as consultas ao TSE.
+const CACHE = 'public, max-age=0, s-maxage=4, stale-while-revalidate=4';
 
 export default async function handler(req, res) {
   const q = query(req);

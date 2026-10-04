@@ -82,6 +82,7 @@ export function parseUnificado(raw, { foto } = {}) {
     abrangencia: raw.cdabr,
     cargo: { cd: int(carg.cd), nome: carg.nmn, vagas: int(carg.nv) || 1 },
     geradoEm: parseTseDate(raw.dg, raw.hg),
+    idg: raw.idg || null,
     totalizadoEm: parseTseDate(raw.dt, raw.ht),
     final: raw.tf === 's',
     secoes: parseSecoes(raw.s),
@@ -105,5 +106,5 @@ export function parseAcompanhamento(raw) {
     if (a.tpabr === 'br') br = item;
     else ufs[a.cdabr.toLowerCase()] = item;
   }
-  return { ele: raw.ele, geradoEm: parseTseDate(raw.dg, raw.hg), br, ufs };
+  return { ele: raw.ele, geradoEm: parseTseDate(raw.dg, raw.hg), idg: raw.idg || null, br, ufs };
 }

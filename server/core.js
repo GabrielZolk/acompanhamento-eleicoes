@@ -60,6 +60,19 @@ async function trackerAtualizado(ele, ab) {
   return tracker.view();
 }
 
+// Identificador da publicação atual do TSE: o TSE numera cada geração de arquivo (idg).
+const versaoDe = (ab, nacional) => `${ab?.idg || ''}-${nacional?.idg || ''}`;
+
+// Consulta leve (2 arquivos, normalmente respondidos com 304) para o navegador saber se há dado novo.
+export async function obterVersao(cargoKey) {
+  const cargo = CARGOS[cargoKey];
+  const [ab, nacional] = await Promise.all([
+    load(urls.acompanhamento(cargo.ele), parseAcompanhamento),
+    cargo.federal ? load(urls.unificado(cargo.ele, cargo.cd, 'br'), (d) => parseUnificado(d, { foto: fotoDe(cargo, 'br') })) : null,
+  ]);
+  return { versao: versaoDe(ab, nacional), geradoEm: Math.max(ab?.geradoEm || 0, nacional?.geradoEm || 0) || null };
+}
+
 export async function obterPainel(cargoKey) {
   const cargo = CARGOS[cargoKey];
   const [ab, dados] = await Promise.all([
@@ -70,6 +83,7 @@ export async function obterPainel(cargoKey) {
   const tracker = await trackerAtualizado(cargo.ele, ab);
   const p = montarPainel({ cargoKey, ...dados, ab, tracker, inicio: INICIO });
   p.armazenamento = store.tipo;
+  p.versao = versaoDe(ab, dados.nacional);
   return p;
 }
 

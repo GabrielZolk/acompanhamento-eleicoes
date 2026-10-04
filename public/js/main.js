@@ -187,7 +187,9 @@ new ResizeObserver(() => renderBottom()).observe($('evolucao'));
 
 // ------------------------------------------------------------------ dados
 let emVoo = null, pendente = false;
-async function carregar() {
+const versoes = {}; // cargo -> versão (idg do TSE) do último painel carregado
+
+async function carregar(versao) {
   if (emVoo) {
     pendente = true;
     return emVoo;
@@ -195,10 +197,11 @@ async function carregar() {
   const alvo = state.cargo;
   emVoo = (async () => {
     try {
-      const r = await fetch(`/api/painel?cargo=${alvo}`);
+      const r = await fetch(`/api/painel?cargo=${alvo}${versao ? `&v=${encodeURIComponent(versao)}` : ''}`);
       const j = await r.json();
       if (!r.ok) throw new Error(j.erro || `HTTP ${r.status}`);
       const d = mesclarHistorico(j);
+      versoes[alvo] = j.versao;
       cache[alvo] = d;
       if (alvo === state.cargo) {
         state.data = d;
@@ -218,13 +221,29 @@ async function carregar() {
   return emVoo;
 }
 
-// O TSE renova seu CDN a cada ~30 s; consultar mais rápido que isso não traz dado novo.
-const INTERVALO = 30000;
+// A cada 5 s pergunta qual é a publicação atual do TSE (resposta de poucos bytes) e só baixa o
+// painel completo quando ela muda. Se o painel vier atrasado em relação à versão, a próxima
+// checagem percebe a diferença e baixa de novo.
+const CHECAGEM = 5000;
+async function checarVersao() {
+  if (document.visibilityState !== 'visible' || emVoo) return;
+  try {
+    const r = await fetch(`/api/versao?cargo=${state.cargo}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const { versao } = await r.json();
+    if (versao && versao !== versoes[state.cargo]) carregar(versao);
+    else if (state.erro) carregar();
+  } catch (err) {
+    state.erro = err.message;
+    header.renderStatus(vista(), state);
+  }
+}
+setInterval(checarVersao, CHECAGEM);
 setInterval(() => {
   if (document.visibilityState === 'visible') carregar();
-}, INTERVALO);
+}, 120000);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') carregar();
+  if (document.visibilityState === 'visible') checarVersao();
 });
 
 // ------------------------------------------------------------------ início
