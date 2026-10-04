@@ -20,6 +20,13 @@ export function avatar(c, cls = '') {
     }</div></div>`;
 }
 
+// Número que conta até o novo valor quando muda (ver morph.js).
+export function cnt(v, f = 'int', casas = 1, sufixo = '') {
+  const n = Number(v) || 0;
+  const txt = (f === 'pct' ? pct(n, casas) : int(n)) + sufixo;
+  return `<span class="cnt" data-v="${n}" data-f="${f}" data-c="${casas}"${sufixo ? ` data-s="${esc(sufixo)}"` : ''}>${txt}</span>`;
+}
+
 // Linha das listas dos modais. O nome fica sozinho na 1ª linha (pode ser cortado com "…");
 // o selo (Eleito, Dentro, 2º turno…), a UF e os detalhes vão na 2ª, com o selo sempre visível.
 export function linhaLista({ pos, avatarHtml, nome, titulo = '', selo = '', uf = '', det = '', valor, votos, cor, casas = 1 }) {
@@ -50,7 +57,7 @@ export function donut(valor, size, stroke, labelSize, id) {
       <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#222938" stroke-width="${stroke}"/>
       <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${stroke}" stroke-linecap="${v > 0 ? 'round' : 'butt'}" stroke-dasharray="${dash.toFixed(2)} ${c.toFixed(2)}"/>
     </svg>
-    <span class="donut__label" style="font-size:${labelSize}px">${pct(v)}</span>
+    <span class="donut__label" style="font-size:${labelSize}px">${cnt(v, 'pct')}</span>
   </div>`;
 }
 

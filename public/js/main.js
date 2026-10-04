@@ -191,6 +191,7 @@ function skeleton() {
 function render() {
   const d = vista();
   header.renderStatus(d, state);
+  document.body.classList.toggle('apurando', d?.status === 'apurando');
   if (!d) {
     skeleton();
     return;

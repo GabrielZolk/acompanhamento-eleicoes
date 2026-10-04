@@ -51,7 +51,7 @@ function renderSecoes(d, largura) {
       const ex = Math.min(x(prev.eta), W - pad.r);
       svg += `<path class="chart-proj" d="M${x(last.t)} ${y(last.pct)}L${ex} ${y(100)}"/><path class="chart-proj" d="M${ex} ${y(100)}L${ex} ${y(0)}"/>`;
     }
-    svg += `<path class="chart-line" d="${line}"/>`;
+    svg += `<path class="chart-line" d="${line}" pathLength="1"/>`;
     for (let t = inicio + HORA / 2; t < last.t - 5 * 60e3; t += HORA / 2) {
       const v = valorEm(pts, t);
       if (v != null) svg += `<circle class="chart-dot" cx="${x(t)}" cy="${y(v)}" r="3.6"/>`;
@@ -116,7 +116,7 @@ function renderCandidatos(d, largura) {
       <text class="chart-axis" x="${pad.l - 8}" y="${y0 + 8}" text-anchor="end">${pct(hi, 1)}</text>
       <text class="chart-axis" x="${pad.l - 8}" y="${y0 + faixa}" text-anchor="end">${pct(lo, 1)}</text>`;
     const linha = serie.map((p, k) => `${k ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(p.c[c.n]).toFixed(1)}`).join('');
-    svg += `<path d="${linha}" fill="none" stroke="${c.cor}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+    svg += `<path class="chart-draw" d="${linha}" pathLength="1" fill="none" stroke="${c.cor}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
     const ult = serie.at(-1);
     svg += `<circle cx="${x(ult.t)}" cy="${y(ult.c[c.n])}" r="4" fill="${c.cor}" stroke="#0e131c" stroke-width="2"/>`;
     const delta = ult.c[c.n] - serie[0].c[c.n];

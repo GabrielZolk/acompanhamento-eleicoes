@@ -38,7 +38,7 @@ export function hemiciclo(bancadas, total) {
   for (const b of bancadas) for (let i = 0; i < b.cadeiras; i++) cores.push(b.cor);
   const maioria = Math.floor(total / 2) + 1;
   return `<svg class="hemiciclo" viewBox="-1.08 -1.08 2.16 1.16" role="img" aria-label="Distribuição de ${total} cadeiras">
-    ${pts.map((p, i) => `<circle cx="${p.x.toFixed(4)}" cy="${p.y.toFixed(4)}" r="${raio.toFixed(4)}" fill="${cores[i] || '#2c313c'}"/>`).join('')}
+    ${pts.map((p, i) => `<circle cx="${p.x.toFixed(4)}" cy="${p.y.toFixed(4)}" r="${raio.toFixed(4)}" fill="${cores[i] || '#2c313c'}" style="animation-delay:${Math.round((i / pts.length) * 700)}ms"/>`).join('')}
     <text x="0" y="-0.13" text-anchor="middle" class="hemiciclo__n">${int(total)}</text>
     <text x="0" y="-0.01" text-anchor="middle" class="hemiciclo__sub">cadeiras · maioria ${int(maioria)}</text>
   </svg>`;

@@ -1,6 +1,6 @@
 import { int, pct, sinal, esc, nomeProprio } from '../format.js';
 import { UFS, UF_BY_CODE, tituloDoCargo } from '../ufs.js';
-import { avatar, avatarPartido, donut, ICON } from './common.js';
+import { avatar, avatarPartido, donut, ICON, cnt } from './common.js';
 
 const VISIVEIS = 6;
 
@@ -27,8 +27,8 @@ function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
       <div class="bar"><i style="width:${Math.min(100, c.pct).toFixed(2)}%"></i></div>
     </div>
     <div class="cand__nums">
-      <div class="cand__pct">${pct(c.pct)}</div>
-      <div class="cand__votos">${mostrarVotos ? `${int(c.votos)} votos` : '&nbsp;'}</div>
+      <div class="cand__pct">${cnt(c.pct, 'pct')}</div>
+      <div class="cand__votos">${mostrarVotos ? cnt(c.votos, 'int', 1, ' votos') : '&nbsp;'}</div>
     </div>
   </div>`;
 }
@@ -48,8 +48,8 @@ function linhaPartido(p, i, { lider, ranking = true }) {
       <div class="bar"><i style="width:${Math.min(100, p.pct).toFixed(2)}%"></i></div>
     </div>
     <div class="cand__nums">
-      <div class="cand__pct">${pct(p.pct)}</div>
-      <div class="cand__votos">${int(p.votos)} votos</div>
+      <div class="cand__pct">${cnt(p.pct, 'pct')}</div>
+      <div class="cand__votos">${cnt(p.votos, 'int', 1, ' votos')}</div>
     </div>
   </div>`;
 }
@@ -83,7 +83,7 @@ function stats({ eleitorado, secoes, eleitorado2022, rotuloEleitorado, nacional 
       ${donut(secoes?.pct, 70, 7, 12.5, 'dn-esq')}
       <div>
         <div class="stats__label">Seções apuradas</div>
-        <div class="stats__value">${int(secoes?.apuradas)}</div>
+        <div class="stats__value">${cnt(secoes?.apuradas)}</div>
         <div class="stats__hint">de ${int(secoes?.total)} seções</div>
       </div>
     </div>
@@ -110,7 +110,7 @@ export function renderDisputa(d, state) {
           </label>
         </div>
       </div>
-      <div class="disputa__list">
+      <div class="disputa__list" data-flip>
         ${lista.map((c, i) => linhaCandidato(c, i, { lider: i === 0 && temVotos, mostrarVotos: true, ranking: temVotos })).join('')}
       </div>
       <button class="btn-row" data-action="todos">Ver todos os candidatos ${n.candidatos.length > VISIVEIS ? `(${n.candidatos.length})` : ''} ${ICON.chevRight}</button>
@@ -171,7 +171,7 @@ export function renderDisputa(d, state) {
     ? `Ver todos os ${int(total)} candidatos${e?.vagas ? ` · ${e.vagas} vagas` : ''}${e?.eleitos ? ` · ${e.eleitos} eleitos` : ''}`
     : `Ver todos os candidatos ${total > VISIVEIS ? `(${int(total)})` : ''}`;
   return `${cabecalho}
-    <div class="disputa__list">${corpo}</div>
+    <div class="disputa__list" data-flip>${corpo}</div>
     ${prop
       ? `<div class="btn-pair">
           <button class="btn-row" data-action="candidatos">${int(total)} candidatos ${ICON.chevRight}</button>

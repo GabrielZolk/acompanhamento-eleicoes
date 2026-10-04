@@ -1,6 +1,6 @@
 // Resumo, últimas atualizações e previsão de totalização.
 import { int, pct, sinal, esc, horaMin, hora, ufLabel } from '../format.js';
-import { donut, ICON } from './common.js';
+import { donut, ICON, cnt } from './common.js';
 
 export function renderResumo(d) {
   const n = d.nacional;
@@ -11,17 +11,17 @@ export function renderResumo(d) {
       <div class="resumo__mid">
         <div class="box">
           <div class="box__label"><span class="ring"></span>Seções apuradas</div>
-          <div class="box__value">${int(n.secoes.apuradas)}<small>de ${int(n.secoes.total)}</small></div>
+          <div class="box__value">${cnt(n.secoes.apuradas)}<small>de ${int(n.secoes.total)}</small></div>
         </div>
         <div class="box">
           <div class="box__label">Votos válidos</div>
-          <div class="box__value box__value--sm">${int(v.validos)} <small style="margin-left:0">(${pct(v.pctValidos)})</small></div>
+          <div class="box__value box__value--sm">${cnt(v.validos)} <small style="margin-left:0">(${pct(v.pctValidos)})</small></div>
         </div>
       </div>
       <div class="resumo__side">
-        <div class="box"><div class="box__label">Brancos <b>${pct(v.pctBrancos)}</b></div><div class="box__value">${int(v.brancos)}</div></div>
-        <div class="box"><div class="box__label">Nulos <b>${pct(v.pctNulos)}</b></div><div class="box__value">${int(v.nulos)}</div></div>
-        <div class="box" title="Eleitores das seções já apuradas que não foram votar"><div class="box__label">Abstenção ${n.eleitorado?.abstencao != null ? `<b>${pct(n.eleitorado.pctAbstencao)}</b>` : ''}</div><div class="box__value">${n.eleitorado?.abstencao != null ? int(n.eleitorado.abstencao) : '—'}</div></div>
+        <div class="box"><div class="box__label">Brancos <b>${pct(v.pctBrancos)}</b></div><div class="box__value">${cnt(v.brancos)}</div></div>
+        <div class="box"><div class="box__label">Nulos <b>${pct(v.pctNulos)}</b></div><div class="box__value">${cnt(v.nulos)}</div></div>
+        <div class="box" title="Eleitores das seções já apuradas que não foram votar"><div class="box__label">Abstenção ${n.eleitorado?.abstencao != null ? `<b>${pct(n.eleitorado.pctAbstencao)}</b>` : ''}</div><div class="box__value">${n.eleitorado?.abstencao != null ? cnt(n.eleitorado.abstencao) : '—'}</div></div>
       </div>
     </div>`;
 }

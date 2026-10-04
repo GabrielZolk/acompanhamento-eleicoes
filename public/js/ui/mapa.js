@@ -28,6 +28,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   let base = null;
   let z = 1, cx = 0, cy = 0;
   let data = null, st = null;
+  let ultimaAtualizacao = null; // para o pulso nos estados que acabaram de receber seções
   let extGrupo = null;
   const paths = {};
   const ancora = (uf) => (uf === 'zz' ? EXT_C : geo?.states[uf]?.c);
@@ -464,9 +465,23 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       pintarMunicipios();
     },
     update(d, state) {
+      const anterior = data;
       data = d;
       st = state;
       if (!geo) return;
+      // Pulso de luz nos estados com seções novas desde a última atualização exibida.
+      const recentes = d.atualizacoes || [];
+      if (ultimaAtualizacao != null && anterior?.cargo.key === d.cargo.key) {
+        const novos = new Set(recentes.filter((u) => u.t > ultimaAtualizacao).map((u) => u.uf));
+        for (const uf of novos) {
+          const p = paths[uf];
+          if (!p) continue;
+          p.classList.remove('uf-pulso');
+          void p.getBoundingClientRect();
+          p.classList.add('uf-pulso');
+        }
+      }
+      ultimaAtualizacao = recentes[0]?.t ?? ultimaAtualizacao ?? 0;
       const novoNivel = d.cargo.proporcional ? 'uf' : state.mapaNivel;
       if (novoNivel !== nivel) {
         nivel = novoNivel;
