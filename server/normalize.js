@@ -21,14 +21,16 @@ export function parseEleitorado(e = {}) {
 
 export function parseVotos(v = {}) {
   const total = int(v.tv), validos = int(v.vv), brancos = int(v.vb), nulos = int(v.tvn);
+  // Percentuais calculados sobre o total de votos: o "pvv" do TSE não usa essa base
+  // (veio 100,00% com 96% de válidos na apuração de 2026).
   return {
     total,
     validos,
-    pctValidos: num(v.pvv) || pctOf(validos, total),
+    pctValidos: total ? pctOf(validos, total) : num(v.pvv),
     brancos,
-    pctBrancos: num(v.pvb) || pctOf(brancos, total),
+    pctBrancos: total ? pctOf(brancos, total) : num(v.pvb),
     nulos,
-    pctNulos: num(v.ptvn) || pctOf(nulos, total),
+    pctNulos: total ? pctOf(nulos, total) : num(v.ptvn),
   };
 }
 
