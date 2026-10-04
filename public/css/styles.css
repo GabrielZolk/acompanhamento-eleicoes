@@ -707,6 +707,25 @@ a { color: inherit; }
 .evolucao__seg { margin-top: 10px; }
 .evolucao__sub { margin-top: 8px; font-size: 12px; }
 .chart-delta { fill: #8a93a6; }
+.tag-estimativa { display: inline-block; padding: 1px 6px; margin-right: 4px; border-radius: 4px; background: rgba(245, 177, 61, 0.14); color: #f5c46b; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2px; text-transform: uppercase; }
+.proj { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 22px; height: 100%; align-items: center; }
+.proj__rows { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.proj__row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 190px; align-items: center; gap: 12px; font-size: 12.5px; }
+.proj__nome { color: var(--c); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proj__track { position: relative; height: 10px; border-radius: 5px; background: #1a2030; }
+.proj__agora { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: color-mix(in srgb, var(--c) 45%, transparent); transition: width 0.8s var(--ease-out, ease); }
+.proj__proj { position: absolute; left: 0; top: -2px; bottom: -2px; border-radius: 6px; border: 1.5px dashed var(--c); transition: width 0.8s var(--ease-out, ease); }
+.proj__meta { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 1px dashed #5d6577; }
+.proj__meta span { position: absolute; top: -13px; left: -10px; font-size: 9.5px; color: #6f788a; }
+.proj__num { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.proj__num b { color: #fff; font-size: 13.5px; }
+.proj__num .sobe { color: #4ade80; }
+.proj__num .desce { color: #f87171; }
+.proj__nota { font-size: 10.5px; color: #6f788a; line-height: 1.35; margin-top: 1px; }
+.proj__veredito { padding: 11px 13px; border-radius: 10px; background: #121824; border: 1px solid var(--line-2); }
+.proj__v { font-size: 15px; font-weight: 700; color: #fff; margin: 5px 0 3px; }
+.proj__l { font-size: 12px; color: var(--text-2); line-height: 1.45; }
+.proj__l small { color: var(--muted); }
 .chart-delta.sobe { fill: #4ade80; }
 .chart-delta.desce { fill: #f87171; }
 .chart-axis { font-family: var(--font); font-size: 11px; fill: #8a93a6; }
@@ -932,6 +951,10 @@ a { color: inherit; }
   .bancadas { grid-template-columns: minmax(0, 1fr); }
   .btn-pair { grid-template-columns: minmax(0, 1fr); }
   .evolucao__txt .card__title { white-space: normal; }
+  .evolucao__chart--proj { height: auto; }
+  .proj { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .proj__row { grid-template-columns: 64px minmax(0, 1fr); row-gap: 3px; }
+  .proj__num { grid-column: 2; font-size: 11.5px; }
   .search__results { max-height: 60vh; }
 }
 

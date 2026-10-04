@@ -22,7 +22,7 @@ const state = {
   incluirExterior: params.get('exterior') !== '0',
   mapaModo: 'lider',
   regiaoModo: 'validos',
-  evoModo: params.get('grafico') === 'candidatos' ? 'candidatos' : 'secoes',
+  evoModo: ['candidatos', 'projecao'].includes(params.get('grafico')) ? params.get('grafico') : 'secoes',
   mapaNivel: params.get('mapa') === 'cidades' ? 'mun' : 'uf',
   regiaoAberta: null,
   visaoDep: 'partidos',
@@ -42,7 +42,7 @@ function syncURL() {
   if (!CARGOS[state.cargo].federal) p.set('uf', state.uf);
   if (!state.incluirExterior) p.set('exterior', '0');
   if (state.mapaNivel === 'mun') p.set('mapa', 'cidades');
-  if (state.evoModo === 'candidatos' && CARGOS[state.cargo].federal) p.set('grafico', 'candidatos');
+  if (state.evoModo !== 'secoes' && CARGOS[state.cargo].federal) p.set('grafico', state.evoModo);
   const qs = p.toString();
   history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
 }

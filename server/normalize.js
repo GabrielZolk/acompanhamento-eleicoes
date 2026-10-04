@@ -12,6 +12,7 @@ export function parseSecoes(s = {}) {
 export function parseEleitorado(e = {}) {
   return {
     total: int(e.te),
+    apurado: int(e.est), // eleitorado das seções já totalizadas
     comparecimento: int(e.c),
     pctComparecimento: num(e.pc),
     abstencao: int(e.a),

@@ -42,6 +42,8 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   a partir de 04/10 às 18h21; o TSE não publica histórico).
 - **Pessoas acompanhando**: cada aba visível avisa a cada minuto; cada instância conta na memória e grava só o seu
   total no Redis a cada 20 s (custo fixo, não cresce com o número de visitantes).
+- **Projeção do resultado** (estimativa, card de evolução → Projeção): em cada estado, supõe que as seções que faltam
+  votem como as já apuradas; soma os estados e indica vitória no 1º turno ou 2º turno provável.
 - **Mapa por cidade**: 5.570 municípios coloridos pelo vencedor (`/api/municipios-mapa`).
 - **Lista completa de candidatos** de qualquer cargo estadual, com pesquisa por nome, número ou partido, filtro de
   eleitos e busca em todos os estados (`/api/candidatos`).

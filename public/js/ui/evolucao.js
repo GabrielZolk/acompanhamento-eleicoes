@@ -1,4 +1,5 @@
 import { pct, hora, esc, nomeProprio } from '../format.js';
+import { projetarResultado } from '../projecao.js';
 
 const HORA = 3600e3;
 const hh = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false });
@@ -124,7 +125,7 @@ function renderCandidatos(d, largura) {
     const seta = igual ? '=' : delta > 0 ? '▲' : '▼';
     const cls = igual ? '' : delta > 0 ? 'sobe' : 'desce';
     const lx = W - pad.r + 12, ly = y0 + faixa / 2;
-    svg += `<text x="${lx}" y="${ly - 2}" font-size="11.5" font-weight="600" fill="${c.cor}">${esc(nomeProprio(c.nome).split(' ')[0])} ${pct(ult.c[c.n], 2)}</text>
+    svg += `<text x="${lx}" y="${ly - 2}" font-size="11.5" font-weight="600" fill="${c.cor}">${esc(nomeCurto(c.nome))} ${pct(ult.c[c.n], 2)}</text>
       <text x="${lx}" y="${ly + 11}" font-size="10.5" class="chart-delta ${cls}">${seta} ${pct(Math.abs(delta), 2).replace('%', '')} p.p. desde ${hhmm(t0)}</text>`;
   });
   // Faixas invisíveis com dica (title) em cada divulgação.
@@ -135,15 +136,81 @@ function renderCandidatos(d, largura) {
   return svg + '</svg>';
 }
 
+// Nome curto para rótulos: primeiro nome, pulando títulos ("Escritor Augusto Cury" → "Augusto").
+const TITULOS = /^(escritor|delegad[oa]|pastora?|dra?\.?|doutora?|professora?|prof\.?|coronel|capit[aã]o|general|sargento|cabo|padre|veterin[aá]ri[oa]|irm[aã]o?|mestre|tenente|major|comandante)$/i;
+function nomeCurto(nome) {
+  const partes = nomeProprio(nome).split(' ');
+  const i = partes.findIndex((p) => !TITULOS.test(p));
+  return partes[i >= 0 ? i : 0];
+}
+
+// Projeção do resultado: percentual atual × projetado dos três primeiros e o veredito estimado.
+function renderProjecao(d) {
+  if (d.status === 'aguardando') return '<p class="empty">A projeção aparece quando o TSE divulgar os primeiros votos.</p>';
+  const pr = projetarResultado(d);
+  if (!pr) return '<p class="empty">Ainda não há votos suficientes para projetar.</p>';
+  const top = pr.candidatos.slice(0, 3);
+  const escala = Math.max(60, Math.ceil((Math.max(...top.map((c) => Math.max(c.atual, c.projetado))) + 6) / 10) * 10);
+  const x = (v) => `${Math.min(100, (v / escala) * 100).toFixed(2)}%`;
+  const primeiro = (c) => nomeCurto(c.nome);
+  const final = d.status === 'finalizado';
+  const linhas = top
+    .map((c, i) => {
+      const dif = c.projetado - c.atual;
+      const cls = Math.abs(dif) < 0.05 ? '' : dif > 0 ? 'sobe' : 'desce';
+      const seta = Math.abs(dif) < 0.05 ? '' : `<small class="${cls}">${dif > 0 ? '▲' : '▼'}${pct(Math.abs(dif)).replace('%', '')}</small>`;
+      return `<div class="proj__row" data-key="pj${esc(c.n)}" style="--c:${c.cor}">
+        <span class="proj__nome" title="${esc(nomeProprio(c.nome))}">${esc(primeiro(c))}</span>
+        <div class="proj__track">
+          <i class="proj__agora" style="width:${x(c.atual)}"></i>
+          <i class="proj__proj" style="width:${x(c.projetado)}"></i>
+          ${i === 0 && escala >= 50 ? `<span class="proj__meta" style="left:${x(50)}"><span>50%</span></span>` : ''}
+        </div>
+        <span class="proj__num">agora ${pct(c.atual)} → <b>${pct(c.projetado)}</b> ${seta}</span>
+      </div>`;
+    })
+    .join('');
+  let veredito;
+  if (final) {
+    veredito = `<div class="proj__v">Apuração concluída</div><div class="proj__l">Os números acima já são o resultado.</div>`;
+  } else if (pr.venceNo1oTurno) {
+    veredito = `<div class="proj__v">${esc(primeiro(pr.venceNo1oTurno))} venceria no 1º turno</div>
+      <div class="proj__l">com ${pct(pr.venceNo1oTurno.projetado)} dos votos válidos projetados</div>`;
+  } else {
+    const [a, b] = pr.segundoTurno;
+    veredito = `<div class="proj__v">2º turno provável</div>
+      <div class="proj__l">${esc(primeiro(a))} × ${esc(primeiro(b))} · ninguém passa de 50%</div>`;
+  }
+  return `<div class="proj">
+      <div class="proj__rows">${linhas}
+        <div class="proj__nota">Barra cheia: agora · contorno tracejado: projeção. Supõe que as seções que faltam em cada estado votem como as já apuradas nele. Não é resultado oficial.</div>
+      </div>
+      <div class="proj__veredito">
+        <span class="tag-estimativa">Estimativa</span>
+        ${veredito}
+        <div class="proj__l"><small>Faltam ${pct(pr.faltam)} do eleitorado · ~${(pr.validosProjetados / 1e6).toFixed(1).replace('.', ',')} mi de votos válidos no total</small></div>
+      </div>
+    </div>`;
+}
+
 export function renderEvolucao(d, largura, state) {
   const temCandidatos = d.cargo.federal;
   const modo = temCandidatos ? state.evoModo : 'secoes';
   const seg = temCandidatos
     ? `<div class="seg evolucao__seg" role="group" aria-label="Gráfico">
-        <button data-evo="secoes" class="${modo === 'secoes' ? 'is-on' : ''}" aria-pressed="${modo === 'secoes'}">Seções apuradas</button>
+        <button data-evo="secoes" class="${modo === 'secoes' ? 'is-on' : ''}" aria-pressed="${modo === 'secoes'}">Seções</button>
         <button data-evo="candidatos" class="${modo === 'candidatos' ? 'is-on' : ''}" aria-pressed="${modo === 'candidatos'}">Candidatos</button>
+        <button data-evo="projecao" class="${modo === 'projecao' ? 'is-on' : ''}" aria-pressed="${modo === 'projecao'}">Projeção</button>
       </div>`
     : '';
+  if (modo === 'projecao') {
+    return `<div class="evolucao__txt">
+        <h2 class="card__title">Projeção do resultado</h2>
+        ${seg}
+        <p class="card__sub evolucao__sub"><b class="tag-estimativa">Estimativa</b> pode mudar até o fim</p>
+      </div>
+      <div class="evolucao__chart evolucao__chart--proj">${renderProjecao(d)}</div>`;
+  }
   if (modo === 'candidatos') {
     return `<div class="evolucao__txt">
         <h2 class="card__title">Histórico de resultado</h2>
