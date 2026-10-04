@@ -31,6 +31,7 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
   // ------------------------------------------------------------ Consultas
   function renderMenu() {
     menu.innerHTML = `
+      <button class="dropdown__item" data-act="eleitos">Eleitos<small>Quem já foi eleito em cada lugar, por cargo</small></button>
       <button class="dropdown__item" data-act="tv">Modo TV<small>Tela cheia, alterna sozinho entre cargos e estados</small></button>
       <button class="dropdown__item" data-act="partido">Desempenho por partido<small>Presidente, governador, Senado e deputados de cada partido</small></button>
       <button class="dropdown__item" data-act="municipio">Resultado por município<small>Busque qualquer cidade do país ou do exterior</small></button>
@@ -49,6 +50,11 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
     toggleMenu();
   });
   menu.addEventListener('click', (ev) => {
+    if (ev.target.closest('[data-act="eleitos"]')) {
+      toggleMenu(false);
+      document.querySelector('.fab-eleitos')?.click();
+      return;
+    }
     if (ev.target.closest('[data-act="tv"]')) {
       toggleMenu(false);
       onTV();

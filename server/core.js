@@ -8,6 +8,7 @@ import { fetchJson, urls } from './tse.js';
 import { parseUnificado, parseAcompanhamento } from './normalize.js';
 import { montarPainel } from './dashboard.js';
 import { montarPartidos, resumoPartidos } from './partidos.js';
+import { montarEleitos } from './eleitos.js';
 import { Tracker } from './tracker.js';
 import { store } from './store.js';
 import { mapLimit } from './util.js';
@@ -262,12 +263,18 @@ function calcularPartidos() {
   return partidosEmVoo;
 }
 
-async function calcularPartidosAgora() {
+// Todos os cargos de uma vez (usado por partidos e eleitos). "chave" muda quando algum arquivo muda.
+async function carregarTodos() {
   const keys = ['presidente', 'governador', 'senado', 'camara', 'assembleia'];
   const lidos = await Promise.all(keys.map((k) => carregarCargo(CARGOS[k])));
   const dados = Object.fromEntries(keys.map((k, i) => [k, lidos[i]]));
-  // Recalcula só quando algum arquivo mudou (os objetos normalizados são reaproveitados no 304).
   const chave = keys.map((k) => [dados[k].nacional?.idg, ...Object.values(dados[k].estados).map((e) => e.idg)].join(',')).join('|');
+  return { dados, chave };
+}
+
+async function calcularPartidosAgora() {
+  // Recalcula só quando algum arquivo mudou (os objetos normalizados são reaproveitados no 304).
+  const { dados, chave } = await carregarTodos();
   if (partidosMemo.chave !== chave) partidosMemo = { chave, valor: montarPartidos(dados), em: Date.now() };
   else partidosMemo.em = Date.now();
   return partidosMemo.valor;
@@ -283,4 +290,18 @@ export async function obterPartido(sigla) {
   const p = todos.partidos.find((x) => x.sigla.toUpperCase() === alvo);
   if (!p) return { status: 404, body: { erro: 'Partido não encontrado.' } };
   return { status: 200, body: { atualizadoEm: Date.now(), totais: todos.totais, vagas: todos.vagas, partido: p } };
+}
+
+// ---------------------------------------------------------------- eleitos
+let eleitosMemo = { chave: null, valor: null, em: 0 };
+let eleitosEmVoo = null;
+export function obterEleitos() {
+  if (eleitosMemo.valor && Date.now() - eleitosMemo.em < 8000) return Promise.resolve({ status: 200, body: eleitosMemo.valor });
+  eleitosEmVoo ||= (async () => {
+    const { dados, chave } = await carregarTodos();
+    if (eleitosMemo.chave !== chave) eleitosMemo = { chave, valor: { atualizadoEm: Date.now(), ...montarEleitos(dados) }, em: Date.now() };
+    else eleitosMemo.em = Date.now();
+    return { status: 200, body: eleitosMemo.valor };
+  })().finally(() => (eleitosEmVoo = null));
+  return eleitosEmVoo;
 }

@@ -44,6 +44,8 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   total no Redis a cada 20 s (custo fixo, não cresce com o número de visitantes).
 - **Projeção do resultado** (estimativa, card de evolução → Projeção): em cada estado, supõe que as seções que faltam
   votem como as já apuradas; soma os estados e indica vitória no 1º turno ou 2º turno provável.
+- **Eleitos** (botão no canto e menu Consultas): por cargo e lugar; oficial do TSE quando a totalização termina,
+  antes disso quem lidera ou está dentro das vagas (provisório). `/api/eleitos`.
 - **Aviso de virada**: quando muda o primeiro colocado (país ou estado) ou, no Senado, quem está dentro das vagas.
 - **Compartilhar**: gera uma imagem 4:5 do resultado exibido (WhatsApp/Instagram) ou baixa o PNG no computador.
 - **Modo TV** (menu Consultas): tela cheia, alterna sozinho entre cargos e estados a cada 15 s, mantém a tela ligada.

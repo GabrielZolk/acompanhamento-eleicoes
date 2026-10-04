@@ -15,6 +15,7 @@ import { abrirPartidos, listaPartidos } from './ui/partidos.js';
 import { detectarViradas, mostrarViradas } from './ui/avisos.js';
 import { compartilhar } from './ui/compartilhar.js';
 import { criarModoTV } from './ui/tv.js';
+import { abrirEleitos, criarBotaoEleitos } from './ui/eleitos.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -364,6 +365,9 @@ async function carregarMapaCidades(forcar = false) {
 setInterval(() => {
   if (document.visibilityState === 'visible') carregarMapaCidades();
 }, 90000);
+
+// ------------------------------------------------------------------ eleitos (botão no canto)
+criarBotaoEleitos(() => abrirEleitos(state.cargo === 'assembleia' ? 'assembleia' : state.cargo));
 
 // ------------------------------------------------------------------ modo TV
 // Alterna entre Presidente (com os três gráficos) e os cargos estaduais, trocando de estado a cada vez.
