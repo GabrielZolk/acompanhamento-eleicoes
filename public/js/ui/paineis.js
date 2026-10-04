@@ -46,7 +46,7 @@ export function renderUpdates(d) {
   let corpo;
   if (lista.length) corpo = lista.map((u) => linhaAtualizacao(d, u)).join('');
   else if (d.status === 'aguardando')
-    corpo = `<p class="empty">As novas seções totalizadas aparecem aqui assim que o TSE começar a divulgar os resultados, a partir das 17h (horário de Brasília).</p>`;
+    corpo = `<p class="empty">As novas seções totalizadas aparecem aqui assim que o TSE começar a divulgar os resultados${Date.now() >= d.inicio ? '.' : ', a partir das 17h (horário de Brasília).'}</p>`;
   else corpo = `<p class="empty">Aguardando a próxima atualização do TSE…</p>`;
   return `<div class="updates__head">
       <span class="dot-live ${ativo ? '' : 'dot-live--off'}"></span>
@@ -73,7 +73,7 @@ export function renderPrevisao(d) {
       eta = '…';
       break;
     default:
-      txt = 'A estimativa aparece quando a totalização começar, às 17h.';
+      txt = Date.now() >= d.inicio ? 'A estimativa aparece quando o TSE divulgar as primeiras seções.' : 'A estimativa aparece quando a totalização começar, às 17h.';
       eta = '--h--';
   }
   const barras = p.barras?.length ? p.barras.slice(-8) : new Array(8).fill(0);

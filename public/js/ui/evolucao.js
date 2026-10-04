@@ -64,7 +64,7 @@ export function renderEvolucao(d, largura, state) {
       <text x="${tx + tw / 2}" y="${ty + 14}" text-anchor="middle" font-size="12" font-weight="700">${pct(last.pct)}</text>
       <text x="${tx + tw / 2}" y="${ty + 26}" text-anchor="middle" font-size="10" fill="#8a93a6">${hora(d.historico.at(-1)?.t)}</text></g>`;
   } else if (d.status === 'aguardando') {
-    svg += `<text class="chart-axis" x="${(pad.l + W - pad.r) / 2}" y="${y(50) + 4}" text-anchor="middle" font-size="12">A totalização começa às 17h (horário de Brasília)</text>`;
+    svg += `<text class="chart-axis" x="${(pad.l + W - pad.r) / 2}" y="${y(50) + 4}" text-anchor="middle" font-size="12">${Date.now() >= d.inicio ? 'Aguardando a primeira divulgação do TSE' : 'A totalização começa às 17h (horário de Brasília)'}</text>`;
   }
   svg += `</svg>`;
 

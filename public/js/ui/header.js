@@ -156,7 +156,10 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     } else if (d.status === 'apurando') {
       cls = 'live--on'; titulo = 'Atualização ao vivo'; sub = `${dia} · ${turno} · ${hora(d.atualizadoEm)}`;
     } else {
-      cls = 'live--wait'; titulo = 'Aguardando apuração'; sub = `${dia} · ${turno} · início às 17h`;
+      const passou = Date.now() >= (d.inicio || 0);
+      cls = 'live--wait';
+      titulo = passou ? 'Aguardando o TSE' : 'Aguardando apuração';
+      sub = passou ? `${dia} · ${turno} · nenhuma seção divulgada ainda` : `${dia} · ${turno} · início às 17h`;
     }
     live.className = `live ${cls}`;
     live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}</div></div>`;
