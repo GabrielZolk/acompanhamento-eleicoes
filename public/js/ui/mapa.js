@@ -77,8 +77,11 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   }
 
   // ---------------------------------------------------------------- zoom / pan
+  // Dimensões da área do SVG (no celular os cartões ficam abaixo do mapa, fora dela).
+  const area = () => svg.getBoundingClientRect();
+
   function fit(reset) {
-    const r = stage.getBoundingClientRect();
+    const r = area();
     if (!r.width || !r.height) return;
     const k = Math.min(r.width / CONTEUDO.w, r.height / CONTEUDO.h);
     base = { w: r.width / k, h: r.height / k };
@@ -100,7 +103,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   function zoomEm(fator, px, py) {
     const nz = Math.max(1, Math.min(ZOOM_MAX, z * fator));
     if (nz === z) return;
-    const r = stage.getBoundingClientRect();
+    const r = area();
     const ux = px ?? r.width / 2, uy = py ?? r.height / 2;
     const w = base.w / z, h = base.h / z;
     const mx = cx - w / 2 + (ux / r.width) * w;
@@ -123,7 +126,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   svg.addEventListener('wheel', (ev) => {
     ev.preventDefault();
-    const r = stage.getBoundingClientRect();
+    const r = area();
     zoomEm(ev.deltaY < 0 ? 1.18 : 1 / 1.18, ev.clientX - r.left, ev.clientY - r.top);
   }, { passive: false });
 
@@ -138,7 +141,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     if (z === 1) return;
     drag.moved = true;
     svg.classList.add('is-dragging');
-    const r = stage.getBoundingClientRect();
+    const r = area();
     cx = drag.cx - (dx / r.width) * (base.w / z);
     cy = drag.cy - (dy / r.height) * (base.h / z);
     aplicar();
@@ -179,7 +182,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   select.addEventListener('change', () => onModo(select.value));
 
-  new ResizeObserver(() => fit(false)).observe(stage);
+  new ResizeObserver(() => fit(false)).observe(svg);
 
   // ---------------------------------------------------------------- dados
   const candidatoNac = () => Object.fromEntries((data.nacional.candidatos || []).map((c) => [c.n, c]));
