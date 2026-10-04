@@ -1,0 +1,68 @@
+# Apuração Eleitoral 2026
+
+Painel para acompanhar a apuração das Eleições 2026 em tempo real, com dados oficiais do TSE
+(`resultados.tse.jus.br`). Sem dependências: só Node.js 18+.
+
+## Rodar localmente
+
+```bash
+npm start
+```
+
+Abra http://localhost:5173.
+
+## Deploy na Vercel
+
+O projeto já está pronto para a Vercel (`vercel.json`): os arquivos de `public/` são servidos como estáticos e
+`api/*.js` viram funções serverless (região `gru1`, São Paulo). Basta importar o repositório na Vercel, sem
+configurar build.
+
+**Recomendado:** adicione um Redis (Vercel → Storage → Upstash Redis, ou qualquer Upstash) ao projeto. As variáveis
+`KV_REST_API_URL`/`KV_REST_API_TOKEN` (ou `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`) são detectadas
+automaticamente e guardam a curva de evolução e o feed de atualizações para todos os visitantes. Sem Redis o painel
+funciona igual, mas esse histórico fica na memória da função e no navegador de cada visitante.
+
+## O que tem
+
+- **Presidente**: resultado nacional, mapa por estado (mais votado, seções apuradas ou votação de cada candidato),
+  panorama por região (clique para abrir os estados), resumo, últimas atualizações, evolução e previsão de conclusão.
+- **Incluir exterior** (marcado por padrão): o total nacional do TSE já inclui os votos do exterior. Desmarcado,
+  o exterior é subtraído de candidatos, seções, eleitorado, brancos/nulos e da curva de evolução. O exterior também
+  aparece no mapa (marcador "Exterior") e no feed de atualizações (`EX`).
+- **Governadores, Senado e Câmara**: resultado por estado (escolha no seletor ou clicando no mapa); o mapa mostra
+  o partido líder em cada UF. Na Câmara, votos por partido (nominais + legenda), mais votados e eleitos.
+- **Busca** (Ctrl/⌘ K): estados, exterior e todos os municípios — abre o resultado da cidade para o cargo atual.
+
+## Como funciona
+
+O navegador consulta `/api/painel` a cada 30 s. A função busca os arquivos do TSE (com ETag, então arquivos sem
+mudança custam um `304`) e a resposta fica 20 s no cache de borda da Vercel, o que limita as consultas ao TSE
+independentemente do número de visitantes.
+
+O TSE publica só o estado atual. A curva de evolução e o feed de atualizações são montados comparando cada
+publicação com a anterior; ficam no Redis (Vercel), em `data/` (local) e também no `localStorage` do navegador.
+
+Arquivos usados (eleição `6257` = Presidente, `6259` = estaduais):
+
+| Dado | Arquivo |
+| --- | --- |
+| Resultado por abrangência | `ele2026/{eleição}/dados/{uf}/{uf}-c{cargo}-e{eleição}-u.json` |
+| Município | `ele2026/{eleição}/dados/{uf}/{uf}{município}-c{cargo}-e{eleição}-u.json` |
+| Andamento por UF | `ele2026/{eleição}/dados/br/br-e{eleição}-ab.json` |
+| Lista de municípios | `ele2026/{eleição}/config/mun-e{eleição}-cm.json` |
+| Fotos | `ele2026/{eleição}/fotos/{br\|uf}/{sqcand}.jpeg` |
+
+## Configuração (variáveis de ambiente)
+
+| Variável | Padrão | Uso |
+| --- | --- | --- |
+| `PORT` | `5173` | Porta HTTP (local) |
+| `TSE_ELE_FEDERAL` | `6257` | Código da eleição de Presidente. **2º turno (25/10): `6258`** |
+| `TSE_ELE_ESTADUAL` | `6259` | Código da eleição estadual. **2º turno: `6260`** |
+| `ELEICAO_DATA` | `2026-10-04` | Dia da eleição (eixo de 17h da curva de evolução) |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | — | Redis (Upstash) para o histórico compartilhado |
+
+Para o 2º turno, use os códigos novos e `ELEICAO_DATA=2026-10-25` (o histórico é separado por eleição).
+
+O mapa vem da malha de UFs do IBGE, pré-processada em `public/data/brasil-uf.json`
+(`npm run build:map -- --fetch` baixa a malha de novo e regenera).

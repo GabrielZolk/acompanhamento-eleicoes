@@ -1,0 +1,15 @@
+{
+  "name": "acompanhamento-eleicoes",
+  "version": "1.0.0",
+  "description": "Painel de acompanhamento da apuração das Eleições 2026 com dados oficiais do TSE",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "build:map": "node tools/build-map.mjs"
+  }
+}
