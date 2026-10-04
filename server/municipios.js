@@ -115,7 +115,8 @@ async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
     if (apuradas === 0) {
       municipios[m.cdi] = { cd: a.cdabr, nm: m.nm, a: 0, v: 0, t: int(a.e?.te), ea: 0, c: [] };
       st[m.cdi] = 0;
-    } else if (st[m.cdi] !== apuradas || !municipios[m.cdi]?.c?.length) {
+    } else if (st[m.cdi] !== apuradas || !municipios[m.cdi]?.c?.length || municipios[m.cdi]?.t == null) {
+      // (t == null: registro do formato antigo, sem eleitorado; relê para a projeção por cidade)
       mudaram.push({ cd: a.cdabr, cdi: m.cdi, nm: m.nm, apuradas });
     }
   }
