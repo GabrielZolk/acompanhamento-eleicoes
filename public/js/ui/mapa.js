@@ -141,7 +141,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   function atualizarDica() {
     if (!dica) return;
     dica.hidden = nivel !== 'mun';
-    dica.textContent = z < 2.2 ? 'Clique em um estado para aproximar' : 'Clique numa cidade para ver o resultado completo';
+    dica.textContent = z < 2.2 ? 'Passe o mouse nas cidades · clique para aproximar' : 'Clique numa cidade para ver o resultado completo';
   }
 
   stage.querySelector('.zoom').addEventListener('click', (ev) => {

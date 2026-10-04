@@ -383,8 +383,8 @@ a { color: inherit; }
 .cand__nome { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.1px; }
 .cand__partido { font-size: 11.5px; font-weight: 500; color: color-mix(in srgb, var(--c) 70%, #c9cfdb); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cand__partido .tag { color: var(--muted); text-transform: none; margin-left: 6px; }
-.bar { height: 5px; border-radius: 3px; background: var(--track); margin-top: 6px; overflow: hidden; }
-.bar > i { position: relative; display: block; height: 100%; border-radius: 3px; background: var(--c); transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.bar { height: 5px; border-radius: 3px; background: var(--track); margin-top: 6px; }
+.bar > i { position: relative; display: block; height: 100%; max-width: 100%; border-radius: 3px; background-color: var(--c); transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s; }
 .cand__nums { text-align: right; padding-left: 6px; }
 .cand__pct { font-size: 21px; font-weight: 700; letter-spacing: -0.4px; }
 .cand__votos { font-size: 12.5px; color: var(--text-2); opacity: 0.85; margin-top: 3px; white-space: nowrap; }
@@ -962,20 +962,63 @@ a { color: inherit; }
 /* ------------------------------------------------------------------ animações */
 :root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); }
 
-/* Barras "em progresso" enquanto a apuração acontece: brilho que percorre a barra e ponta luminosa. */
-.apurando .bar > i { overflow: hidden; box-shadow: 0 0 10px -1px color-mix(in srgb, var(--c) 70%, transparent); }
-.apurando .bar > i::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.55) 50%, transparent 85%);
-  transform: translateX(-130%);
-  animation: barra-brilho 2.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+/* ------------------------------------------------------------------ barras: progresso e vencedores */
+@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+
+/* Enquanto a apuração acontece, um brilho percorre as barras (gradiente animado, sem cortar o glow). */
+.apurando .bar > i {
+  background-image: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+  background-size: 38% 100%;
+  background-repeat: no-repeat;
+  background-position: -70% 0;
+  animation: barra-varre 2.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
 }
-.apurando .cand:nth-child(2) .bar > i::after { animation-delay: 0.25s; }
-.apurando .cand:nth-child(3) .bar > i::after { animation-delay: 0.5s; }
-.apurando .cand:nth-child(4) .bar > i::after { animation-delay: 0.75s; }
-.apurando .cand:nth-child(5) .bar > i::after { animation-delay: 1s; }
-.apurando .cand:nth-child(6) .bar > i::after { animation-delay: 1.25s; }
+.apurando .cand:nth-child(2) .bar > i { animation-delay: 0.3s; }
+.apurando .cand:nth-child(3) .bar > i { animation-delay: 0.6s; }
+.apurando .cand:nth-child(4) .bar > i { animation-delay: 0.9s; }
+.apurando .cand:nth-child(5) .bar > i { animation-delay: 1.2s; }
+.apurando .cand:nth-child(6) .bar > i { animation-delay: 1.5s; }
 @keyframes barra-brilho { 0% { transform: translateX(-130%); } 55%, 100% { transform: translateX(130%); } }
+@keyframes barra-varre { 0% { background-position: -70% 0; } 60%, 100% { background-position: 170% 0; } }
+
+/* Líder (e quem está dentro das vagas): barra mais grossa, com gradiente, glow e ponta luminosa. */
+.cand--lider .bar { height: 7px; margin-top: 4px; border-radius: 4px; }
+.cand--lider .bar > i {
+  border-radius: 4px;
+  background-image:
+    linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--c) 60%, #0b0f17), var(--c) 70%, color-mix(in srgb, var(--c) 55%, #fff));
+  background-size: 38% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: -70% 0, 0 0;
+  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--c) 80%, transparent), 0 0 26px 3px color-mix(in srgb, var(--c) 35%, transparent);
+}
+.apurando .cand--lider .bar > i { animation: barra-varre-lider 2.6s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+@keyframes barra-varre-lider { 0% { background-position: -70% 0, 0 0; } 60%, 100% { background-position: 170% 0, 0 0; } }
+.cand--lider .bar > i::after {
+  content: ''; position: absolute; right: -5px; top: 50%; width: 13px; height: 13px; margin-top: -6.5px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, color-mix(in srgb, var(--c) 70%, #fff) 30%, transparent 70%);
+  animation: ponta-pulsa 1.8s ease-in-out infinite;
+}
+@keyframes ponta-pulsa { 0%, 100% { transform: scale(0.75); opacity: 0.75; } 50% { transform: scale(1.15); opacity: 1; } }
+.cand--ganha .bar > i { box-shadow: 0 0 8px 0 color-mix(in srgb, var(--c) 65%, transparent); }
+.cand--lider .cand__pct { text-shadow: 0 0 18px color-mix(in srgb, var(--c) 60%, transparent); }
+
+/* Borda luminosa girando em volta do líder. */
+.cand--lider::after {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--ang), transparent 0deg 230deg, color-mix(in srgb, var(--c) 85%, #fff) 300deg, transparent 350deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borda-gira 5s linear infinite;
+}
+@keyframes borda-gira { to { --ang: 360deg; } }
+
+/* Listas dos modais: eleitos e quem está dentro das vagas ganham faixa colorida e brilho. */
+.mrow:has(.pill--eleito), .mrow:has(.pill--dentro) { border-color: color-mix(in srgb, var(--c) 35%, #1d2432); box-shadow: inset 3px 0 0 var(--c), 0 0 18px -10px var(--c); }
+.pill--eleito { box-shadow: 0 0 10px -2px rgba(34, 197, 94, 0.6); }
+.pill--dentro { box-shadow: 0 0 10px -3px rgba(245, 177, 61, 0.55); }
 
 /* Números que contam: piscam em verde (subiu) ou vermelho (desceu). */
 .cnt { font-variant-numeric: tabular-nums; border-radius: 4px; }
@@ -1011,7 +1054,7 @@ a { color: inherit; }
 .coluna > .card:nth-child(3) { animation-delay: 0.33s; }
 .bottom > .card:nth-child(1) { animation-delay: 0.4s; }
 .bottom > .card:nth-child(2) { animation-delay: 0.47s; }
-@keyframes card-entra { from { opacity: 0; transform: translateY(14px) scale(0.99); } to { opacity: 1; transform: none; } }
+@keyframes card-entra { from { opacity: 0; transform: translateY(16px) scale(0.985); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 
 /* Gráficos: linhas que se desenham e hemiciclo que enche ponto a ponto. */
 .chart-line, .chart-draw { stroke-dasharray: 1; animation: linha-desenha 1.4s var(--ease-out) both; }

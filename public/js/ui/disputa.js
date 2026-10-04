@@ -18,7 +18,8 @@ function selo(i, n, ranking) {
 }
 
 function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
-  return `<div class="cand ${lider ? 'cand--lider' : ''}" data-key="c${c.n}" style="--c:${c.cor}">
+  const ganha = c.eleito || c.projetado || /2º turno/i.test(c.situacao || '');
+  return `<div class="cand ${lider ? 'cand--lider' : ''} ${ganha && !lider ? 'cand--ganha' : ''}" data-key="c${c.n}" style="--c:${c.cor}">
     ${selo(i, c.n, ranking)}
     ${avatar(c)}
     <div class="cand__info">
