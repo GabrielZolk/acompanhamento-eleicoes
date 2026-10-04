@@ -2,16 +2,21 @@ import { esc, iniciais, pct, int } from '../format.js';
 
 // Fotos que falharam não são pedidas de novo (evita piscar a cada atualização).
 const fotosQuebradas = new Set();
-window.__fotoFalhou = (img) => {
+function fotoFalhou(img) {
   fotosQuebradas.add(img.getAttribute('src'));
   img.remove();
-};
+}
+// Erros de imagem não sobem na árvore; ouvindo na fase de captura pegamos todas as fotos.
+document.addEventListener('error', (ev) => {
+  const img = ev.target;
+  if (img instanceof HTMLImageElement && img.closest('.avatar')) fotoFalhou(img);
+}, true);
 
 export function avatar(c, cls = '') {
   const foto = c.foto && !fotosQuebradas.has(c.foto) ? c.foto : null;
   return `<div class="avatar ${cls}" style="--c:${c.cor}">
     <div class="avatar__inner"><span>${esc(iniciais(c.nome))}</span>${
-      foto ? `<img src="${esc(foto)}" alt="" loading="lazy" decoding="async" onerror="__fotoFalhou(this)">` : ''
+      foto ? `<img src="${esc(foto)}" alt="" loading="lazy" decoding="async">` : ''
     }</div></div>`;
 }
 

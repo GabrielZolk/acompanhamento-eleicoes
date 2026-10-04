@@ -12,6 +12,10 @@ const CHAVE = 'apuracao2026:presenca';
 const instancia = crypto.randomUUID().slice(0, 12);
 
 const vistos = new Map(); // id -> último aviso
+const porIP = new Map(); // hash do IP -> Map(id -> último aviso): limita quem tenta inflar o número
+const MAX_POR_IP = 8;
+const MAX_IDS = 300000;
+const hashIP = (ip) => crypto.createHash('sha256').update(ip).digest('base64').slice(0, 16);
 let total = 0;
 let fonte = 'local'; // 'redis' quando a soma entre instâncias funcionou na última gravação
 let ultimoFlush = 0;
@@ -26,9 +30,32 @@ function contarLocal(agora) {
   return n;
 }
 
+function limparIPs(agora) {
+  for (const [ip, ids] of porIP) {
+    for (const [id, t] of ids) if (agora - t > ONLINE_MS) ids.delete(id);
+    if (!ids.size) porIP.delete(ip);
+  }
+}
+
+// Devolve false se o aviso deve ser ignorado (IP com identificadores demais ou memória cheia).
+function aceitar(id, ip, agora) {
+  if (!vistos.has(id) && vistos.size >= MAX_IDS) return false;
+  if (!ip) return true;
+  const h = hashIP(ip);
+  let ids = porIP.get(h);
+  if (!ids) porIP.set(h, (ids = new Map()));
+  if (!ids.has(id)) {
+    for (const [x, t] of ids) if (agora - t > ONLINE_MS) ids.delete(x);
+    if (ids.size >= MAX_POR_IP) return false;
+  }
+  ids.set(id, agora);
+  return true;
+}
+
 async function gravar(agora) {
   ultimoFlush = agora;
   const local = contarLocal(agora);
+  limparIPs(agora);
   if (!store.pipeline) {
     total = local; // sem Redis: só esta instância (servidor local)
     fonte = 'local';
@@ -56,9 +83,9 @@ async function gravar(agora) {
   }
 }
 
-export async function registrarPresenca(id) {
+export async function registrarPresenca(id, ip) {
   const agora = Date.now();
-  if (id) vistos.set(id, agora);
+  if (id && aceitar(id, ip, agora)) vistos.set(id, agora);
   if (agora - ultimoFlush >= FLUSH_MS && !gravando) {
     gravando = gravar(agora).finally(() => (gravando = null));
   }

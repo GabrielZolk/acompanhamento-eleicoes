@@ -7,7 +7,8 @@ export default async function handler(req, res) {
   const id = query(req).get('id') || '';
   if (!/^[a-z0-9]{8,40}$/i.test(id)) return json(res, 400, { erro: 'id inválido' });
   try {
-    return json(res, 200, await registrarPresenca(id));
+    const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+    return json(res, 200, await registrarPresenca(id, ip));
   } catch {
     return json(res, 503, { erro: 'indisponível' });
   }

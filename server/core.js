@@ -110,7 +110,26 @@ async function montarPainelAtual(cargoKey) {
 // O último painel bom de cada cargo fica guardado: se o TSE limitar ou cair, ele é servido
 // (marcado como desatualizado) em vez de um erro.
 const versaoGuardada = {};
-export async function obterPainel(cargoKey) {
+const memoPainel = {}; // cargo -> { valor, em } ou { promessa }: protege Redis e TSE de rajadas
+export function obterPainel(cargoKey) {
+  const m = memoPainel[cargoKey];
+  if (m?.promessa) return m.promessa;
+  if (m && Date.now() - m.em < 4000) return Promise.resolve(m.valor);
+  const promessa = obterPainelAgora(cargoKey).then(
+    (valor) => {
+      memoPainel[cargoKey] = { valor, em: Date.now() };
+      return valor;
+    },
+    (err) => {
+      delete memoPainel[cargoKey];
+      throw err;
+    },
+  );
+  memoPainel[cargoKey] = { promessa };
+  return promessa;
+}
+
+async function obterPainelAgora(cargoKey) {
   const chave = `apuracao2026:painel:${cargoKey}`;
   try {
     const p = await montarPainelAtual(cargoKey);
@@ -220,7 +239,7 @@ export async function obterCandidatos({ cargo: cargoKey, uf, q }) {
       },
     };
   }
-  const termo = semAcento((q || '').trim());
+  const termo = semAcento((q || '').trim()).slice(0, 60);
   if (termo.length < 3) return { status: 400, body: { erro: 'Digite pelo menos 3 letras.' } };
   const termoMaiusculo = termo.toUpperCase();
   const achados = [];
@@ -236,13 +255,21 @@ export async function obterCandidatos({ cargo: cargoKey, uf, q }) {
 
 // ---------------------------------------------------------------- partidos (todos os cargos)
 let partidosMemo = { chave: null, valor: null, em: 0 };
-async function calcularPartidos() {
+let partidosEmVoo = null;
+function calcularPartidos() {
+  if (partidosMemo.valor && Date.now() - partidosMemo.em < 8000) return Promise.resolve(partidosMemo.valor);
+  partidosEmVoo ||= calcularPartidosAgora().finally(() => (partidosEmVoo = null));
+  return partidosEmVoo;
+}
+
+async function calcularPartidosAgora() {
   const keys = ['presidente', 'governador', 'senado', 'camara', 'assembleia'];
   const lidos = await Promise.all(keys.map((k) => carregarCargo(CARGOS[k])));
   const dados = Object.fromEntries(keys.map((k, i) => [k, lidos[i]]));
   // Recalcula só quando algum arquivo mudou (os objetos normalizados são reaproveitados no 304).
   const chave = keys.map((k) => [dados[k].nacional?.idg, ...Object.values(dados[k].estados).map((e) => e.idg)].join(',')).join('|');
   if (partidosMemo.chave !== chave) partidosMemo = { chave, valor: montarPartidos(dados), em: Date.now() };
+  else partidosMemo.em = Date.now();
   return partidosMemo.valor;
 }
 

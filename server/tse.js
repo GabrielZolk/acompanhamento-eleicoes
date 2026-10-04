@@ -87,8 +87,22 @@ export const pausado = (p = 'alta') => Date.now() < pausas[p];
 
 // ---------------------------------------------------------------- JSON com ETag
 const cache = new Map(); // url -> { etag, data, fetchedAt }
+const emVoo = new Map(); // url -> consulta em andamento (pedidos simultâneos usam a mesma)
+// O CDN do TSE renova a cada ~30 s: revalidar mais que isso não traz dado novo. Este limite
+// também impede que requisições com parâmetros inventados (que furam o cache da Vercel)
+// multipliquem as consultas ao TSE e façam ele bloquear o site.
+const REVALIDAR_MS = 8000;
 
-export async function fetchJson(url, { timeoutMs = 15000, prioridade = 'alta' } = {}) {
+export function fetchJson(url, opcoes = {}) {
+  const hit = cache.get(url);
+  if (hit && Date.now() - hit.fetchedAt < REVALIDAR_MS) return Promise.resolve({ data: hit.data, changed: false });
+  if (emVoo.has(url)) return emVoo.get(url);
+  const p = consultar(url, opcoes).finally(() => emVoo.delete(url));
+  emVoo.set(url, p);
+  return p;
+}
+
+async function consultar(url, { timeoutMs = 15000, prioridade = 'alta' } = {}) {
   const hit = cache.get(url);
   if (hit && pausado()) return { data: hit.data, changed: false, stale: true };
   const headers = { 'User-Agent': 'apuracao-2026-painel/1.0', Accept: 'application/json' };

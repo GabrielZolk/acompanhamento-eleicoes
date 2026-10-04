@@ -60,7 +60,31 @@ async function ler(chave) {
   }
 }
 
-export async function obterMapaMunicipios({ cargo: cargoKey, uf }) {
+const memo = new Map(); // chave -> { body, em } | { promessa }
+
+export function obterMapaMunicipios(args) {
+  const cargo = CARGOS[args.cargo];
+  const uf = (args.uf || '').toLowerCase();
+  const chave = `${args.cargo}:${uf}`;
+  const m = memo.get(chave);
+  if (m?.promessa) return m.promessa;
+  if (m && Date.now() - m.em < (m.body?.body?.parcial ? 8e3 : 30e3)) return Promise.resolve(m.body);
+  if (!cargo || !UF_BY_CODE[uf]) return obterMapaMunicipiosAgora(args);
+  const promessa = obterMapaMunicipiosAgora(args).then(
+    (body) => {
+      memo.set(chave, { body, em: Date.now() });
+      return body;
+    },
+    (err) => {
+      memo.delete(chave);
+      throw err;
+    },
+  );
+  memo.set(chave, { promessa });
+  return promessa;
+}
+
+async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
   const cargo = CARGOS[cargoKey];
   uf = (uf || '').toLowerCase();
   if (!cargo || cargo.proporcional) return { status: 400, body: { erro: 'Mapa por cidade disponível para Presidente, Governador e Senado.' } };
