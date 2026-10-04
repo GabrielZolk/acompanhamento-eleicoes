@@ -100,7 +100,7 @@ export function renderDisputa(d, state) {
     return `<div class="disputa__head">
         <div class="card__head">
           <h2 class="card__title">${esc(cargo.titulo)}</h2>
-          <span class="chip">${d.turno}º turno</span>
+          <div class="disputa__acoes"><button class="chip chip--btn" data-action="compartilhar" title="Compartilhar uma imagem deste resultado" aria-label="Compartilhar">${ICON.share}</button><span class="chip">${d.turno}º turno</span></div>
         </div>
         <div class="disputa__sub">
           <p class="card__sub">Votos válidos&nbsp; •&nbsp; ${d.semExterior ? 'Somente Brasil' : 'Brasil e exterior'}</p>
@@ -144,7 +144,7 @@ export function renderDisputa(d, state) {
     cabecalho = `<div class="disputa__head disputa__head--prop">
         <div class="card__head">
           <h2 class="card__title">${esc(tituloDoCargo(cargo, state.uf))}</h2>
-          ${seletorUF(state.uf)}
+          <div class="disputa__acoes"><button class="chip chip--btn" data-action="compartilhar" title="Compartilhar uma imagem deste resultado" aria-label="Compartilhar">${ICON.share}</button>${seletorUF(state.uf)}</div>
         </div>
         <div class="disputa__sub">
           <div class="seg" role="group" aria-label="Tipo de deputado">
@@ -164,7 +164,7 @@ export function renderDisputa(d, state) {
           <h2 class="card__title">${esc(cargo.titulo)}</h2>
           <p class="card__sub">${sub}</p>
         </div>
-        ${seletorUF(state.uf)}
+        <div class="disputa__acoes"><button class="chip chip--btn" data-action="compartilhar" title="Compartilhar uma imagem deste resultado" aria-label="Compartilhar">${ICON.share}</button>${seletorUF(state.uf)}</div>
       </div>`;
   }
   const total = e?.totalCandidatos || e?.candidatos?.length || 0;

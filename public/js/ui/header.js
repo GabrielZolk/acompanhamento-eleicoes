@@ -11,7 +11,7 @@ function tempoDesde(t) {
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 
-export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos }) {
+export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos, onTV }) {
   const tabs = document.querySelectorAll('.tabs__item[data-cargo]');
   const btnMenu = document.getElementById('consultas-btn');
   const menu = document.getElementById('consultas-menu');
@@ -31,6 +31,7 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
   // ------------------------------------------------------------ Consultas
   function renderMenu() {
     menu.innerHTML = `
+      <button class="dropdown__item" data-act="tv">Modo TV<small>Tela cheia, alterna sozinho entre cargos e estados</small></button>
       <button class="dropdown__item" data-act="partido">Desempenho por partido<small>Presidente, governador, Senado e deputados de cada partido</small></button>
       <button class="dropdown__item" data-act="municipio">Resultado por município<small>Busque qualquer cidade do país ou do exterior</small></button>
       <div class="dropdown__sep"></div>
@@ -48,6 +49,11 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
     toggleMenu();
   });
   menu.addEventListener('click', (ev) => {
+    if (ev.target.closest('[data-act="tv"]')) {
+      toggleMenu(false);
+      onTV();
+      return;
+    }
     if (ev.target.closest('[data-act="partido"]')) {
       toggleMenu(false);
       onPartido();

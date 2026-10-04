@@ -12,6 +12,9 @@ import * as modal from './ui/modais.js';
 import { abrirCandidatos } from './ui/candidatos.js';
 import { abrirCadeiras } from './ui/cadeiras.js';
 import { abrirPartidos, listaPartidos } from './ui/partidos.js';
+import { detectarViradas, mostrarViradas } from './ui/avisos.js';
+import { compartilhar } from './ui/compartilhar.js';
+import { criarModoTV } from './ui/tv.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -112,6 +115,7 @@ const header = createHeader({
   onCargo: setCargo,
   onPartido: (sigla) => abrirPartidos(sigla),
   listaPartidos,
+  onTV: () => tv.entrar(),
   onUF: selecionarUF,
   onMunicipio: abrirMunicipio,
 });
@@ -150,6 +154,13 @@ $('disputa').addEventListener('click', (ev) => {
   if (acao === 'todos') modal.abrir(modal.modalTodos(vista(), state));
   else if (acao === 'candidatos') abrirCandidatos({ cargo: state.cargo, uf: state.uf, cores: state.data.cores });
   else if (acao === 'cadeiras') abrirCadeiras(state.data, state.uf, (sigla) => abrirPartidos(sigla));
+  else if (acao === 'compartilhar') {
+    alvo.classList.add('is-busy');
+    compartilhar(vista(), state.uf)
+      .then((r) => r === 'baixado' && mostrarAviso('Imagem do resultado baixada'))
+      .catch(() => mostrarAviso('Não foi possível gerar a imagem'))
+      .finally(() => alvo.classList.remove('is-busy'));
+  }
   else if (acao === 'dep-tipo') setCargo(alvo.dataset.cargo);
   else if (acao === 'visao') {
     state.visaoDep = alvo.dataset.v;
@@ -247,8 +258,13 @@ async function carregar(versao) {
       const j = await r.json();
       if (!r.ok) throw new Error(j.erro || `HTTP ${r.status}`);
       const d = mesclarHistorico(j);
+      const antes = cache[alvo];
       versoes[alvo] = j.versao;
       cache[alvo] = d;
+      if (alvo === state.cargo && antes) {
+        const viradas = detectarViradas(vistaExterior(antes, state.incluirExterior), vistaExterior(d, state.incluirExterior));
+        mostrarViradas(viradas, { cargo: CARGOS[alvo].nome, onClique: (uf) => uf !== 'br' && selecionarUF(uf) });
+      }
       if (alvo === state.cargo) {
         state.data = d;
         state.erro = null;
@@ -348,6 +364,49 @@ async function carregarMapaCidades(forcar = false) {
 setInterval(() => {
   if (document.visibilityState === 'visible') carregarMapaCidades();
 }, 90000);
+
+// ------------------------------------------------------------------ modo TV
+// Alterna entre Presidente (com os três gráficos) e os cargos estaduais, trocando de estado a cada vez.
+const TV_UFS = ['sp', 'mg', 'rj', 'ba', 'pr', 'rs', 'pe', 'ce', 'pa', 'sc', 'go', 'ma', 'am', 'pb', 'es', 'mt', 'rn', 'pi', 'al', 'df', 'ms', 'se', 'ro', 'to', 'ac', 'ap', 'rr'];
+const TV_SEQ = [
+  { cargo: 'presidente', evo: 'secoes' },
+  { cargo: 'governador' },
+  { cargo: 'presidente', evo: 'candidatos' },
+  { cargo: 'senado' },
+  { cargo: 'presidente', evo: 'projecao' },
+  { cargo: 'camara' },
+];
+let tvPasso = -1, tvUF = -1;
+const tv = criarModoTV({
+  proximo() {
+    tvPasso = (tvPasso + 1) % TV_SEQ.length;
+    const p = TV_SEQ[tvPasso];
+    modal.fechar();
+    if (p.evo) state.evoModo = p.evo;
+    if (!CARGOS[p.cargo].federal) {
+      tvUF = (tvUF + 1) % TV_UFS.length;
+      state.uf = TV_UFS[tvUF];
+      state.pins = null;
+    }
+    if (p.cargo !== state.cargo) setCargo(p.cargo);
+    else render();
+    return `${CARGOS[p.cargo].nome} · ${CARGOS[p.cargo].federal ? 'Brasil' : UF_BY_CODE[state.uf].nome}`;
+  },
+});
+
+// Aviso curto (ex.: "Imagem baixada"), reaproveitando a pilha de avisos.
+function mostrarAviso(texto) {
+  const caixa = document.querySelector('.avisos') || Object.assign(document.createElement('div'), { className: 'avisos' });
+  if (!caixa.isConnected) document.body.appendChild(caixa);
+  const t = document.createElement('div');
+  t.className = 'aviso aviso--simples';
+  t.textContent = texto;
+  caixa.prepend(t);
+  setTimeout(() => {
+    t.classList.add('saindo');
+    setTimeout(() => t.remove(), 350);
+  }, 3000);
+}
 
 // ------------------------------------------------------------------ pessoas acompanhando
 // A aba avisa o servidor a cada minuto enquanto está visível. Se o contador estiver desligado
