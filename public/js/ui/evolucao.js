@@ -1,7 +1,9 @@
-import { pct, hora } from '../format.js';
+import { pct, hora, esc, nomeProprio } from '../format.js';
 
 const HORA = 3600e3;
 const hh = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false });
+const hm = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+const hhmm = (t) => hm.format(new Date(t)).replace(':', 'h');
 
 function valorEm(pts, t) {
   if (!pts.length || t < pts[0].t) return null;
@@ -14,7 +16,7 @@ function valorEm(pts, t) {
   return null;
 }
 
-export function renderEvolucao(d, largura, state) {
+function renderSecoes(d, largura) {
   const W = Math.max(320, Math.round(largura || 900));
   const H = 128;
   const pad = { l: 40, r: 24, t: 12, b: 24 };
@@ -74,9 +76,87 @@ export function renderEvolucao(d, largura, state) {
         ? `<span class="ao-vivo ao-vivo--off"><i></i>Finalizada</span>`
         : `<span class="ao-vivo ao-vivo--off"><i></i>Aguardando</span>`;
 
+  return { pill, svg };
+}
+
+// Histórico de resultado: percentual dos dois primeiros colocados a cada publicação do TSE.
+function renderCandidatos(d, largura) {
+  const W = Math.max(320, Math.round(largura || 900));
+  const H = 128;
+  const pad = { l: 48, r: 128, t: 6, b: 22 };
+  const pts = d.historico.filter((p) => p.c);
+  const top = d.nacional.candidatos.slice(0, 2).filter((c) => pts.some((p) => p.c[c.n] != null));
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Histórico do percentual dos candidatos">`;
+  if (pts.length < 2 || !top.length) {
+    const msg = pts.length ? 'Registrando… a linha aparece a partir da próxima divulgação do TSE' : 'O histórico aparece quando o TSE divulgar os primeiros votos';
+    return `${svg}<text class="chart-axis" x="${W / 2}" y="${H / 2}" text-anchor="middle" font-size="12">${msg}</text></svg>`;
+  }
+  const t0 = pts[0].t;
+  const t1 = Math.max(pts.at(-1).t, t0 + 30 * 60e3);
+  const x = (t) => pad.l + ((t - t0) / (t1 - t0)) * (W - pad.l - pad.r);
+  const intervalo = [5, 10, 15, 30, 60, 120].map((m) => m * 60e3).find((iv) => (t1 - t0) / iv <= 6) || 4 * HORA;
+  for (let t = Math.ceil(t0 / intervalo) * intervalo; t <= t1; t += intervalo) {
+    svg += `<text class="chart-axis" x="${x(t)}" y="${H - 4}" text-anchor="middle">${hhmm(t)}</text>`;
+  }
+
+  // Uma faixa por candidato, cada uma com a própria escala (mínimo de 1 ponto percentual),
+  // para que subidas e descidas pequenas fiquem visíveis.
+  const gap = 8;
+  const faixa = (H - pad.t - pad.b - gap * (top.length - 1)) / top.length;
+  top.forEach((c, i) => {
+    const serie = pts.filter((p) => p.c[c.n] != null);
+    const vals = serie.map((p) => p.c[c.n]);
+    const meio = (Math.min(...vals) + Math.max(...vals)) / 2;
+    const amp = Math.max(1, (Math.max(...vals) - Math.min(...vals)) * 1.4);
+    const lo = meio - amp / 2, hi = meio + amp / 2;
+    const y0 = pad.t + i * (faixa + gap);
+    const y = (v) => y0 + (1 - (v - lo) / (hi - lo)) * faixa;
+    svg += `<line class="chart-grid" x1="${pad.l}" x2="${W - pad.r}" y1="${y0}" y2="${y0}"/>
+      <line class="chart-grid" x1="${pad.l}" x2="${W - pad.r}" y1="${y0 + faixa}" y2="${y0 + faixa}"/>
+      <text class="chart-axis" x="${pad.l - 8}" y="${y0 + 8}" text-anchor="end">${pct(hi, 1)}</text>
+      <text class="chart-axis" x="${pad.l - 8}" y="${y0 + faixa}" text-anchor="end">${pct(lo, 1)}</text>`;
+    const linha = serie.map((p, k) => `${k ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(p.c[c.n]).toFixed(1)}`).join('');
+    svg += `<path d="${linha}" fill="none" stroke="${c.cor}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+    const ult = serie.at(-1);
+    svg += `<circle cx="${x(ult.t)}" cy="${y(ult.c[c.n])}" r="4" fill="${c.cor}" stroke="#0e131c" stroke-width="2"/>`;
+    const delta = ult.c[c.n] - serie[0].c[c.n];
+    const igual = Math.abs(delta) < 0.005;
+    const seta = igual ? '=' : delta > 0 ? '▲' : '▼';
+    const cls = igual ? '' : delta > 0 ? 'sobe' : 'desce';
+    const lx = W - pad.r + 12, ly = y0 + faixa / 2;
+    svg += `<text x="${lx}" y="${ly - 2}" font-size="11.5" font-weight="600" fill="${c.cor}">${esc(nomeProprio(c.nome).split(' ')[0])} ${pct(ult.c[c.n], 2)}</text>
+      <text x="${lx}" y="${ly + 11}" font-size="10.5" class="chart-delta ${cls}">${seta} ${pct(Math.abs(delta), 2).replace('%', '')} p.p. desde ${hhmm(t0)}</text>`;
+  });
+  // Faixas invisíveis com dica (title) em cada divulgação.
+  for (const p of pts) {
+    const dica = `${hhmm(p.t)} · ${pct(p.pct)} das seções\n` + top.map((c) => `${nomeProprio(c.nome)}: ${pct(p.c[c.n], 2)}`).join('\n');
+    svg += `<rect x="${x(p.t) - 4}" y="${pad.t}" width="8" height="${H - pad.t - pad.b}" fill="transparent"><title>${esc(dica)}</title></rect>`;
+  }
+  return svg + '</svg>';
+}
+
+export function renderEvolucao(d, largura, state) {
+  const temCandidatos = d.cargo.federal;
+  const modo = temCandidatos ? state.evoModo : 'secoes';
+  const seg = temCandidatos
+    ? `<div class="seg evolucao__seg" role="group" aria-label="Gráfico">
+        <button data-evo="secoes" class="${modo === 'secoes' ? 'is-on' : ''}" aria-pressed="${modo === 'secoes'}">Seções apuradas</button>
+        <button data-evo="candidatos" class="${modo === 'candidatos' ? 'is-on' : ''}" aria-pressed="${modo === 'candidatos'}">Candidatos</button>
+      </div>`
+    : '';
+  if (modo === 'candidatos') {
+    return `<div class="evolucao__txt">
+        <h2 class="card__title">Histórico de resultado</h2>
+        ${seg}
+        <p class="card__sub evolucao__sub">% dos votos válidos a cada divulgação</p>
+      </div>
+      <div class="evolucao__chart">${renderCandidatos(d, largura)}</div>`;
+  }
+  const { pill, svg } = renderSecoes(d, largura);
   return `<div class="evolucao__txt">
       <h2 class="card__title">Evolução da apuração nacional</h2>
-      <p class="card__sub" style="margin-top:12px">Percentual de seções totalizadas</p>
+      ${seg ? `${seg}<p class="card__sub evolucao__sub">Percentual de seções totalizadas</p>` : '<p class="card__sub" style="margin-top:12px">Percentual de seções totalizadas</p>'}
     </div>
     <div class="evolucao__chart">${pill}${svg}</div>`;
 }
+

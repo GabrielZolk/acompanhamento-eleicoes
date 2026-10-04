@@ -10,6 +10,8 @@ import { renderResumo, renderUpdates, renderPrevisao } from './ui/paineis.js';
 import { renderEvolucao } from './ui/evolucao.js';
 import * as modal from './ui/modais.js';
 import { abrirCandidatos } from './ui/candidatos.js';
+import { abrirCadeiras } from './ui/cadeiras.js';
+import { abrirPartidos, listaPartidos } from './ui/partidos.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -20,6 +22,7 @@ const state = {
   incluirExterior: params.get('exterior') !== '0',
   mapaModo: 'lider',
   regiaoModo: 'validos',
+  evoModo: params.get('grafico') === 'candidatos' ? 'candidatos' : 'secoes',
   mapaNivel: params.get('mapa') === 'cidades' ? 'mun' : 'uf',
   regiaoAberta: null,
   visaoDep: 'partidos',
@@ -39,6 +42,7 @@ function syncURL() {
   if (!CARGOS[state.cargo].federal) p.set('uf', state.uf);
   if (!state.incluirExterior) p.set('exterior', '0');
   if (state.mapaNivel === 'mun') p.set('mapa', 'cidades');
+  if (state.evoModo === 'candidatos' && CARGOS[state.cargo].federal) p.set('grafico', 'candidatos');
   const qs = p.toString();
   history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
 }
@@ -102,6 +106,8 @@ async function abrirMunicipio(m) {
 // ------------------------------------------------------------------ componentes
 const header = createHeader({
   onCargo: setCargo,
+  onPartido: (sigla) => abrirPartidos(sigla),
+  listaPartidos,
   onUF: selecionarUF,
   onMunicipio: abrirMunicipio,
 });
@@ -132,11 +138,14 @@ const mapa = createMapa({
 });
 
 $('disputa').addEventListener('click', (ev) => {
+  const partido = ev.target.closest('[data-partido]');
+  if (partido) return abrirPartidos(partido.dataset.partido);
   const alvo = ev.target.closest('[data-action]');
   if (!alvo || !state.data) return;
   const acao = alvo.dataset.action;
   if (acao === 'todos') modal.abrir(modal.modalTodos(vista(), state));
   else if (acao === 'candidatos') abrirCandidatos({ cargo: state.cargo, uf: state.uf, cores: state.data.cores });
+  else if (acao === 'cadeiras') abrirCadeiras(state.data, state.uf, (sigla) => abrirPartidos(sigla));
   else if (acao === 'dep-tipo') setCargo(alvo.dataset.cargo);
   else if (acao === 'visao') {
     state.visaoDep = alvo.dataset.v;
@@ -205,6 +214,13 @@ function renderBottom() {
   morph($('previsao'), renderPrevisao(d, state));
 }
 new ResizeObserver(() => renderBottom()).observe($('evolucao'));
+$('evolucao').addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-evo]');
+  if (!b) return;
+  state.evoModo = b.dataset.evo;
+  syncURL();
+  renderBottom();
+});
 
 // ------------------------------------------------------------------ dados
 let emVoo = null, pendente = false;

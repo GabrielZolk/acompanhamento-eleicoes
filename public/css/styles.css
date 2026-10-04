@@ -399,6 +399,54 @@ a { color: inherit; }
 }
 .pill--eleito { background: rgba(34, 197, 94, 0.16); color: var(--green-2); }
 .pill--turno { background: rgba(109, 134, 255, 0.16); color: #9fb0ff; }
+.pill--dentro { background: rgba(245, 177, 61, 0.14); color: #f5c46b; }
+.cand--click { cursor: pointer; }
+.cand--click:hover { border-color: #34405a; }
+.btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn-pair .btn-row { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* projeção de cadeiras */
+.hemiciclo { display: block; width: 100%; max-width: 520px; margin: 6px auto 4px; }
+.hemiciclo__n { font-size: 0.2px; font-weight: 700; fill: #fff; }
+.hemiciclo__sub { font-size: 0.065px; fill: #8a93a6; }
+.bancadas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; margin: 8px 0 12px; }
+.bancada { display: grid; grid-template-columns: 10px 96px minmax(0, 1fr) 32px; align-items: center; gap: 8px; height: 26px; padding: 0 6px; border: 0; border-radius: 6px; background: none; color: var(--text-2); font-size: 12.5px; text-align: left; cursor: pointer; }
+.bancada:hover { background: #151b27; color: #fff; }
+.bancada .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.bancada__sg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.bancada__bar { height: 6px; border-radius: 3px; background: #1a2030; overflow: hidden; }
+.bancada__bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+.bancada b { text-align: right; color: #fff; }
+.nota { font-size: 11.5px; line-height: 1.5; color: var(--muted); margin: 8px 0 0; }
+.nota b { color: var(--text-2); }
+
+/* desempenho por partido */
+.pbusca { margin-bottom: 14px; }
+.pbusca .cbusca__input { margin-right: 40px; }
+.pchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; max-height: 96px; overflow-y: auto; }
+.pchip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--line-2); background: #121824; color: var(--text-2); font-size: 12px; font-weight: 600; }
+.pchip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.pchip small { color: var(--muted); font-weight: 500; }
+.pchip:hover { color: #fff; border-color: #34405a; }
+.pchip.is-on { background: #1d2540; border-color: #4357ec; color: #fff; }
+.phead { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.phead h3 { margin: 0; }
+.pcards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.pcard { padding: 11px 12px; border-radius: 10px; background: #121824; border: 1px solid var(--line-2); min-width: 0; }
+.pcard__t { font-size: 11.5px; color: var(--muted); }
+.pcard__v { font-size: 22px; font-weight: 700; color: #fff; margin: 3px 0 4px; }
+.pcard__l { font-size: 11.5px; color: var(--text-2); line-height: 1.45; overflow: hidden; text-overflow: ellipsis; }
+.pcard__l b { color: #fff; font-weight: 600; }
+.psec { font-size: 14px; font-weight: 600; color: #fff; margin: 18px 0 8px; }
+.ptabela { overflow-x: auto; border: 1px solid var(--line-2); border-radius: 10px; }
+.ptabela table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ptabela th, .ptabela td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid #161c28; }
+.ptabela thead th { color: var(--muted); font-weight: 500; font-size: 11.5px; background: #111622; position: sticky; top: 0; }
+.ptabela tbody th { text-align: left; color: var(--text-2); }
+.ptabela td small { color: var(--muted); }
+.ptabela td.vazio { color: #3b4356; }
+.ptabela td.dentro { color: #f5c46b; font-weight: 600; }
+.ptabela .cad { display: inline-block; min-width: 18px; padding: 0 4px; border-radius: 4px; background: #1d2540; color: #fff; text-align: center; }
 
 .btn-row {
   margin-top: 12px;
@@ -651,6 +699,11 @@ a { color: inherit; }
 .evolucao__txt .card__title { font-size: 17.5px; letter-spacing: -0.3px; white-space: nowrap; }
 .evolucao__chart { position: relative; height: 122px; margin-top: -6px; }
 .evolucao__chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.evolucao__seg { margin-top: 10px; }
+.evolucao__sub { margin-top: 8px; font-size: 12px; }
+.chart-delta { fill: #8a93a6; }
+.chart-delta.sobe { fill: #4ade80; }
+.chart-delta.desce { fill: #f87171; }
 .chart-axis { font-family: var(--font); font-size: 11px; fill: #8a93a6; }
 .chart-grid { stroke: #161c28; stroke-width: 1; }
 .chart-line { fill: none; stroke: #3d7bf5; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
@@ -859,5 +912,10 @@ a { color: inherit; }
   .modal h3 { font-size: 18px; }
   .mrow { grid-template-columns: 20px 34px minmax(0, 1fr) 78px; gap: 0 8px; padding: 7px 8px 7px 6px; }
   .mupd { grid-template-columns: 46px 20px 30px minmax(0, 1fr) auto; font-size: 12px; }
+  .pcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pcard:first-child { grid-column: 1 / -1; }
+  .bancadas { grid-template-columns: minmax(0, 1fr); }
+  .btn-pair { grid-template-columns: minmax(0, 1fr); }
+  .evolucao__txt .card__title { white-space: normal; }
   .search__results { max-height: 60vh; }
 }

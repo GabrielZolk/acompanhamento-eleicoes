@@ -23,7 +23,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <input type="search" data-busca placeholder="Buscar por nome, número ou partido" autocomplete="off" aria-label="Buscar candidato">
       </label>
-      <label class="check" data-so-eleitos hidden><input type="checkbox" data-eleitos><span class="check__box">${CHECK}</span>Só eleitos</label>
+      <label class="check" data-so-eleitos hidden><input type="checkbox" data-eleitos><span class="check__box">${CHECK}</span><span data-rot-eleitos>Só eleitos</span></label>
       <label class="check"><input type="checkbox" data-todos><span class="check__box">${CHECK}</span>Todos os estados</label>
     </div>
     <div class="cinfo" data-info></div>
@@ -54,7 +54,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
   function filtrar(lista) {
     const t = semAcento(st.termo.trim());
     const T = t.toUpperCase();
-    return lista.filter((c) => (!st.eleitos || c.eleito) && (!t || semAcento(c.nome).includes(t) || c.n.startsWith(t) || c.partido === T));
+    return lista.filter((c) => (!st.eleitos || c.eleito || c.projetado) && (!t || semAcento(c.nome).includes(t) || c.n.startsWith(t) || c.partido === T));
   }
 
   function render() {
@@ -130,7 +130,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
   });
   $('[data-todos]').addEventListener('change', (ev) => {
     st.todos = ev.target.checked;
-    $('[data-so-eleitos]').hidden = st.todos || !st.lista?.candidatos.some((c) => c.eleito);
+    $('[data-so-eleitos]').hidden = st.todos || !st.lista?.candidatos.some((c) => c.eleito || c.projetado);
     if (st.todos) buscarRemoto();
     else render();
   });
@@ -155,7 +155,9 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
         `${pct(j.secoes?.pct, 2)} das seções apuradas`,
         nEleitos ? `${nEleitos} eleitos` : null,
       ].filter(Boolean).join(' · ');
-      $('[data-so-eleitos]').hidden = !nEleitos;
+      const nDentro = j.candidatos.filter((c) => c.projetado).length;
+      if (!nEleitos && nDentro) $('[data-rot-eleitos]').textContent = `Dentro das vagas (${nDentro})`;
+      $('[data-so-eleitos]').hidden = !nEleitos && !nDentro;
       render();
     })
     .catch((err) => {

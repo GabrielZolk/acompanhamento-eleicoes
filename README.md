@@ -33,6 +33,14 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   líder em cada UF.
 - **Deputados**: Federal ou Estadual (Distrital no DF), por partido (nominais + legenda) ou por candidato. O mapa
   mostra o partido mais votado em cada UF.
+- **Projeção de cadeiras** (deputados): usa as vagas por agremiação que o TSE recalcula a cada atualização
+  (quociente eleitoral, partidário e sobras); nas federações, as vagas vão aos mais votados. Hemiciclo por estado e
+  da Câmara inteira (513).
+- **Desempenho por partido** (menu Consultas ou busca): Presidente, governador, Senado e deputados de cada partido,
+  no país e por estado (`/api/partidos`).
+- **Histórico de resultado**: percentual dos dois primeiros colocados a cada divulgação do TSE (gravado pelo servidor
+  a partir de 04/10 às 18h21; o TSE não publica histórico).
+- **Mapa por cidade**: 5.570 municípios coloridos pelo vencedor (`/api/municipios-mapa`).
 - **Lista completa de candidatos** de qualquer cargo estadual, com pesquisa por nome, número ou partido, filtro de
   eleitos e busca em todos os estados (`/api/candidatos`).
 - **Busca** (Ctrl/⌘ K): estados, exterior e todos os municípios — abre o resultado da cidade para o cargo atual.

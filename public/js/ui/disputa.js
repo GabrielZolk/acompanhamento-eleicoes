@@ -7,6 +7,7 @@ const VISIVEIS = 6;
 export function pills(c) {
   if (c.eleito) return `<span class="pill pill--eleito">Eleito</span>`;
   if (/2º turno/i.test(c.situacao)) return `<span class="pill pill--turno">2º turno</span>`;
+  if (c.projetado) return `<span class="pill pill--dentro" title="Dentro das vagas com os votos apurados até agora">Dentro</span>`;
   return '';
 }
 
@@ -33,8 +34,12 @@ function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
 }
 
 function linhaPartido(p, i, { lider, ranking = true }) {
-  const det = p.eleitos ? `${p.eleitos} ${p.eleitos === 1 ? 'eleito' : 'eleitos'}` : `${int(p.candidatos)} candidatos`;
-  return `<div class="cand ${lider ? 'cand--lider' : ''}" data-key="p${esc(p.sigla)}" style="--c:${p.cor}">
+  const det = p.eleitos
+    ? `${p.eleitos} ${p.eleitos === 1 ? 'eleito' : 'eleitos'}`
+    : p.cadeiras != null && p.votos > 0
+      ? `≈ ${p.cadeiras} ${p.cadeiras === 1 ? 'cadeira' : 'cadeiras'}`
+      : `${int(p.candidatos)} candidatos`;
+  return `<div class="cand cand--click ${lider ? 'cand--lider' : ''}" data-key="p${esc(p.sigla)}" data-partido="${esc(p.sigla)}" title="Ver o desempenho do ${esc(p.sigla)} em todos os cargos" style="--c:${p.cor}">
     ${ranking ? selo(i, '', true) : '<span class="cand__rank">–</span>'}
     ${avatarPartido(p)}
     <div class="cand__info">
@@ -167,6 +172,11 @@ export function renderDisputa(d, state) {
     : `Ver todos os candidatos ${total > VISIVEIS ? `(${int(total)})` : ''}`;
   return `${cabecalho}
     <div class="disputa__list">${corpo}</div>
-    <button class="btn-row" data-action="candidatos">${botao} ${ICON.chevRight}</button>
+    ${prop
+      ? `<div class="btn-pair">
+          <button class="btn-row" data-action="candidatos">${int(total)} candidatos ${ICON.chevRight}</button>
+          <button class="btn-row" data-action="cadeiras">Projeção de cadeiras ${ICON.chevRight}</button>
+        </div>`
+      : `<button class="btn-row" data-action="candidatos">${botao} ${ICON.chevRight}</button>`}
     ${stats({ eleitorado: e?.eleitorado, secoes: e?.secoes, rotuloEleitorado: `aptos a votar em ${state.uf.toUpperCase()}` })}`;
 }

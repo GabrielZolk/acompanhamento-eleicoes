@@ -3,7 +3,7 @@ import { UFS } from '../ufs.js';
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 
-export function createHeader({ onCargo, onUF, onMunicipio }) {
+export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos }) {
   const tabs = document.querySelectorAll('.tabs__item[data-cargo]');
   const btnMenu = document.getElementById('consultas-btn');
   const menu = document.getElementById('consultas-menu');
@@ -13,6 +13,7 @@ export function createHeader({ onCargo, onUF, onMunicipio }) {
   document.getElementById('search-kbd').textContent = isMac ? '⌘ K' : 'Ctrl K';
 
   let municipios = null;
+  let partidos = [];
   let carregandoMun = null;
   let itens = [];
   let ativo = 0;
@@ -22,6 +23,7 @@ export function createHeader({ onCargo, onUF, onMunicipio }) {
   // ------------------------------------------------------------ Consultas
   function renderMenu() {
     menu.innerHTML = `
+      <button class="dropdown__item" data-act="partido">Desempenho por partido<small>Presidente, governador, Senado e deputados de cada partido</small></button>
       <button class="dropdown__item" data-act="municipio">Resultado por município<small>Busque qualquer cidade do país ou do exterior</small></button>
       <div class="dropdown__sep"></div>
       <a class="dropdown__item" href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noopener">Resultados no site do TSE ↗</a>
@@ -38,6 +40,11 @@ export function createHeader({ onCargo, onUF, onMunicipio }) {
     toggleMenu();
   });
   menu.addEventListener('click', (ev) => {
+    if (ev.target.closest('[data-act="partido"]')) {
+      toggleMenu(false);
+      onPartido();
+      return;
+    }
     if (ev.target.closest('[data-act="municipio"]')) {
       toggleMenu(false);
       input.focus();
@@ -50,6 +57,15 @@ export function createHeader({ onCargo, onUF, onMunicipio }) {
 
   // ------------------------------------------------------------ Busca
   async function carregarMunicipios() {
+    if (!partidos.length) {
+      listaPartidos().then((l) => {
+        partidos = l;
+        if (input.value.trim()) {
+          itens = buscar(input.value);
+          renderResultados();
+        }
+      });
+    }
     if (municipios) return municipios;
     carregandoMun ||= fetch('/api/municipios')
       .then((r) => r.json())
@@ -63,6 +79,12 @@ export function createHeader({ onCargo, onUF, onMunicipio }) {
     if (!t) return [];
 const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).map((u) => ({ tipo: 'uf', uf: u.uf, nome: u.nome }));
     if ('exterior'.startsWith(t) && t.length >= 3) estados.unshift({ tipo: 'uf', uf: 'zz', nome: 'Exterior' });
+    const T = t.toUpperCase();
+    const parts = partidos
+      .filter((p) => semAcento(p.sigla).toUpperCase() === T || (t.length >= 3 && (semAcento(p.sigla).includes(t) || semAcento(p.nome).includes(t))) || p.n === t)
+      .slice(0, 3)
+      .map((p) => ({ tipo: 'partido', sigla: p.sigla, nome: p.nome }));
+    estados.unshift(...parts);
     if (t.length < 2 || !municipios) return estados.slice(0, 8);
     const comeca = [], contem = [];
     for (const m of municipios) {
@@ -87,8 +109,8 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     }
     results.innerHTML = itens
       .map((it, i) => `<button class="search__item ${i === ativo ? 'is-active' : ''}" data-i="${i}" role="option">
-        <span>${esc(it.tipo === 'uf' ? it.nome : nomeProprio(it.nome))}</span>
-        <small>${it.tipo === 'uf' ? (it.uf === 'zz' ? 'Votos para Presidente' : 'Estado') : it.uf === 'zz' ? 'Exterior' : it.uf.toUpperCase()}</small></button>`)
+        <span>${esc(it.tipo === 'uf' ? it.nome : it.tipo === 'partido' ? `${it.sigla} — ${nomeProprio(it.nome)}` : nomeProprio(it.nome))}</span>
+        <small>${it.tipo === 'partido' ? 'Partido · todos os cargos' : it.tipo === 'uf' ? (it.uf === 'zz' ? 'Votos para Presidente' : 'Estado') : it.uf === 'zz' ? 'Exterior' : it.uf.toUpperCase()}</small></button>`)
       .join('');
   }
 
@@ -98,6 +120,7 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     input.value = '';
     input.blur();
     if (it.tipo === 'uf') onUF(it.uf);
+    else if (it.tipo === 'partido') onPartido(it.sigla);
     else onMunicipio(it);
   }
 
