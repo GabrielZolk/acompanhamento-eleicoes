@@ -19,6 +19,12 @@ function redisStore() {
       const { result } = await r.json();
       return result ? JSON.parse(result) : null;
     },
+    // Trava simples (SET NX EX): só uma instância recalcula a mesma coisa por vez.
+    async travar(key, segundos) {
+      const r = await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}/1/NX/EX/${segundos}`, { headers, signal: AbortSignal.timeout(4000) });
+      if (!r.ok) return true;
+      return (await r.json()).result === 'OK';
+    },
     async set(key, value) {
       const r = await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}`, {
         method: 'POST',
@@ -36,6 +42,9 @@ function fileStore() {
   const arquivo = (key) => path.join(dir, `${key.replace(/[^a-z0-9-]/gi, '-')}.json`);
   return {
     tipo: 'arquivo',
+    async travar() {
+      return true;
+    },
     async get(key) {
       try {
         return JSON.parse(fs.readFileSync(arquivo(key), 'utf8'));
@@ -54,6 +63,9 @@ function memoryStore() {
   const m = new Map();
   return {
     tipo: 'memoria',
+    async travar() {
+      return true;
+    },
     async get(key) {
       return m.get(key) ?? null;
     },

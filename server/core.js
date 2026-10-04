@@ -77,7 +77,7 @@ export async function obterVersao(cargoKey) {
   return { versao: versaoDe(ab, nacional), geradoEm: Math.max(ab?.geradoEm || 0, nacional?.geradoEm || 0) || null };
 }
 
-export async function obterPainel(cargoKey) {
+async function montarPainelAtual(cargoKey) {
   const cargo = CARGOS[cargoKey];
   const [ab, dados] = await Promise.all([
     load(urls.acompanhamento(cargo.ele), parseAcompanhamento),
@@ -89,6 +89,26 @@ export async function obterPainel(cargoKey) {
   p.armazenamento = store.tipo;
   p.versao = versaoDe(ab, dados.nacional);
   return p;
+}
+
+// O último painel bom de cada cargo fica guardado: se o TSE limitar ou cair, ele é servido
+// (marcado como desatualizado) em vez de um erro.
+const versaoGuardada = {};
+export async function obterPainel(cargoKey) {
+  const chave = `apuracao2026:painel:${cargoKey}`;
+  try {
+    const p = await montarPainelAtual(cargoKey);
+    if (p && versaoGuardada[cargoKey] !== p.versao) {
+      versaoGuardada[cargoKey] = p.versao;
+      store.set(chave, p).catch(() => {});
+    }
+    if (p) return p;
+  } catch (err) {
+    console.error('[painel] TSE indisponível:', err.message);
+  }
+  const guardado = await store.get(chave).catch(() => null);
+  if (!guardado) return null;
+  return { ...guardado, servidor: { erro: 'TSE indisponível no momento; exibindo a última atualização recebida.' } };
 }
 
 let municipiosCache = null;

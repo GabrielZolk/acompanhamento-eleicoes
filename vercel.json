@@ -4,7 +4,8 @@
   "outputDirectory": "public",
   "regions": ["gru1"],
   "functions": {
-    "api/*.js": { "maxDuration": 30 }
+    "api/*.js": { "maxDuration": 30 },
+    "api/municipios-mapa.js": { "maxDuration": 60 }
   },
   "headers": [
     {

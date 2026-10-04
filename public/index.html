@@ -56,12 +56,19 @@
             <h2 class="card__title">Mapa do Brasil</h2>
             <p class="card__sub" id="mapa-sub">Percentual do candidato mais votado em cada estado</p>
           </div>
+          <div class="mapa__ctrl">
+          <div class="seg seg--lg" id="mapa-nivel" role="group" aria-label="Detalhe do mapa">
+            <button data-nivel="uf" class="is-on" aria-pressed="true">Estados</button>
+            <button data-nivel="mun" aria-pressed="false">Cidades</button>
+          </div>
           <label class="select">
             <select id="mapa-modo" aria-label="Modo do mapa"></select>
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
+          </div>
         </div>
         <div class="mapa__stage" id="mapa-stage">
+          <div class="mapa__dica" id="mapa-dica" hidden></div>
           <svg class="mapa__svg" id="mapa-svg" role="img" aria-label="Mapa do Brasil por estado"></svg>
           <div class="mapa__overlay" id="mapa-overlay"></div>
           <div class="mapa__tooltip" id="mapa-tooltip" hidden></div>

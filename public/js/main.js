@@ -20,6 +20,7 @@ const state = {
   incluirExterior: params.get('exterior') !== '0',
   mapaModo: 'lider',
   regiaoModo: 'validos',
+  mapaNivel: params.get('mapa') === 'cidades' ? 'mun' : 'uf',
   regiaoAberta: null,
   visaoDep: 'partidos',
   pins: null,
@@ -37,6 +38,7 @@ function syncURL() {
   if (state.cargo !== 'presidente') p.set('cargo', state.cargo);
   if (!CARGOS[state.cargo].federal) p.set('uf', state.uf);
   if (!state.incluirExterior) p.set('exterior', '0');
+  if (state.mapaNivel === 'mun') p.set('mapa', 'cidades');
   const qs = p.toString();
   history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
 }
@@ -45,6 +47,7 @@ function syncURL() {
 function setCargo(cargo) {
   if (cargo === state.cargo) return;
   state.cargo = cargo;
+  setTimeout(() => carregarMapaCidades(true), 0);
   state.mapaModo = 'lider';
   state.regiaoAberta = null;
   state.pins = null;
@@ -111,6 +114,15 @@ const mapa = createMapa({
   legenda: $('mapa-legenda'),
   select: $('mapa-modo'),
   sub: $('mapa-sub'),
+  nivelEl: $('mapa-nivel'),
+  dica: $('mapa-dica'),
+  onNivel: (n) => {
+    state.mapaNivel = n;
+    syncURL();
+    render();
+    if (n === 'mun') carregarMapaCidades(true);
+  },
+  onMunicipio: (m) => abrirMunicipio(m),
   onSelect: selecionarUF,
   onUnpin: desafixar,
   onModo: (m) => {
@@ -255,10 +267,50 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') checarVersao();
 });
 
+// ------------------------------------------------------------------ mapa por cidade
+// Cada UF vem de /api/municipios-mapa (o servidor agrega os arquivos municipais do TSE).
+const cidades = { cargo: null, em: 0, carregando: false };
+async function carregarMapaCidades(forcar = false) {
+  const cargo = state.cargo;
+  if (state.mapaNivel !== 'mun' || CARGOS[cargo].proporcional || cidades.carregando) return;
+  if (!forcar && cidades.cargo === cargo && Date.now() - cidades.em < 90000) return;
+  if (cidades.cargo !== cargo) mapa.limparMunicipios();
+  cidades.cargo = cargo;
+  cidades.carregando = true;
+  // Estados mais populosos primeiro, para o mapa encher rápido onde há mais cidades.
+  const fila = ['sp', 'mg', 'rj', 'ba', 'pr', 'rs', 'pe', 'ce', 'pa', 'sc', 'go', 'ma', 'am', 'pb', 'es', 'mt', 'rn', 'pi', 'al', 'df', 'ms', 'se', 'ro', 'to', 'ac', 'ap', 'rr'];
+  const trabalho = async () => {
+    while (fila.length) {
+      const uf = fila.shift();
+      try {
+        const r = await fetch(`/api/municipios-mapa?cargo=${cargo}&uf=${uf}`);
+        if (!r.ok) continue;
+        const j = await r.json();
+        if (state.cargo === cargo) mapa.definirMunicipios(uf, j.municipios);
+        // Parte das cidades ainda estava sendo consultada no servidor: pede o resto em seguida.
+        if (j.parcial) {
+          fila.push(uf);
+          await new Promise((ok) => setTimeout(ok, 8000));
+        }
+      } catch {
+        /* tenta de novo na próxima atualização */
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: 3 }, trabalho));
+  cidades.em = Date.now();
+  cidades.carregando = false;
+  if (state.cargo !== cargo) carregarMapaCidades(true); // trocou de cargo durante a carga
+}
+setInterval(() => {
+  if (document.visibilityState === 'visible') carregarMapaCidades();
+}, 90000);
+
 // ------------------------------------------------------------------ início
 (async () => {
   render();
   const geo = await mapa.init();
   prepararIcones(geo, REGIOES.map((r) => ({ id: r.id, ufs: UFS.filter((u) => u.regiao === r.id).map((u) => u.uf) })));
   await carregar();
+  carregarMapaCidades(true);
 })();

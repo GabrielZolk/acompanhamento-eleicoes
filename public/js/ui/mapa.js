@@ -12,13 +12,19 @@ const CAIXAS = {
   es: [884, 652], rj: [748, 772], df: [692, 496],
 };
 const AJUSTE = { go: [-22, 26], pi: [-6, 16], ma: [-16, 8], ce: [-2, 0], ap: [-2, 8], sc: [8, 0], mg: [8, 4], ba: [4, 8], pa: [6, 0], rs: [0, -6], ms: [-6, 0] };
-const ZOOM_MAX = 6;
+const ZOOM_MAX = 16;
+const FUNDO_MUN = '#232833';
+const SVG_NS = 'http://www.w3.org/2000/svg';
 // Marcador do exterior (votos para Presidente), no canto noroeste, fora do território.
 const EXT = { x: -28, y: -6, w: 152, h: 42 };
 const EXT_C = [EXT.x + EXT.w / 2, EXT.y + EXT.h / 2];
 
-export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub, onSelect, onUnpin, onModo }) {
+export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub, nivelEl, dica, onSelect, onUnpin, onModo, onNivel, onMunicipio }) {
   let geo = null;
+  // Mapa por cidade: geometria (carregada sob demanda) e resultados resumidos por UF.
+  let nivel = 'uf';
+  const munGeo = {}, munDados = {}, munPaths = {};
+  let munCamada = null, carregandoGeo = null;
   let base = null;
   let z = 1, cx = 0, cy = 0;
   let data = null, st = null;
@@ -48,6 +54,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       <path d="${todos}" fill="#070a10" transform="translate(0,6)"/>
       <g class="map-states">${ufs.map((uf) => `<path class="uf" data-uf="${uf}" d="${g.states[uf].d}" fill="${SEM}" aria-label="${esc(UF_BY_CODE[uf].nome)}"/>`).join('')}</g>
       <g class="uf-shine">${ufs.map((uf) => `<path d="${g.states[uf].d}" fill="url(#uf-shine)"/>`).join('')}</g>
+      <g class="map-mun"></g>
+      <g class="map-uf-borda">${ufs.map((uf) => `<path d="${g.states[uf].d}"/>`).join('')}</g>
       <g class="map-leads">`;
     for (const [uf, [bx, by]] of Object.entries(CAIXAS)) {
       const [x, y] = g.states[uf].c;
@@ -72,6 +80,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       </g></g>`;
     svg.innerHTML = html;
     extGrupo = svg.querySelector('.uf-ext');
+    munCamada = svg.querySelector('.map-mun');
     for (const p of svg.querySelectorAll('.uf')) paths[p.dataset.uf] = p;
     fit(true);
   }
@@ -97,6 +106,10 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     if (!base) return;
     const w = base.w / z, h = base.h / z;
     svg.setAttribute('viewBox', `${(cx - w / 2).toFixed(2)} ${(cy - h / 2).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`);
+    // Rótulos dos estados mantêm o tamanho na tela ao aproximar.
+    svg.style.setProperty('--z', z.toFixed(3));
+    svg.classList.toggle('is-zoom', z > 1.05);
+    atualizarDica();
     posicionarCallouts();
   }
 
@@ -114,6 +127,20 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     z = nz;
     if (z === 1) { cx = CONTEUDO.x + CONTEUDO.w / 2; cy = CONTEUDO.y + CONTEUDO.h / 2; }
     aplicar();
+  }
+
+  function zoomPara([x0, y0, x1, y1]) {
+    const folga = 24;
+    z = Math.max(1, Math.min(ZOOM_MAX, Math.min(base.w / (x1 - x0 + folga * 2), base.h / (y1 - y0 + folga * 2))));
+    cx = (x0 + x1) / 2;
+    cy = (y0 + y1) / 2;
+    aplicar();
+  }
+
+  function atualizarDica() {
+    if (!dica) return;
+    dica.hidden = nivel !== 'mun';
+    dica.textContent = z < 2.2 ? 'Clique em um estado para aproximar' : 'Clique numa cidade para ver o resultado completo';
   }
 
   stage.querySelector('.zoom').addEventListener('click', (ev) => {
@@ -153,6 +180,14 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   svg.addEventListener('click', (ev) => {
     if (drag?.moved) return;
+    if (nivel === 'mun') {
+      const m = ev.target.closest('[data-mun]');
+      const uf = m?.parentNode?.dataset.ufg || ev.target.closest('[data-uf]')?.dataset.uf;
+      if (z < 2.2 && uf && geo.states[uf]) return zoomPara(geo.states[uf].bbox);
+      const r = m && munDados[uf]?.[m.dataset.mun];
+      if (r) onMunicipio({ uf, cd: r.cd, nome: r.nm });
+      return;
+    }
     const alvo = ev.target.closest('[data-uf]');
     if (alvo) onSelect(alvo.dataset.uf);
   });
@@ -160,10 +195,10 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   // ---------------------------------------------------------------- tooltip
   svg.addEventListener('pointermove', (ev) => {
     if (drag?.moved) return;
-    const alvo = ev.target.closest('[data-uf]');
+    const mun = nivel === 'mun' && ev.target.closest('[data-mun]');
+    const alvo = mun || ev.target.closest('[data-uf]');
     if (!alvo || !data) { tooltip.hidden = true; return; }
-    const uf = alvo.dataset.uf;
-    tooltip.innerHTML = conteudo(uf, false);
+    tooltip.innerHTML = mun ? conteudoMun(mun.parentNode.dataset.ufg, mun.dataset.mun) : conteudo(alvo.dataset.uf, false);
     tooltip.hidden = false;
     const r = stage.getBoundingClientRect();
     let x = ev.clientX - r.left + 16, y = ev.clientY - r.top + 16;
@@ -181,6 +216,10 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   });
 
   select.addEventListener('change', () => onModo(select.value));
+  nivelEl?.addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-nivel]');
+    if (b) onNivel(b.dataset.nivel);
+  });
 
   new ResizeObserver(() => fit(false)).observe(svg);
 
@@ -213,7 +252,88 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       <div class="callout__bar"><i style="width:${(e?.secoes?.pct || 0).toFixed(2)}%"></i></div>`;
   }
 
+  // ------------------------------------------------------------ municípios
+  const corDoLider = (n, sg) => (data.cargo.federal ? data.cores[n] : data.cores[sg]);
+  function nomeDoCandidato(uf, n, sg) {
+    if (data.cargo.federal) return nomeProprio(candidatoNac()[n]?.nome || n);
+    const c = data.estados[uf]?.candidatos?.find((x) => x.n === n);
+    return c ? `${nomeProprio(c.nome)} (${sg})` : `${n} (${sg})`;
+  }
+
+  function corMun(uf, cdi) {
+    const r = munDados[uf]?.[cdi];
+    if (!r || !(r.a > 0) || !(r.c?.[0]?.[1] > 0)) return SEM;
+    if (st.mapaModo === 'secoes') return mix('#1c2944', '#5b93ff', Math.min(1, r.a / 100));
+    const [n, p, sg] = r.c[0];
+    const cor = corDoLider(n, sg);
+    if (!cor) return SEM;
+    // Tom mais forte quanto maior o percentual do líder (35% → claro, 70%+ → cor cheia).
+    const t = Math.max(0, Math.min(1, (p - 35) / 35));
+    return mix(mix(cor, SEM, 0.62), cor, t);
+  }
+
+  function conteudoMun(uf, cdi) {
+    const r = munDados[uf]?.[cdi];
+    if (!r) return `<div class="callout__title"><span>Carregando…</span></div>`;
+    const apurou = r.a > 0;
+    return `<div class="callout__title"><span>${esc(nomeProprio(r.nm))} (${uf.toUpperCase()})</span></div>
+      ${r.c.map(([n, p, sg], i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${corDoLider(n, sg) || '#94a3b8'}">
+        <span class="dot"></span><span class="nome">${esc(nomeDoCandidato(uf, n, sg))}</span><b>${pct(p)}</b></div>`).join('')}
+      <div class="callout__foot">Seções apuradas: ${pct(r.a)}${apurou ? '' : ' · sem votos ainda'}</div>
+      <div class="callout__bar"><i style="width:${(r.a || 0).toFixed(2)}%"></i></div>`;
+  }
+
+  function desenharUF(uf) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.dataset.ufg = uf;
+    g.innerHTML = Object.entries(munGeo[uf]).map(([cdi, d]) => `<path data-mun="${cdi}" d="${d}" fill="${data ? corMun(uf, cdi) : SEM}"/>`).join('');
+    munCamada.appendChild(g);
+    munPaths[uf] = [...g.children];
+  }
+
+  function garantirGeometria() {
+    if (carregandoGeo) return carregandoGeo;
+    const fila = Object.keys(geo.states);
+    const trabalho = async () => {
+      while (fila.length) {
+        const uf = fila.shift();
+        try {
+          munGeo[uf] = await fetch(`data/municipios/${uf}.json`).then((r) => r.json());
+          desenharUF(uf);
+        } catch {
+          /* UF fica só com o contorno */
+        }
+      }
+    };
+    carregandoGeo = Promise.all(Array.from({ length: 6 }, trabalho));
+    return carregandoGeo;
+  }
+
+  function pintarMunicipios(ufs = Object.keys(munPaths)) {
+    if (!data || nivel !== 'mun') return;
+    for (const uf of ufs) for (const p of munPaths[uf] || []) {
+      const f = corMun(uf, p.dataset.mun);
+      if (p.getAttribute('fill') !== f) p.setAttribute('fill', f);
+    }
+  }
+
+  function legendaMun() {
+    if (st.mapaModo === 'secoes') return null;
+    let itens;
+    if (data.cargo.federal) itens = data.nacional.candidatos.slice(0, 3).map((c) => ({ cor: c.cor, nome: nomeProprio(c.nome) }));
+    else {
+      const cont = {};
+      for (const [uf, e] of Object.entries(data.estados)) if (uf !== 'zz' && e.lider) cont[e.lider] = (cont[e.lider] || 0) + 1;
+      itens = Object.entries(cont).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([sg]) => ({ cor: data.cores[sg], nome: sg }));
+    }
+    return `<div class="legend__title">Vencedor na cidade · % dos votos</div>
+      ${itens.map((i) => `<div class="legend__mun"><span class="legend__nm">${esc(i.nome)}</span><span class="legend__ramp" style="background:linear-gradient(90deg,${mix(mix(i.cor, SEM, 0.62), i.cor, 0)},${i.cor})"></span></div>`).join('')}
+      <div class="legend__scale legend__scale--mun"><span>35%</span><span>70%+</span></div>
+      <div class="legend__item" style="--c:${SEM}"><span class="legend__dot"></span><span>Sem votos apurados</span></div>`;
+  }
+
   function corEstado(uf) {
+    if (nivel === 'mun') return FUNDO_MUN;
     const e = data.estados[uf];
     if (!e?.secoes) return SEM;
     const modo = st.mapaModo;
@@ -235,6 +355,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function opcoes() {
     const ops = [];
+    if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ['secoes', 'Seções apuradas']];
     if (data.cargo.federal) {
       ops.push(['lider', 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
       for (const c of data.nacional.candidatos.slice(0, 3)) ops.push([`cand:${c.n}`, `Votação: ${nomeProprio(c.nome)}`]);
@@ -246,6 +367,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function subtitulo() {
     const m = st.mapaModo;
+    if (nivel === 'mun') return m === 'secoes' ? 'Percentual de seções apuradas em cada cidade' : 'Candidato mais votado em cada cidade; quanto mais forte a cor, maior a vantagem';
     if (m === 'secoes') return 'Percentual de seções apuradas em cada estado';
     if (m.startsWith('cand:')) {
       const c = data.nacional.candidatos.find((x) => x.n === m.slice(5));
@@ -262,6 +384,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function htmlLegenda() {
     const m = st.mapaModo;
+    if (nivel === 'mun' && m !== 'secoes') return legendaMun();
     if (m === 'secoes') {
       return `<div class="legend__title">Seções apuradas</div>
         <div class="legend__ramp" style="background:linear-gradient(90deg,#1c2944,#5b93ff)"></div>
@@ -331,10 +454,35 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       build(g);
       return g;
     },
+    // Resultados resumidos dos municípios de uma UF (vindos de /api/municipios-mapa).
+    definirMunicipios(uf, dados) {
+      munDados[uf] = dados;
+      pintarMunicipios([uf]);
+    },
+    limparMunicipios() {
+      for (const k of Object.keys(munDados)) delete munDados[k];
+      pintarMunicipios();
+    },
     update(d, state) {
       data = d;
       st = state;
       if (!geo) return;
+      const novoNivel = d.cargo.proporcional ? 'uf' : state.mapaNivel;
+      if (novoNivel !== nivel) {
+        nivel = novoNivel;
+        svg.classList.toggle('nivel-mun', nivel === 'mun');
+        if (nivel === 'mun') garantirGeometria();
+        else fit(true);
+        atualizarDica();
+      }
+      if (nivelEl) {
+        nivelEl.hidden = !!d.cargo.proporcional;
+        for (const b of nivelEl.querySelectorAll('[data-nivel]')) {
+          const on = b.dataset.nivel === nivel;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-pressed', String(on));
+        }
+      }
       const ops = opcoes();
       if (!ops.some(([v]) => v === st.mapaModo)) st.mapaModo = 'lider';
       const opsHtml = ops.map(([v, t]) => `<option value="${v}" ${v === st.mapaModo ? 'selected' : ''}>${esc(t)}</option>`).join('');
@@ -357,10 +505,11 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
         extGrupo.querySelector('rect').style.fill = cor === SEM ? '' : cor;
         extGrupo.classList.toggle('is-pinned', pins.includes('zz'));
       }
+      pintarMunicipios();
       morph(legenda, htmlLegenda());
       morph(
         callouts,
-        pins
+        (nivel === 'mun' ? [] : pins)
           .filter((uf) => geo.states[uf] || (uf === 'zz' && exteriorVisivel()))
           .slice(0, 2)
           .map((uf, i) => `<div class="callout" data-key="co-${uf}" data-uf="${uf}" style="${slot(i)}">${conteudo(uf, true)}</div>`)
