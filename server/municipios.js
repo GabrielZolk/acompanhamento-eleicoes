@@ -20,7 +20,8 @@ function resumir(raw) {
     cands.push([c.n, num(c.pvap), par.sg, int(c.vap)]);
   }
   cands.sort((a, b) => b[3] - a[3]);
-  return { a: num(raw.s?.pst), v: int(raw.v?.vv), c: cands.slice(0, 3).map(([n, p, sg]) => [n, p, sg]) };
+  // t/ea: eleitorado total e das seções já apuradas na cidade (usados pela projeção por cidade).
+  return { a: num(raw.s?.pst), v: int(raw.v?.vv), t: int(raw.e?.te), ea: int(raw.e?.est), c: cands.slice(0, 5).map(([n, p, sg]) => [n, p, sg]) };
 }
 
 async function baixarResumo(url) {
@@ -112,7 +113,7 @@ async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
     if (!m) continue;
     const apuradas = int(a.s?.st);
     if (apuradas === 0) {
-      municipios[m.cdi] = { cd: a.cdabr, nm: m.nm, a: 0, v: 0, c: [] };
+      municipios[m.cdi] = { cd: a.cdabr, nm: m.nm, a: 0, v: 0, t: int(a.e?.te), ea: 0, c: [] };
       st[m.cdi] = 0;
     } else if (st[m.cdi] !== apuradas || !municipios[m.cdi]?.c?.length) {
       mudaram.push({ cd: a.cdabr, cdi: m.cdi, nm: m.nm, apuradas });

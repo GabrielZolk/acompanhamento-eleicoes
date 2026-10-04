@@ -12,12 +12,13 @@ import municipiosMapa from '../api/municipios-mapa.js';
 import partidos from '../api/partidos.js';
 import presenca from '../api/presenca.js';
 import eleitos from '../api/eleitos.js';
+import projecao from '../api/projecao.js';
 import { json } from '../api/_util.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC = path.join(root, 'public');
 const PORT = Number(process.env.PORT || 5173);
-const ROTAS = { '/api/painel': painel, '/api/versao': versao, '/api/candidatos': candidatos, '/api/municipios-mapa': municipiosMapa, '/api/partidos': partidos, '/api/presenca': presenca, '/api/eleitos': eleitos, '/api/municipio': municipio, '/api/municipios': municipios };
+const ROTAS = { '/api/painel': painel, '/api/versao': versao, '/api/candidatos': candidatos, '/api/municipios-mapa': municipiosMapa, '/api/partidos': partidos, '/api/presenca': presenca, '/api/eleitos': eleitos, '/api/projecao': projecao, '/api/municipio': municipio, '/api/municipios': municipios };
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

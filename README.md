@@ -42,8 +42,9 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   a partir de 04/10 às 18h21; o TSE não publica histórico).
 - **Pessoas acompanhando**: cada aba visível avisa a cada minuto; cada instância conta na memória e grava só o seu
   total no Redis a cada 20 s (custo fixo, não cresce com o número de visitantes).
-- **Projeção do resultado** (estimativa, card de evolução → Projeção): em cada estado, supõe que as seções que faltam
-  votem como as já apuradas; soma os estados e indica vitória no 1º turno ou 2º turno provável.
+- **Projeção do resultado** (estimativa): cidade a cidade (`/api/projecao`), votos válidos apurados × eleitorado total ÷
+  eleitorado apurado; cidades sem seções entram com o padrão do estado. Card de evolução → Projeção (Presidente) e
+  modal "Projeções por cidade" com Presidente (país e estados), Governador e Senado por estado.
 - **Eleitos** (botão no canto e menu Consultas): por cargo e lugar; oficial do TSE quando a totalização termina,
   antes disso quem lidera ou está dentro das vagas (provisório). `/api/eleitos`.
 - **Aviso de virada**: quando muda o primeiro colocado (país ou estado) ou, no Senado, quem está dentro das vagas.

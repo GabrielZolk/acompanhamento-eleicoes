@@ -9,6 +9,8 @@ import { parseUnificado, parseAcompanhamento } from './normalize.js';
 import { montarPainel } from './dashboard.js';
 import { montarPartidos, resumoPartidos } from './partidos.js';
 import { montarEleitos } from './eleitos.js';
+import { projetarUF, consolidar } from './projecao.js';
+import { obterMapaMunicipios } from './municipios.js';
 import { Tracker } from './tracker.js';
 import { store } from './store.js';
 import { mapLimit } from './util.js';
@@ -304,4 +306,71 @@ export function obterEleitos() {
     return { status: 200, body: eleitosMemo.valor };
   })().finally(() => (eleitosEmVoo = null));
   return eleitosEmVoo;
+}
+
+// ---------------------------------------------------------------- projeção por cidade
+const memoProj = new Map(); // "cargo:uf" -> { body, em } | { promessa }
+export function obterProjecao({ cargo: cargoKey, uf }) {
+  const cargo = CARGOS[cargoKey];
+  if (!cargo || cargo.proporcional) return Promise.resolve({ status: 400, body: { erro: 'Projeção disponível para Presidente, Governador e Senado.' } });
+  uf = cargo.federal ? 'br' : (uf || '').toLowerCase();
+  if (!cargo.federal && (!UF_BY_CODE[uf] || uf === 'zz')) return Promise.resolve({ status: 400, body: { erro: 'UF inválida.' } });
+  const chave = `${cargoKey}:${uf}`;
+  const m = memoProj.get(chave);
+  if (m?.promessa) return m.promessa;
+  if (m && Date.now() - m.em < 45e3) return Promise.resolve(m.body);
+  const promessa = calcularProjecao(cargo, cargoKey, uf).then(
+    (body) => {
+      memoProj.set(chave, { body, em: Date.now() });
+      return body;
+    },
+    (err) => {
+      memoProj.delete(chave);
+      throw err;
+    },
+  );
+  memoProj.set(chave, { promessa });
+  return promessa;
+}
+
+const agregadoDe = (cargoKey, uf) => obterMapaMunicipios({ cargo: cargoKey, uf }).then((r) => (r.status === 200 ? r.body : null)).catch(() => null);
+const resumoCand = (lista) => lista.map((c) => ({ n: c.n, nome: c.nome, partido: c.partido, atual: c.atual, projetado: c.projetado }));
+
+async function calcularProjecao(cargo, cargoKey, uf) {
+  if (cargo.federal) {
+    const { nacional, estados } = await carregarCargo(cargo);
+    if (!nacional) return { status: 503, body: { erro: 'Resultado nacional indisponível.' } };
+    const agregados = await Promise.all(UF_LIST.map((u) => agregadoDe(cargoKey, u)));
+    const porUF = {};
+    const partes = [];
+    UF_LIST.forEach((u, i) => {
+      const e = estados[u];
+      if (!e) return;
+      const p = projetarUF(e, agregados[i]);
+      partes.push(p);
+      const r = consolidar([p], e.candidatos);
+      porUF[u] = { secoes: e.secoes.pct, cobertura: r.cobertura, candidatos: resumoCand(r.candidatos.slice(0, 3)) };
+    });
+    const exterior = estados.zz ? projetarUF(estados.zz, null) : null;
+    const sem = consolidar(partes, nacional.candidatos);
+    const com = exterior ? consolidar([...partes, exterior], nacional.candidatos) : sem;
+    return {
+      status: 200,
+      body: {
+        cargo: cargo.nome,
+        escopo: 'br',
+        geradoEm: Date.now(),
+        com: { ...com, candidatos: resumoCand(com.candidatos) },
+        sem: { ...sem, candidatos: resumoCand(sem.candidatos) },
+        porUF,
+      },
+    };
+  }
+  const [e, agregado] = await Promise.all([carregarUF(cargo, uf), agregadoDe(cargoKey, uf)]);
+  if (!e) return { status: 404, body: { erro: 'Resultado do estado indisponível.' } };
+  const r = consolidar([projetarUF(e, agregado)], e.candidatos);
+  return {
+    status: 200,
+    body: { cargo: cargo.nome, escopo: uf, vagas: e.cargo.vagas, secoes: e.secoes.pct, geradoEm: Date.now(), ...r, candidatos: resumoCand(r.candidatos) },
+  };
 }

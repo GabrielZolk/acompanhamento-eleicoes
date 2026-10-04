@@ -173,9 +173,33 @@ function nomeCurto(nome) {
 }
 
 // Projeção do resultado: percentual atual × projetado dos três primeiros e o veredito estimado.
-function renderProjecao(d) {
+// Usa a projeção por cidade (servidor) quando disponível; senão, a projeção por estado (local).
+function projecaoAtual(d, cidade) {
+  const base = cidade && (d.semExterior ? cidade.sem : cidade.com);
+  if (!base?.candidatos?.length) {
+    const pr = projetarResultado(d);
+    return pr && { ...pr, metodo: 'estado' };
+  }
+  const nac = Object.fromEntries(d.nacional.candidatos.map((c) => [c.n, c]));
+  const candidatos = base.candidatos
+    .filter((c) => nac[c.n])
+    .map((c) => ({ n: c.n, nome: nac[c.n].nome, cor: nac[c.n].cor, atual: nac[c.n].pct, projetado: c.projetado }))
+    .sort((a, b) => b.projetado - a.projetado);
+  const [a, b] = candidatos;
+  return {
+    candidatos,
+    faltam: base.faltam,
+    validosProjetados: base.validosProjetados,
+    cobertura: base.cobertura,
+    venceNo1oTurno: a?.projetado > 50 ? a : null,
+    segundoTurno: a?.projetado > 50 ? null : [a, b],
+    metodo: 'cidade',
+  };
+}
+
+function renderProjecao(d, cidade) {
   if (d.status === 'aguardando') return '<p class="empty">A projeção aparece quando o TSE divulgar os primeiros votos.</p>';
-  const pr = projetarResultado(d);
+  const pr = projecaoAtual(d, cidade);
   if (!pr) return '<p class="empty">Ainda não há votos suficientes para projetar.</p>';
   const top = pr.candidatos.slice(0, 3);
   const escala = Math.max(60, Math.ceil((Math.max(...top.map((c) => Math.max(c.atual, c.projetado))) + 6) / 10) * 10);
@@ -211,17 +235,19 @@ function renderProjecao(d) {
   }
   return `<div class="proj">
       <div class="proj__rows">${linhas}
-        <div class="proj__nota">Barra cheia: agora · contorno tracejado: projeção. Supõe que as seções que faltam em cada estado votem como as já apuradas nele. Não é resultado oficial.</div>
+        <div class="proj__nota">Barra cheia: agora · tracejado: projeção. ${pr.metodo === 'cidade' ? `Cada cidade projetada pelo próprio resultado parcial (dados por cidade cobrem ${pct(pr.cobertura)} do eleitorado).` : 'Supõe que as seções que faltam em cada estado votem como as já apuradas nele.'} Não é resultado oficial.</div>
       </div>
       <div class="proj__veredito">
         <span class="tag-estimativa">Estimativa</span>
         ${veredito}
         <div class="proj__l"><small>Faltam ${pct(pr.faltam)} do eleitorado · ~${(pr.validosProjetados / 1e6).toFixed(1).replace('.', ',')} mi de votos válidos no total</small></div>
+        <button class="proj__mais" data-action="projecoes">Por estado, governador e Senado →</button>
       </div>
     </div>`;
 }
 
 export function renderEvolucao(d, largura, state) {
+  const cidade = state.projCidade;
   const temCandidatos = d.cargo.federal;
   const modo = temCandidatos ? state.evoModo : 'secoes';
   const seg = temCandidatos
@@ -237,7 +263,7 @@ export function renderEvolucao(d, largura, state) {
         ${seg}
         <p class="card__sub evolucao__sub"><b class="tag-estimativa">Estimativa</b> pode mudar até o fim</p>
       </div>
-      <div class="evolucao__chart evolucao__chart--proj">${renderProjecao(d)}</div>`;
+      <div class="evolucao__chart evolucao__chart--proj">${renderProjecao(d, cidade)}</div>`;
   }
   if (modo === 'candidatos') {
     return `<div class="evolucao__txt">

@@ -16,6 +16,7 @@ import { detectarViradas, mostrarViradas } from './ui/avisos.js';
 import { compartilhar } from './ui/compartilhar.js';
 import { criarModoTV } from './ui/tv.js';
 import { abrirEleitos, criarBotaoEleitos } from './ui/eleitos.js';
+import { abrirProjecoes } from './ui/projecoes.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -117,6 +118,7 @@ const header = createHeader({
   onPartido: (sigla) => abrirPartidos(sigla),
   listaPartidos,
   onTV: () => tv.entrar(),
+  onProjecoes: () => abrirTelaProjecoes(CARGOS[state.cargo].federal || CARGOS[state.cargo].proporcional ? 'presidente' : state.cargo),
   onUF: selecionarUF,
   onMunicipio: abrirMunicipio,
 });
@@ -236,12 +238,37 @@ setInterval(() => {
   if (document.visibilityState === 'visible' && state.data) tickAoVivo(vista());
 }, 90);
 $('evolucao').addEventListener('click', (ev) => {
+  if (ev.target.closest('[data-action="projecoes"]')) return abrirTelaProjecoes('presidente');
   const b = ev.target.closest('[data-evo]');
   if (!b) return;
   state.evoModo = b.dataset.evo;
   syncURL();
   renderBottom();
+  if (state.evoModo === 'projecao') carregarProjecaoCidade();
 });
+
+function abrirTelaProjecoes(aba) {
+  abrirProjecoes({ aba, uf: state.uf, cores: state.data?.cores || {}, semExterior: !state.incluirExterior });
+}
+
+// Projeção por cidade para o card de evolução (Presidente). A cada 60 s enquanto a aba Projeção está aberta.
+let projEm = 0;
+async function carregarProjecaoCidade(forcar = false) {
+  if (state.evoModo !== 'projecao' || !CARGOS[state.cargo].federal) return;
+  if (!forcar && Date.now() - projEm < 55000) return;
+  projEm = Date.now();
+  try {
+    const r = await fetch('/api/projecao?cargo=presidente');
+    if (!r.ok) return;
+    state.projCidade = await r.json();
+    renderBottom();
+  } catch {
+    /* segue com a projeção por estado */
+  }
+}
+setInterval(() => {
+  if (document.visibilityState === 'visible') carregarProjecaoCidade();
+}, 60000);
 
 // ------------------------------------------------------------------ dados
 let emVoo = null, pendente = false;
@@ -461,6 +488,7 @@ document.addEventListener('visibilitychange', () => {
   const geo = await mapa.init();
   prepararIcones(geo, REGIOES.map((r) => ({ id: r.id, ufs: UFS.filter((u) => u.regiao === r.id).map((u) => u.uf) })));
   avisarPresenca();
+  carregarProjecaoCidade(true);
   await carregar();
   carregarMapaCidades(true);
 })();
