@@ -1022,6 +1022,15 @@ a { color: inherit; }
 .cand { transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-out); }
 .cand--click:hover, .btn-row:hover { transform: translateY(-1px); }
 
+/* Radar: linha no topo que corre a cada checagem do TSE (5 s) e pisca verde com dado novo. */
+.radar { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 50; pointer-events: none; overflow: hidden; }
+.radar i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, transparent, rgba(91, 147, 255, 0.55)); opacity: 0; }
+.radar--checa i { animation: radar-corre 5s linear forwards; }
+.radar--novo i { background: linear-gradient(90deg, rgba(34, 197, 94, 0.2), #22c55e); animation: radar-novo 1.6s ease-out forwards; }
+@keyframes radar-corre { 0% { transform: scaleX(0); opacity: 1; } 92% { opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes radar-novo { 0% { transform: scaleX(0); opacity: 1; } 35% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+.live__sub [data-desde] { font-variant-numeric: tabular-nums; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

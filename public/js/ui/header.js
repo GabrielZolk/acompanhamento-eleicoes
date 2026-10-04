@@ -1,6 +1,14 @@
 import { esc, hora, dataExtenso, semAcento, nomeProprio, pct, int } from '../format.js';
 import { UFS } from '../ufs.js';
 
+// "atualizado há 12 s" / "há 3 min" a partir do horário em que o TSE gerou os dados.
+function tempoDesde(t) {
+  const s = Math.max(0, Math.round((Date.now() - t) / 1000));
+  if (s < 60) return `atualizado há ${s} s`;
+  const m = Math.floor(s / 60);
+  return m < 60 ? `atualizado há ${m} min` : `atualizado às ${hora(t)}`;
+}
+
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 
 export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos }) {
@@ -178,7 +186,7 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     } else if (d.status === 'finalizado') {
       cls = 'live--end'; titulo = 'Apuração finalizada'; sub = `${dia} · ${turno} · ${pct(d.nacional.secoes.pct)} das seções`;
     } else if (d.status === 'apurando') {
-      cls = 'live--on'; titulo = 'Atualização ao vivo'; sub = `${dia} · ${turno} · ${hora(d.atualizadoEm)}`;
+      cls = 'live--on'; titulo = 'Atualização ao vivo'; sub = `${turno} · `;
     } else {
       const passou = Date.now() >= (d.inicio || 0);
       cls = 'live--wait';
@@ -189,8 +197,16 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     const online = state.presenca > 0
       ? `<div class="live__online" title="Pessoas com o painel aberto e visível agora"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="currentColor"/><path d="M1.5 21c.6-4.2 3.6-6.5 7.5-6.5s6.9 2.3 7.5 6.5z" fill="currentColor"/><circle cx="17.5" cy="9" r="3" fill="currentColor" opacity=".6"/><path d="M17 14.6c3 .3 5 2.3 5.5 5.4h-4.3c-.3-2.1-1.2-3.9-2.6-5.1z" fill="currentColor" opacity=".6"/></svg>${int(state.presenca)} ${state.presenca === 1 ? 'pessoa acompanhando' : 'pessoas acompanhando'}</div>`
       : '';
-    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}</div>${online}</div>`;
+    const desde = cls === 'live--on' && d?.atualizadoEm
+      ? `<span data-desde="${d.atualizadoEm}" title="Dados do TSE gerados às ${hora(d.atualizadoEm)}">${tempoDesde(d.atualizadoEm)}</span>`
+      : '';
+    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}${desde}</div>${online}</div>`;
   }
+
+  // Relógio do "atualizado há": só troca o texto, sem redesenhar o cabeçalho.
+  setInterval(() => {
+    for (const el of document.querySelectorAll('[data-desde]')) el.textContent = tempoDesde(Number(el.dataset.desde));
+  }, 1000);
 
   return { renderStatus };
 }

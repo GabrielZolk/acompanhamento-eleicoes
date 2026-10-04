@@ -263,14 +263,26 @@ async function carregar(versao) {
 // painel completo quando ela muda. Se o painel vier atrasado em relação à versão, a próxima
 // checagem percebe a diferença e baixa de novo.
 const CHECAGEM = 5000;
+// Radar: a linha do topo corre a cada checagem; quando chega dado novo, pisca em verde.
+const radar = document.getElementById('radar');
+function pulsoRadar(cls) {
+  if (!radar) return;
+  radar.classList.remove('radar--checa', 'radar--novo');
+  void radar.offsetWidth;
+  radar.classList.add(cls);
+}
+
 async function checarVersao() {
   if (document.visibilityState !== 'visible' || emVoo) return;
+  pulsoRadar('radar--checa');
   try {
     const r = await fetch(`/api/versao?cargo=${state.cargo}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const { versao } = await r.json();
-    if (versao && versao !== versoes[state.cargo]) carregar(versao);
-    else if (state.erro) carregar();
+    if (versao && versao !== versoes[state.cargo]) {
+      pulsoRadar('radar--novo');
+      carregar(versao);
+    } else if (state.erro) carregar();
   } catch (err) {
     state.erro = err.message;
     header.renderStatus(vista(), state);

@@ -61,10 +61,13 @@ export function renderPrevisao(d) {
   const p = d.previsao || { status: 'aguardando', barras: [] };
   let txt, eta;
   switch (p.status) {
-    case 'estimada':
-      txt = 'Com o ritmo atual, a apuração deve ser concluída por volta de';
+    case 'estimada': {
+      const porMin = ((p.ritmoPorHora || 0) / 100) * (d.nacional?.secoes?.total || 0) / 60;
+      const ritmo = porMin >= 1000 ? `${(porMin / 1000).toFixed(1).replace('.', ',')} mil` : `${Math.round(porMin)}`;
+      txt = porMin > 0 ? `Ritmo de ≈ ${ritmo} seções/min. Fim previsto por volta de` : 'Com o ritmo atual, a apuração deve ser concluída por volta de';
       eta = hora(p.eta);
       break;
+    }
     case 'concluida':
       txt = 'Todas as seções foram totalizadas. Apuração concluída às';
       eta = hora(p.eta);

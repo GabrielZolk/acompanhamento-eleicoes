@@ -14,7 +14,8 @@ const sufixo = (el) => el.dataset.s || '';
 
 function contar(el, de, para) {
   if (calmo() || !Number.isFinite(de) || !Number.isFinite(para) || de === para) return;
-  const t0 = performance.now(), dur = 900;
+  // Votos rolam por 2,4 s e percentuais por 1,6 s, como um placar girando.
+  const t0 = performance.now(), dur = el.dataset.f === 'pct' ? 1600 : 2400;
   const id = (el._cnt = (el._cnt || 0) + 1);
   el.classList.remove('cnt--sobe', 'cnt--desce');
   void el.offsetWidth;
@@ -22,7 +23,7 @@ function contar(el, de, para) {
   const passo = (t) => {
     if (el._cnt !== id) return;
     const k = Math.min(1, (t - t0) / dur);
-    const e = 1 - Math.pow(1 - k, 3);
+    const e = 1 - Math.pow(1 - k, 4);
     el.textContent = formatar(el, de + (para - de) * e) + sufixo(el);
     if (k < 1) requestAnimationFrame(passo);
   };
