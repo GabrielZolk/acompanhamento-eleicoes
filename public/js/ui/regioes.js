@@ -24,6 +24,7 @@ export function prepararIcones(geo, regioes) {
 
 function rotulo(s, modo) {
   if (s.key === 'outros') return '';
+  if (s.sigla && modo !== 'votos' && s.pct >= 20) return `${s.label} ${Math.round(s.pct)}%`;
   if (modo === 'votos') return s.votos > 0 && s.pct >= 16 ? compacto(s.votos) : '';
   return s.pct >= 12 ? `${Math.round(s.pct)}%` : '';
 }
@@ -35,7 +36,8 @@ function stack(segs, modo) {
     .join('')}</div>`;
 }
 
-// Segmentos de uma UF, na mesma ordem e cores dos segmentos da região.
+// Segmentos de uma UF: no Presidente, na mesma ordem e cores da região; nos cargos estaduais,
+// os 3 partidos mais votados da própria UF.
 function segmentosUF(d, uf, ordem) {
   const e = d.estados[uf];
   if (!e?.votos?.validos) return [];
@@ -43,6 +45,12 @@ function segmentosUF(d, uf, ordem) {
   if (d.cargo.federal) for (const c of e.candidatos) votos[c.n] = c.votos;
   else if (d.cargo.key === 'camara') for (const p of e.partidos) votos[p.sigla] = p.votos;
   else for (const c of e.candidatos) votos[c.partido] = (votos[c.partido] || 0) + c.votos;
+  if (!d.cargo.federal) {
+    ordem = Object.keys(votos)
+      .sort((a, b) => votos[b] - votos[a])
+      .slice(0, 3)
+      .map((k) => ({ key: k, label: k, cor: d.cores[k], sigla: true }));
+  }
   let usado = 0;
   const segs = ordem.map((s) => {
     const v = votos[s.key] || 0;
@@ -71,7 +79,7 @@ export function renderRegioes(d, state) {
     ${d.regioes
       .map((r) => {
         const aberta = state.regiaoAberta === r.id;
-        const segs = r.segmentos.map((s) => ({ ...s, label: nomeSeg(s) }));
+        const segs = r.segmentos.map((s) => ({ ...s, label: nomeSeg(s), sigla: !d.cargo.federal }));
         const ordem = segs.filter((s) => s.key !== 'outros');
         return `<div class="reg ${aberta ? 'is-open' : ''}" data-key="r${r.id}">
           <button class="reg__row" data-reg="${r.id}" aria-expanded="${aberta}">

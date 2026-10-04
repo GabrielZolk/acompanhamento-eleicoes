@@ -73,17 +73,18 @@ function hsl(hex) {
   if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [(h * 60 + 360) % 360, d, l];
 }
-function semelhantes(a, b) {
+function semelhantes(a, b, matiz) {
   const [h1, , l1] = hsl(a), [h2, , l2] = hsl(b);
   const dh = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2));
-  return dh < 10.5 && Math.abs(l1 - l2) < 0.22;
+  return dh < matiz && Math.abs(l1 - l2) < 0.22;
 }
-const parecida = (cor, usadas) => usadas.some((u) => semelhantes(cor, u));
 
 // itens: [{ key, partido }] -> { [key]: cor }. A ordem dos itens define a prioridade.
 // 1ª passada: cada um fica com a cor do partido, se ela não colidir com uma já usada.
 // 2ª passada: quem colidiu recebe a primeira cor livre da paleta.
-export function atribuirCores(itens) {
+// matiz: diferença mínima de tom (graus) para duas cores não serem consideradas iguais.
+export function atribuirCores(itens, { matiz = 10.5 } = {}) {
+  const parecida = (cor, usadas) => usadas.some((u) => semelhantes(cor, u, matiz));
   const usadas = [];
   const out = {};
   for (const it of itens) {

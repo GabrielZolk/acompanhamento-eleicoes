@@ -1,6 +1,6 @@
 // Monta o payload consumido pelo navegador a partir dos dados normalizados.
 import { UFS, REGIOES, CARGOS, ELEITORADO_2022, ELEITORADO_2022_EXTERIOR } from '../public/js/ufs.js';
-import { atribuirCores, corPartido } from '../public/js/colors.js';
+import { atribuirCores, corPartido, PALETA } from '../public/js/colors.js';
 import { calcularPrevisao } from '../public/js/previsao.js';
 
 const UF_LIST = UFS.map((u) => u.uf);
@@ -31,10 +31,10 @@ function status(secoes, final) {
   return secoes?.apuradas > 0 ? 'apurando' : 'aguardando';
 }
 
-function segmentos(ordem, votosPorChave, validos, cores, rotulos) {
+function segmentos(ordem, votosPorChave, validos, cores, rotulos, max = MAX_SEGMENTOS) {
   const segs = [];
   let usado = 0;
-  for (const key of ordem.slice(0, MAX_SEGMENTOS)) {
+  for (const key of ordem.slice(0, max)) {
     const v = votosPorChave[key] || 0;
     usado += v;
     segs.push({ key, label: rotulos[key], votos: v, pct: pct(v, validos), cor: cores[key] });
@@ -111,10 +111,36 @@ function painelPresidente({ nacional, estados, ab }) {
   };
 }
 
+// Partido líder da UF (candidato mais votado ou, na Câmara, partido mais votado).
+function liderDe(e, camara) {
+  if (!e || !(e.secoes.apuradas > 0)) return null;
+  if (camara) return e.partidos[0]?.votos > 0 ? e.partidos[0].sigla : null;
+  return e.candidatos[0]?.votos > 0 ? e.candidatos[0].partido : null;
+}
+
 function painelEstadual({ cargo, estados, ab }) {
   const camara = cargo.key === 'camara';
   const est = {};
+
+  // Cores por partido para o mapa inteiro: quem lidera mais estados escolhe primeiro e
+  // tons parecidos (muitos partidos usam azul) são trocados por cores bem distintas.
   const votosNac = {};
+  const lideres = {};
+  for (const uf of UF_LIST) {
+    const e = estados[uf];
+    if (!e) continue;
+    for (const p of e.partidos) votosNac[p.sigla] = (votosNac[p.sigla] || 0) + p.votos;
+    const l = liderDe(e, camara);
+    if (l) lideres[l] = (lideres[l] || 0) + 1;
+  }
+  const ordem = Object.keys(votosNac).sort((a, b) => votosNac[b] - votosNac[a]);
+  const prioridade = [...ordem].sort((a, b) => (lideres[b] || 0) - (lideres[a] || 0) || votosNac[b] - votosNac[a]);
+  const cores = {
+    ...Object.fromEntries(ordem.map((s) => [s, corPartido(s)])),
+    ...atribuirCores(prioridade.filter((s) => lideres[s]).map((s) => ({ key: s, partido: s })), { matiz: 24 }),
+  };
+  const corDe = (sigla) => cores[sigla] || corPartido(sigla);
+
   let validosNac = 0, totalNac = 0, brancosNac = 0, nulosNac = 0;
   let geradoEm = ab?.geradoEm || 0, final = UF_LIST.length > 0;
 
@@ -132,9 +158,15 @@ function painelEstadual({ cargo, estados, ab }) {
     brancosNac += e.votos.brancos;
     nulosNac += e.votos.nulos;
 
-    const coresCand = atribuirCores(e.candidatos.map((c) => ({ key: c.n, partido: c.partido })));
-    const apurou = e.secoes.apuradas > 0;
-    let lider = null;
+    // Dois candidatos do mesmo partido na mesma disputa (possível no Senado) não ficam com a mesma cor.
+    const usadas = new Set();
+    const corCand = (c) => {
+      let cor = corDe(c.partido);
+      if (usadas.has(cor)) cor = PALETA.find((p) => !usadas.has(p)) || cor;
+      usadas.add(cor);
+      return cor;
+    };
+    const lider = liderDe(e, camara);
     let partidos = [];
     let candidatos;
     if (camara) {
@@ -145,21 +177,17 @@ function painelEstadual({ cargo, estados, ab }) {
         pct: pct(p.votos, e.votos.validos),
         eleitos: p.eleitos,
         candidatos: p.candidatos,
-        cor: corPartido(p.sigla),
+        cor: corDe(p.sigla),
       }));
-      for (const p of partidos) votosNac[p.sigla] = (votosNac[p.sigla] || 0) + p.votos;
-      if (apurou && partidos[0]?.votos > 0) lider = partidos[0].sigla;
       const eleitos = e.candidatos.filter((c) => c.eleito);
       const top = e.candidatos.slice(0, 30);
       const vistos = new Set(top.map((c) => c.n));
       candidatos = [...top, ...eleitos.filter((c) => !vistos.has(c.n))].map((c) => ({
         ...c,
-        cor: corPartido(c.partido),
+        cor: corDe(c.partido),
       }));
     } else {
-      candidatos = e.candidatos.map((c) => ({ ...c, cor: coresCand[c.n] }));
-      for (const c of e.candidatos) votosNac[c.partido] = (votosNac[c.partido] || 0) + c.votos;
-      if (apurou && candidatos[0]?.votos > 0) lider = candidatos[0].partido;
+      candidatos = e.candidatos.map((c) => ({ ...c, cor: corCand(c) }));
     }
     est[uf] = {
       secoes: e.secoes,
@@ -174,8 +202,6 @@ function painelEstadual({ cargo, estados, ab }) {
     };
   }
 
-  const ordem = Object.keys(votosNac).sort((a, b) => votosNac[b] - votosNac[a]);
-  const cores = Object.fromEntries(ordem.map((s) => [s, corPartido(s)]));
   const rotulos = Object.fromEntries(ordem.map((s) => [s, s]));
   const regioes = REGIOES.map((r) => {
     const ufs = UFS.filter((u) => u.regiao === r.id).map((u) => u.uf);
@@ -197,7 +223,8 @@ function painelEstadual({ cargo, estados, ab }) {
       ufs,
       secoes: { total, apuradas, pct: pct(apuradas, total) },
       validos,
-      segmentos: segmentos(ordem, votos, validos, cores, rotulos),
+      // Cada região mostra os seus 3 partidos mais votados (são muitos partidos nas disputas estaduais).
+      segmentos: segmentos(Object.keys(votos).sort((a, b) => votos[b] - votos[a]), votos, validos, cores, rotulos, 3),
     };
   });
 
