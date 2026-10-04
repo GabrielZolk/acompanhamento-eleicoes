@@ -12,7 +12,20 @@ export function nacionalSemExterior(d) {
     apuradas: n.secoes.apuradas - (zz.secoes?.apuradas || 0),
   };
   secoes.pct = pct(secoes.apuradas, secoes.total);
-  const eleitorado = n.eleitorado ? { ...n.eleitorado, total: n.eleitorado.total - (zz.eleitorado?.total || 0) } : null;
+  let eleitorado = null;
+  if (n.eleitorado) {
+    const z = zz.eleitorado || {};
+    const comparecimento = (n.eleitorado.comparecimento || 0) - (z.comparecimento || 0);
+    const abstencao = (n.eleitorado.abstencao || 0) - (z.abstencao || 0);
+    eleitorado = {
+      ...n.eleitorado,
+      total: n.eleitorado.total - (z.total || 0),
+      comparecimento,
+      abstencao,
+      pctComparecimento: pct(comparecimento, comparecimento + abstencao),
+      pctAbstencao: pct(abstencao, comparecimento + abstencao),
+    };
+  }
   if (!zz.votos || !n.votos) return { ...n, secoes, eleitorado };
 
   const v = n.votos, z = zz.votos;

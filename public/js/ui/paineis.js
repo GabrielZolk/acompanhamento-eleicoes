@@ -19,8 +19,9 @@ export function renderResumo(d) {
         </div>
       </div>
       <div class="resumo__side">
-        <div class="box"><div class="box__label">Brancos</div><div class="box__value">${int(v.brancos)} (${pct(v.pctBrancos)})</div></div>
-        <div class="box"><div class="box__label">Nulos</div><div class="box__value">${int(v.nulos)} (${pct(v.pctNulos)})</div></div>
+        <div class="box"><div class="box__label">Brancos <b>${pct(v.pctBrancos)}</b></div><div class="box__value">${int(v.brancos)}</div></div>
+        <div class="box"><div class="box__label">Nulos <b>${pct(v.pctNulos)}</b></div><div class="box__value">${int(v.nulos)}</div></div>
+        <div class="box" title="Eleitores das seções já apuradas que não foram votar"><div class="box__label">Abstenção ${n.eleitorado?.abstencao != null ? `<b>${pct(n.eleitorado.pctAbstencao)}</b>` : ''}</div><div class="box__value">${n.eleitorado?.abstencao != null ? int(n.eleitorado.abstencao) : '—'}</div></div>
       </div>
     </div>`;
 }

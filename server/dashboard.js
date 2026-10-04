@@ -242,14 +242,19 @@ function painelEstadual({ cargo, estados, ab }) {
 
   // A abrangência "br" do acompanhamento estadual inclui o exterior, que não vota para cargos estaduais.
   let secoes = { total: 0, apuradas: 0, pct: 0 };
-  let eleitorado = { total: 0 };
+  let eleitorado = { total: 0, comparecimento: 0, abstencao: 0 };
   for (const uf of UF_LIST) {
     const s = secoesDe(uf, estados, ab);
     secoes.total += s.total;
     secoes.apuradas += s.apuradas;
-    eleitorado.total += estados[uf]?.eleitorado?.total || ab?.ufs?.[uf]?.eleitorado?.total || 0;
+    const el = estados[uf]?.eleitorado || ab?.ufs?.[uf]?.eleitorado;
+    eleitorado.total += el?.total || 0;
+    eleitorado.comparecimento += el?.comparecimento || 0;
+    eleitorado.abstencao += el?.abstencao || 0;
   }
   secoes.pct = pct(secoes.apuradas, secoes.total);
+  eleitorado.pctAbstencao = pct(eleitorado.abstencao, eleitorado.abstencao + eleitorado.comparecimento);
+  eleitorado.pctComparecimento = pct(eleitorado.comparecimento, eleitorado.abstencao + eleitorado.comparecimento);
 
   return {
     status: status(secoes, final),
