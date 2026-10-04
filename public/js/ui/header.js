@@ -141,7 +141,8 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
 
   // ------------------------------------------------------------ Status
   function renderStatus(d, state) {
-    tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.cargo === state.cargo));
+    const aba = state.cargo === 'assembleia' ? 'camara' : state.cargo;
+    tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.cargo === aba));
     let cls, titulo, sub;
     const turno = `${d?.turno || 1}º turno`;
     const dia = dataExtenso(d?.inicio || Date.now());

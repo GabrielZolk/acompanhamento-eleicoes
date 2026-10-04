@@ -51,5 +51,11 @@ export const CARGOS = {
   presidente: { key: 'presidente', cd: 1, ele: '6257', nome: 'Presidente', titulo: 'Disputa para Presidente', federal: true },
   governador: { key: 'governador', cd: 3, ele: '6259', nome: 'Governador', titulo: 'Disputa para Governador', federal: false },
   senado: { key: 'senado', cd: 5, ele: '6259', nome: 'Senador', titulo: 'Disputa para o Senado', federal: false },
-  camara: { key: 'camara', cd: 6, ele: '6259', nome: 'Deputado Federal', titulo: 'Câmara dos Deputados', federal: false },
+  camara: { key: 'camara', cd: 6, ele: '6259', nome: 'Deputado Federal', titulo: 'Câmara dos Deputados', federal: false, proporcional: true },
+  // No DF não há Assembleia: a Câmara Legislativa elege deputados distritais (cargo 8 no TSE).
+  assembleia: { key: 'assembleia', cd: 7, cdDF: 8, ele: '6259', nome: 'Deputado Estadual', titulo: 'Assembleia Legislativa', federal: false, proporcional: true },
 };
+
+export const cdDoCargo = (cargo, uf) => (uf === 'df' && cargo.cdDF) || cargo.cd;
+export const tituloDoCargo = (cargo, uf) => (cargo.key === 'assembleia' && uf === 'df' ? 'Câmara Legislativa' : cargo.titulo);
+export const nomeDoCargo = (cargo, uf) => (cargo.key === 'assembleia' && uf === 'df' ? 'Deputado Distrital' : cargo.nome);

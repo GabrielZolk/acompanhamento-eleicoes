@@ -10,7 +10,7 @@ const MAX_SEGMENTOS = 4;
 export function montarPainel({ cargoKey, nacional, estados, ab, tracker, inicio }) {
   const cargo = CARGOS[cargoKey];
   const base = {
-    cargo: { key: cargo.key, cd: cargo.cd, nome: cargo.nome, titulo: cargo.titulo, federal: cargo.federal },
+    cargo: { key: cargo.key, cd: cargo.cd, nome: cargo.nome, titulo: cargo.titulo, federal: cargo.federal, proporcional: !!cargo.proporcional },
     turno: nacional?.turno || Object.values(estados)[0]?.turno || 1,
     eleitorado2022: ELEITORADO_2022,
     eleitorado2022Exterior: ELEITORADO_2022_EXTERIOR,
@@ -119,7 +119,7 @@ function liderDe(e, camara) {
 }
 
 function painelEstadual({ cargo, estados, ab }) {
-  const camara = cargo.key === 'camara';
+  const camara = !!cargo.proporcional; // deputados: o líder é o partido mais votado
   const est = {};
 
   // Cores por partido para o mapa inteiro: quem lidera mais estados escolhe primeiro e
@@ -179,12 +179,10 @@ function painelEstadual({ cargo, estados, ab }) {
         candidatos: p.candidatos,
         cor: corDe(p.sigla),
       }));
-      const eleitos = e.candidatos.filter((c) => c.eleito);
-      const top = e.candidatos.slice(0, 30);
-      const vistos = new Set(top.map((c) => c.n));
-      candidatos = [...top, ...eleitos.filter((c) => !vistos.has(c.n))].map((c) => ({
-        ...c,
-        cor: corDe(c.partido),
+      // Só os mais votados vão no painel; a lista completa vem de /api/candidatos.
+      candidatos = e.candidatos.slice(0, 10).map((c) => ({
+        n: c.n, sq: c.sq, nome: c.nome, partido: c.partido, votos: c.votos, pct: c.pct,
+        eleito: c.eleito, situacao: c.situacao, foto: c.foto, cor: corDe(c.partido),
       }));
     } else {
       candidatos = e.candidatos.map((c) => ({ ...c, cor: corCand(c) }));
@@ -196,6 +194,7 @@ function painelEstadual({ cargo, estados, ab }) {
       geradoEm: e.geradoEm,
       vagas: e.cargo.vagas,
       totalCandidatos: e.candidatos.length,
+      eleitos: camara ? e.candidatos.filter((c) => c.eleito).length : undefined,
       candidatos,
       partidos,
       lider,

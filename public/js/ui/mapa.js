@@ -194,7 +194,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       const nac = candidatoNac();
       return e.candidatos.slice(0, 3).map((c) => ({ nome: nac[c.n]?.nome || c.n, cor: nac[c.n]?.cor || '#94a3b8', pct: c.pct }));
     }
-    if (data.cargo.key === 'camara') return e.partidos.slice(0, 3).map((p) => ({ nome: p.sigla, cor: p.cor, pct: p.pct, sigla: true }));
+    if (data.cargo.proporcional) return e.partidos.slice(0, 3).map((p) => ({ nome: p.sigla, cor: p.cor, pct: p.pct, sigla: true }));
     return e.candidatos.slice(0, 3).map((c) => ({ nome: `${nomeProprio(c.nome)} (${c.partido})`, cor: c.cor, pct: c.pct, sigla: true }));
   }
 
@@ -239,7 +239,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       ops.push(['lider', 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
       for (const c of data.nacional.candidatos.slice(0, 3)) ops.push([`cand:${c.n}`, `Votação: ${nomeProprio(c.nome)}`]);
     } else {
-      ops.push(['lider', data.cargo.key === 'camara' ? 'Partido mais votado' : 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
+      ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
     }
     return ops;
   }
@@ -256,6 +256,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       governador: 'Partido do candidato a governador mais votado em cada estado',
       senado: 'Partido do candidato ao Senado mais votado em cada estado',
       camara: 'Partido mais votado para deputado federal em cada estado',
+      assembleia: 'Partido mais votado para deputado estadual (distrital no DF) em cada estado',
     }[data.cargo.key];
   }
 
@@ -287,7 +288,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
         .slice(0, 6)
         .map(([sg, n]) => ({ cor: data.cores[sg], nome: `${sg} · ${n} ${n === 1 ? 'estado' : 'estados'}` }));
     }
-    const titulo = data.cargo.federal ? 'Candidato mais votado' : data.cargo.key === 'camara' ? 'Partido mais votado' : 'Partido do líder';
+    const titulo = data.cargo.federal ? 'Candidato mais votado' : data.cargo.proporcional ? 'Partido mais votado' : 'Partido do líder';
     return `<div class="legend__title">${titulo}</div>
       ${itens.map((i) => `<div class="legend__item" style="--c:${i.cor}"><span class="legend__dot"></span><span>${esc(i.nome)}</span></div>`).join('')}
       <div class="legend__item" style="--c:#5d6577"><span class="legend__dot"></span><span>Sem definição</span></div>`;

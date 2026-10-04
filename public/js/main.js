@@ -9,6 +9,7 @@ import { renderRegioes, prepararIcones } from './ui/regioes.js';
 import { renderResumo, renderUpdates, renderPrevisao } from './ui/paineis.js';
 import { renderEvolucao } from './ui/evolucao.js';
 import * as modal from './ui/modais.js';
+import { abrirCandidatos } from './ui/candidatos.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -20,6 +21,7 @@ const state = {
   mapaModo: 'lider',
   regiaoModo: 'validos',
   regiaoAberta: null,
+  visaoDep: 'partidos',
   pins: null,
   data: null,
   erro: null,
@@ -118,8 +120,15 @@ const mapa = createMapa({
 });
 
 $('disputa').addEventListener('click', (ev) => {
-  if (ev.target.closest('[data-action="todos"]') && state.data) {
-    modal.abrir(modal.modalTodos(vista(), state));
+  const alvo = ev.target.closest('[data-action]');
+  if (!alvo || !state.data) return;
+  const acao = alvo.dataset.action;
+  if (acao === 'todos') modal.abrir(modal.modalTodos(vista(), state));
+  else if (acao === 'candidatos') abrirCandidatos({ cargo: state.cargo, uf: state.uf, cores: state.data.cores });
+  else if (acao === 'dep-tipo') setCargo(alvo.dataset.cargo);
+  else if (acao === 'visao') {
+    state.visaoDep = alvo.dataset.v;
+    render();
   }
 });
 $('disputa').addEventListener('change', (ev) => {

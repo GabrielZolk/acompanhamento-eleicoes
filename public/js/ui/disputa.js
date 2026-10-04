@@ -1,5 +1,5 @@
 import { int, pct, sinal, esc, nomeProprio } from '../format.js';
-import { UFS, UF_BY_CODE } from '../ufs.js';
+import { UFS, UF_BY_CODE, tituloDoCargo } from '../ufs.js';
 import { avatar, avatarPartido, donut, ICON } from './common.js';
 
 const VISIVEIS = 6;
@@ -115,31 +115,58 @@ export function renderDisputa(d, state) {
   const e = d.estados[state.uf];
   const nomeUF = UF_BY_CODE[state.uf]?.nome || state.uf.toUpperCase();
   const temVotos = e?.secoes?.apuradas > 0;
+  const prop = cargo.proporcional;
+  const visao = prop ? state.visaoDep : 'candidatos';
   let corpo;
   if (!e || !e.votos) {
     corpo = `<p class="empty">Resultado de ${esc(nomeUF)} indisponível no momento.</p>`;
-  } else if (cargo.key === 'camara') {
+  } else if (visao === 'partidos') {
     corpo = e.partidos.slice(0, VISIVEIS).map((p, i) => linhaPartido(p, i, { lider: i === 0 && temVotos, ranking: temVotos })).join('');
   } else {
-    const vagas = e.vagas || 1;
+    const vagas = prop ? 0 : e.vagas || 1;
     corpo = e.candidatos
       .slice(0, VISIVEIS)
       .map((c, i) => linhaCandidato(c, i, { lider: i < vagas && temVotos, mostrarVotos: true, ranking: temVotos }))
       .join('');
   }
-  const sub =
-    cargo.key === 'camara'
-      ? `Votos por partido&nbsp; •&nbsp; ${esc(nomeUF)}${e?.vagas ? `&nbsp; •&nbsp; ${e.vagas} vagas` : ''}`
-      : `Votos válidos&nbsp; •&nbsp; ${esc(nomeUF)}${cargo.key === 'senado' && e?.vagas ? `&nbsp; •&nbsp; ${e.vagas} vagas` : ''}`;
-  const totalItens = cargo.key === 'camara' ? e?.totalCandidatos : e?.candidatos?.length;
-  return `<div class="card__head disputa__head">
-      <div>
-        <h2 class="card__title">${esc(cargo.titulo)}</h2>
-        <p class="card__sub">${sub}</p>
-      </div>
-      ${seletorUF(state.uf)}
-    </div>
+
+  let cabecalho;
+  if (prop) {
+    // Deputados: Federal × Estadual (Distrital no DF) e Partidos × Candidatos.
+    const seg = (acao, attr, valor, rotulo, on) =>
+      `<button data-action="${acao}" ${attr}="${valor}" class="${on ? 'is-on' : ''}" aria-pressed="${on}">${rotulo}</button>`;
+    cabecalho = `<div class="disputa__head disputa__head--prop">
+        <div class="card__head">
+          <h2 class="card__title">${esc(tituloDoCargo(cargo, state.uf))}</h2>
+          ${seletorUF(state.uf)}
+        </div>
+        <div class="disputa__sub">
+          <div class="seg" role="group" aria-label="Tipo de deputado">
+            ${seg('dep-tipo', 'data-cargo', 'camara', 'Federal', cargo.key === 'camara')}
+            ${seg('dep-tipo', 'data-cargo', 'assembleia', state.uf === 'df' ? 'Distrital' : 'Estadual', cargo.key === 'assembleia')}
+          </div>
+          <div class="seg" role="group" aria-label="Exibir">
+            ${seg('visao', 'data-v', 'partidos', 'Partidos', visao === 'partidos')}
+            ${seg('visao', 'data-v', 'candidatos', 'Candidatos', visao === 'candidatos')}
+          </div>
+        </div>
+      </div>`;
+  } else {
+    const sub = `Votos válidos&nbsp; •&nbsp; ${esc(nomeUF)}${cargo.key === 'senado' && e?.vagas ? `&nbsp; •&nbsp; ${e.vagas} vagas` : ''}`;
+    cabecalho = `<div class="card__head disputa__head">
+        <div>
+          <h2 class="card__title">${esc(cargo.titulo)}</h2>
+          <p class="card__sub">${sub}</p>
+        </div>
+        ${seletorUF(state.uf)}
+      </div>`;
+  }
+  const total = e?.totalCandidatos || e?.candidatos?.length || 0;
+  const botao = prop
+    ? `Ver todos os ${int(total)} candidatos${e?.vagas ? ` · ${e.vagas} vagas` : ''}${e?.eleitos ? ` · ${e.eleitos} eleitos` : ''}`
+    : `Ver todos os candidatos ${total > VISIVEIS ? `(${int(total)})` : ''}`;
+  return `${cabecalho}
     <div class="disputa__list">${corpo}</div>
-    <button class="btn-row" data-action="todos">${cargo.key === 'camara' ? 'Ver partidos e candidatos' : 'Ver todos os candidatos'} ${totalItens > VISIVEIS ? `(${int(totalItens)})` : ''} ${ICON.chevRight}</button>
+    <button class="btn-row" data-action="candidatos">${botao} ${ICON.chevRight}</button>
     ${stats({ eleitorado: e?.eleitorado, secoes: e?.secoes, rotuloEleitorado: `aptos a votar em ${state.uf.toUpperCase()}` })}`;
 }

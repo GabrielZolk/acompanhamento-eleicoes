@@ -7,12 +7,13 @@ import painel from '../api/painel.js';
 import municipio from '../api/municipio.js';
 import municipios from '../api/municipios.js';
 import versao from '../api/versao.js';
+import candidatos from '../api/candidatos.js';
 import { json } from '../api/_util.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC = path.join(root, 'public');
 const PORT = Number(process.env.PORT || 5173);
-const ROTAS = { '/api/painel': painel, '/api/versao': versao, '/api/municipio': municipio, '/api/municipios': municipios };
+const ROTAS = { '/api/painel': painel, '/api/versao': versao, '/api/candidatos': candidatos, '/api/municipio': municipio, '/api/municipios': municipios };
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

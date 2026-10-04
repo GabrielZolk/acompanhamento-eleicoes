@@ -29,8 +29,12 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
 - **Incluir exterior** (marcado por padrão): o total nacional do TSE já inclui os votos do exterior. Desmarcado,
   o exterior é subtraído de candidatos, seções, eleitorado, brancos/nulos e da curva de evolução. O exterior também
   aparece no mapa (marcador "Exterior") e no feed de atualizações (`EX`).
-- **Governadores, Senado e Câmara**: resultado por estado (escolha no seletor ou clicando no mapa); o mapa mostra
-  o partido líder em cada UF. Na Câmara, votos por partido (nominais + legenda), mais votados e eleitos.
+- **Governadores e Senado**: resultado por estado (escolha no seletor ou clicando no mapa); o mapa mostra o partido
+  líder em cada UF.
+- **Deputados**: Federal ou Estadual (Distrital no DF), por partido (nominais + legenda) ou por candidato. O mapa
+  mostra o partido mais votado em cada UF.
+- **Lista completa de candidatos** de qualquer cargo estadual, com pesquisa por nome, número ou partido, filtro de
+  eleitos e busca em todos os estados (`/api/candidatos`).
 - **Busca** (Ctrl/⌘ K): estados, exterior e todos os municípios — abre o resultado da cidade para o cargo atual.
 
 ## Como funciona

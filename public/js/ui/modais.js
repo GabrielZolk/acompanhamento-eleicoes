@@ -111,7 +111,7 @@ export function modalUpdates(d) {
 export function modalMunicipio(m) {
   if (m.erro) return `<h3>${esc(m.titulo || 'Município')}</h3><p class="empty">${esc(m.erro)}</p>`;
   if (!m.candidatos) return `<h3>${esc(m.titulo)}</h3><p class="card__sub">Carregando resultado…</p><div class="mlist">${'<div class="mrow skeleton" style="height:56px"></div>'.repeat(4)}</div>`;
-  const camara = m.cargo === 'Deputado Federal';
+  const camara = m.proporcional;
   const total = m.votos?.validos || 0;
   const partidos = (m.partidos || []).map((p) => ({ ...p, pct: total ? (p.votos / total) * 100 : 0, cor: m.candidatos.find((c) => c.partido === p.sigla)?.cor || '#94a3b8' }));
   return `<h3>${esc(nomeProprio(m.municipio))} (${ufLabel(m.uf)})</h3>

@@ -43,7 +43,7 @@ function segmentosUF(d, uf, ordem) {
   if (!e?.votos?.validos) return [];
   const votos = {};
   if (d.cargo.federal) for (const c of e.candidatos) votos[c.n] = c.votos;
-  else if (d.cargo.key === 'camara') for (const p of e.partidos) votos[p.sigla] = p.votos;
+  else if (d.cargo.proporcional) for (const p of e.partidos) votos[p.sigla] = p.votos;
   else for (const c of e.candidatos) votos[c.partido] = (votos[c.partido] || 0) + c.votos;
   if (!d.cargo.federal) {
     ordem = Object.keys(votos)
