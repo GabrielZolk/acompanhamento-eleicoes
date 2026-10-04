@@ -15,7 +15,7 @@ export function montarPainel({ cargoKey, nacional, estados, ab, tracker, inicio 
     eleitorado2022: ELEITORADO_2022,
     eleitorado2022Exterior: ELEITORADO_2022_EXTERIOR,
     inicio,
-    historico: tracker.historico.map(({ t, pct, pctSE }) => ({ t, pct, pctSE: pctSE ?? pct })),
+    historico: tracker.historico.map(({ t, pct, pctSE, c, cSE }) => ({ t, pct, pctSE: pctSE ?? pct, ...(c ? { c, cSE } : {}) })),
     atualizacoes: tracker.atualizacoes,
     previsao: calcularPrevisao(tracker.historico),
     geradoEm: Date.now(),
@@ -125,6 +125,7 @@ function painelEstadual({ cargo, estados, ab }) {
   // Cores por partido para o mapa inteiro: quem lidera mais estados escolhe primeiro e
   // tons parecidos (muitos partidos usam azul) são trocados por cores bem distintas.
   const votosNac = {};
+  const bancadaNac = {};
   const lideres = {};
   for (const uf of UF_LIST) {
     const e = estados[uf];
@@ -176,13 +177,15 @@ function painelEstadual({ cargo, estados, ab }) {
         votos: p.votos,
         pct: pct(p.votos, e.votos.validos),
         eleitos: p.eleitos,
+        cadeiras: p.cadeiras || 0,
         candidatos: p.candidatos,
         cor: corDe(p.sigla),
       }));
+      for (const p of partidos) bancadaNac[p.sigla] = (bancadaNac[p.sigla] || 0) + p.cadeiras;
       // Só os mais votados vão no painel; a lista completa vem de /api/candidatos.
       candidatos = e.candidatos.slice(0, 10).map((c) => ({
         n: c.n, sq: c.sq, nome: c.nome, partido: c.partido, votos: c.votos, pct: c.pct,
-        eleito: c.eleito, situacao: c.situacao, foto: c.foto, cor: corDe(c.partido),
+        eleito: c.eleito, projetado: !!c.projetado, situacao: c.situacao, foto: c.foto, cor: corDe(c.partido),
       }));
     } else {
       candidatos = e.candidatos.map((c) => ({ ...c, cor: corCand(c) }));
@@ -195,11 +198,21 @@ function painelEstadual({ cargo, estados, ab }) {
       vagas: e.cargo.vagas,
       totalCandidatos: e.candidatos.length,
       eleitos: camara ? e.candidatos.filter((c) => c.eleito).length : undefined,
+      quociente: camara ? e.quociente : undefined,
+      agremiacoes: camara ? e.agremiacoes.filter((a) => a.vagas > 0).map((a) => ({ sigla: a.sigla, tipo: a.tipo, vagas: a.vagas, partidos: a.partidos })) : undefined,
       candidatos,
       partidos,
       lider,
     };
   }
+
+  // Projeção de cadeiras no país (soma dos estados), com os votos apurados até agora.
+  const bancadas = camara
+    ? Object.entries(bancadaNac)
+        .filter(([, n]) => n > 0)
+        .map(([sigla, cadeiras]) => ({ sigla, cadeiras, votos: votosNac[sigla] || 0, cor: corDe(sigla) }))
+        .sort((a, b) => b.cadeiras - a.cadeiras || b.votos - a.votos)
+    : undefined;
 
   const rotulos = Object.fromEntries(ordem.map((s) => [s, s]));
   const regioes = REGIOES.map((r) => {
@@ -258,5 +271,6 @@ function painelEstadual({ cargo, estados, ab }) {
     estados: est,
     regioes,
     cores,
+    bancadas,
   };
 }

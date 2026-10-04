@@ -13,8 +13,9 @@ export class Tracker {
     this.ultimo = salvo?.ultimo || {};
   }
 
-  // ab: retorno de parseAcompanhamento. Devolve true se algo mudou.
-  ingest(ab) {
+  // ab: retorno de parseAcompanhamento. cands (opcional): percentual de cada candidato
+  // ({ c: { n: pct }, cSE: { n: pct } }) para o histórico de resultado. Devolve true se algo mudou.
+  ingest(ab, cands = null) {
     if (!ab) return false;
     const t = ab.geradoEm || Date.now();
     let mudou = false;
@@ -39,11 +40,15 @@ export class Tracker {
         ts += item.secoes.total;
         st += item.secoes.apuradas;
       }
-      const ponto = { t, pct: nac.pct, pctSE: ts ? (st / ts) * 100 : 0, apuradas: nac.apuradas };
+      const ponto = { t, pct: nac.pct, pctSE: ts ? (st / ts) * 100 : 0, apuradas: nac.apuradas, ...(cands || {}) };
       const last = this.historico.at(-1);
       if (!last || last.apuradas !== nac.apuradas) {
         if (last && t <= last.t) Object.assign(last, ponto, { t: last.t }); // mesmo instante de geração
         else this.historico.push(ponto);
+        mudou = true;
+      } else if (cands && JSON.stringify(last.c) !== JSON.stringify(cands.c)) {
+        // O arquivo nacional pode ser publicado um pouco depois do andamento: atualiza o último ponto.
+        Object.assign(last, cands);
         mudou = true;
       }
     }

@@ -45,7 +45,7 @@ export function vistaExterior(d, incluir) {
     ...d,
     semExterior: true,
     nacional: nacionalSemExterior(d),
-    historico: d.historico.map((p) => ({ ...p, pct: p.pctSE ?? p.pct })),
+    historico: d.historico.map((p) => ({ ...p, pct: p.pctSE ?? p.pct, c: p.cSE ?? p.c })),
     atualizacoes: d.atualizacoes.filter((u) => u.uf !== 'zz'),
     eleitorado2022: d.eleitorado2022 - (d.eleitorado2022Exterior || 0),
   };

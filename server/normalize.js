@@ -41,7 +41,19 @@ export function parseUnificado(raw, { foto } = {}) {
   const carg = raw.carg[0];
   const candidatos = [];
   const partidos = [];
+  const agremiacoes = [];
   for (const agr of carg.agr || []) {
+    // Vagas que o TSE atribui à agremiação (partido ou federação) com os votos apurados até agora.
+    if (agr.vag !== undefined && carg.qe) {
+      agremiacoes.push({
+        nome: agr.nm,
+        sigla: (agr.com || agr.par?.[0]?.sg || '').replace(/\s*\/\s*/g, '/'),
+        tipo: tipoAgremiacao[agr.tp] || agr.tp,
+        vagas: int(agr.vag),
+        partidos: (agr.par || []).map((p) => p.sg),
+        votos: (agr.par || []).reduce((s, p) => s + int(p.tvtn) + int(p.tvtl), 0),
+      });
+    }
     for (const par of agr.par || []) {
       const cands = par.cand || [];
       const nominais = cands.reduce((s, c) => s + int(c.vap), 0);
@@ -65,6 +77,7 @@ export function parseUnificado(raw, { foto } = {}) {
           nomeCompleto: c.nm,
           partido: par.sg,
           agremiacao: agr.tp === 'i' ? null : { tipo: tipoAgremiacao[agr.tp] || agr.tp, nome: agr.nm, composicao: agr.com },
+          agr: agr.n,
           votos: int(c.vap),
           pct: num(c.pvap),
           eleito: c.e === 's',
@@ -78,6 +91,23 @@ export function parseUnificado(raw, { foto } = {}) {
   }
   candidatos.sort((a, b) => b.votos - a.votos || a.seq - b.seq);
   partidos.sort((a, b) => b.votos - a.votos || a.sigla.localeCompare(b.sigla));
+
+  // Eleição proporcional: dentro de cada agremiação, as vagas vão para os mais votados da lista.
+  // Antes do fim da totalização isso é uma projeção ("projetado"); depois o TSE marca os eleitos.
+  if (agremiacoes.length) {
+    const vagasPorAgr = Object.fromEntries((carg.agr || []).map((a) => [a.n, int(a.vag)]));
+    const usadas = {};
+    for (const c of candidatos) {
+      if (c.votos > 0 && (usadas[c.agr] || 0) < (vagasPorAgr[c.agr] || 0)) {
+        usadas[c.agr] = (usadas[c.agr] || 0) + 1;
+        c.projetado = true;
+      }
+    }
+    const cadeiras = {};
+    for (const c of candidatos) if (c.eleito || c.projetado) cadeiras[c.partido] = (cadeiras[c.partido] || 0) + 1;
+    for (const p of partidos) p.cadeiras = cadeiras[p.sigla] || 0;
+    agremiacoes.sort((a, b) => b.vagas - a.vagas || b.votos - a.votos);
+  }
   return {
     ele: raw.ele,
     turno: int(raw.t),
@@ -92,6 +122,8 @@ export function parseUnificado(raw, { foto } = {}) {
     votos: parseVotos(raw.v),
     candidatos,
     partidos,
+    agremiacoes,
+    quociente: int(carg.qe) || null,
   };
 }
 

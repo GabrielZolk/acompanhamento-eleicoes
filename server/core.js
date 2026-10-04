@@ -7,6 +7,7 @@ import { atribuirCores } from '../public/js/colors.js';
 import { fetchJson, urls } from './tse.js';
 import { parseUnificado, parseAcompanhamento } from './normalize.js';
 import { montarPainel } from './dashboard.js';
+import { montarPartidos, resumoPartidos } from './partidos.js';
 import { Tracker } from './tracker.js';
 import { store } from './store.js';
 import { mapLimit } from './util.js';
@@ -45,7 +46,22 @@ async function carregarCargo(cargo) {
   return { nacional, estados };
 }
 
-async function trackerAtualizado(ele, ab) {
+// Percentual dos principais candidatos a Presidente, com e sem o exterior (histórico de resultado).
+function fotoCandidatos(nacional, zz) {
+  const top = (nacional?.candidatos || []).filter((c) => c.votos > 0).slice(0, 5);
+  if (!top.length) return null;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const zzVotos = Object.fromEntries((zz?.candidatos || []).map((c) => [c.n, c.votos]));
+  const validosSE = (nacional.votos?.validos || 0) - (zz?.votos?.validos || 0);
+  const c = {}, cSE = {};
+  for (const x of top) {
+    c[x.n] = r2(x.pct);
+    cSE[x.n] = validosSE > 0 ? r2(((x.votos - (zzVotos[x.n] || 0)) / validosSE) * 100) : 0;
+  }
+  return { c, cSE };
+}
+
+async function trackerAtualizado(ele, ab, cands = null) {
   const chave = `apuracao2026:tracker:${ele}`;
   let salvo = null;
   try {
@@ -54,7 +70,7 @@ async function trackerAtualizado(ele, ab) {
     console.error('[store] leitura falhou:', err.message);
   }
   const tracker = new Tracker(salvo);
-  if (tracker.ingest(ab)) {
+  if (tracker.ingest(ab, cands)) {
     try {
       await store.set(chave, tracker.toJSON());
     } catch (err) {
@@ -84,7 +100,7 @@ async function montarPainelAtual(cargoKey) {
     carregarCargo(cargo),
   ]);
   if (!ab && !dados.nacional && !Object.keys(dados.estados).length) return null;
-  const tracker = await trackerAtualizado(cargo.ele, ab);
+  const tracker = await trackerAtualizado(cargo.ele, ab, cargo.federal ? fotoCandidatos(dados.nacional, dados.estados.zz) : null);
   const p = montarPainel({ cargoKey, ...dados, ab, tracker, inicio: INICIO });
   p.armazenamento = store.tipo;
   p.versao = versaoDe(ab, dados.nacional);
@@ -166,6 +182,7 @@ const compacto = (c, uf, pos) => ({
   votos: c.votos,
   pct: c.pct,
   eleito: c.eleito,
+  projetado: !!c.projetado,
   situacao: c.situacao,
   pos,
   uf,
@@ -192,6 +209,8 @@ export async function obterCandidatos({ cargo: cargoKey, uf, q }) {
         uf,
         cargo: nomeDoCargo(cargo, uf),
         vagas: e.cargo.vagas,
+        quociente: e.quociente,
+        final: e.final,
         secoes: e.secoes,
         votos: e.votos,
         fotoBase: urls.foto(cargo.ele, uf, '{sq}'),
@@ -213,4 +232,28 @@ export async function obterCandidatos({ cargo: cargoKey, uf, q }) {
   });
   achados.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome));
   return { status: 200, body: { uf: 'br', cargo: cargo.nome, total: achados.length, candidatos: achados.slice(0, 80) } };
+}
+
+// ---------------------------------------------------------------- partidos (todos os cargos)
+let partidosMemo = { chave: null, valor: null, em: 0 };
+async function calcularPartidos() {
+  const keys = ['presidente', 'governador', 'senado', 'camara', 'assembleia'];
+  const lidos = await Promise.all(keys.map((k) => carregarCargo(CARGOS[k])));
+  const dados = Object.fromEntries(keys.map((k, i) => [k, lidos[i]]));
+  // Recalcula só quando algum arquivo mudou (os objetos normalizados são reaproveitados no 304).
+  const chave = keys.map((k) => [dados[k].nacional?.idg, ...Object.values(dados[k].estados).map((e) => e.idg)].join(',')).join('|');
+  if (partidosMemo.chave !== chave) partidosMemo = { chave, valor: montarPartidos(dados), em: Date.now() };
+  return partidosMemo.valor;
+}
+
+export async function obterPartidos() {
+  return { status: 200, body: { atualizadoEm: Date.now(), ...resumoPartidos(await calcularPartidos()) } };
+}
+
+export async function obterPartido(sigla) {
+  const todos = await calcularPartidos();
+  const alvo = (sigla || '').trim().toUpperCase();
+  const p = todos.partidos.find((x) => x.sigla.toUpperCase() === alvo);
+  if (!p) return { status: 404, body: { erro: 'Partido não encontrado.' } };
+  return { status: 200, body: { atualizadoEm: Date.now(), totais: todos.totais, vagas: todos.vagas, partido: p } };
 }
