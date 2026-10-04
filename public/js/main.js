@@ -7,7 +7,7 @@ import { createMapa } from './ui/mapa.js';
 import { renderDisputa } from './ui/disputa.js';
 import { renderRegioes, prepararIcones } from './ui/regioes.js';
 import { renderResumo, renderUpdates, renderPrevisao } from './ui/paineis.js';
-import { renderEvolucao } from './ui/evolucao.js';
+import { renderEvolucao, tickAoVivo } from './ui/evolucao.js';
 import * as modal from './ui/modais.js';
 import { abrirCandidatos } from './ui/candidatos.js';
 import { abrirCadeiras } from './ui/cadeiras.js';
@@ -50,6 +50,10 @@ function syncURL() {
 // ------------------------------------------------------------------ ações
 function setCargo(cargo) {
   if (cargo === state.cargo) return;
+  document.body.classList.remove('troca');
+  void document.body.offsetWidth;
+  document.body.classList.add('troca');
+  setTimeout(() => document.body.classList.remove('troca'), 600);
   state.cargo = cargo;
   setTimeout(() => carregarMapaCidades(true), 0);
   state.mapaModo = 'lider';
@@ -215,6 +219,10 @@ function renderBottom() {
   morph($('previsao'), renderPrevisao(d, state));
 }
 new ResizeObserver(() => renderBottom()).observe($('evolucao'));
+// Contador ao vivo: só troca os textos, ~11 vezes por segundo, com a aba visível.
+setInterval(() => {
+  if (document.visibilityState === 'visible' && state.data) tickAoVivo(vista());
+}, 90);
 $('evolucao').addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-evo]');
   if (!b) return;
@@ -266,6 +274,12 @@ const CHECAGEM = 5000;
 // Radar: a linha do topo corre a cada checagem; quando chega dado novo, pisca em verde.
 const radar = document.getElementById('radar');
 function pulsoRadar(cls) {
+  const dot = document.querySelector('.live__dot');
+  if (dot) {
+    dot.classList.remove('live__dot--ping');
+    void dot.offsetWidth;
+    dot.classList.add('live__dot--ping');
+  }
   if (!radar) return;
   radar.classList.remove('radar--checa', 'radar--novo');
   void radar.offsetWidth;

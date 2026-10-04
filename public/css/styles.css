@@ -631,6 +631,7 @@ a { color: inherit; }
 .reg__nome { font-size: 13.5px; font-weight: 500; color: var(--text); white-space: nowrap; }
 .stack { display: flex; height: 18px; border-radius: 3px; overflow: hidden; background: var(--track); }
 .stack > span {
+  position: relative;
   height: 100%;
   background: var(--c);
   display: flex;
@@ -704,7 +705,7 @@ a { color: inherit; }
 .evolucao__txt .card__title { font-size: 17.5px; letter-spacing: -0.3px; white-space: nowrap; }
 .evolucao__chart { position: relative; height: 122px; margin-top: -6px; }
 .evolucao__chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.evolucao__seg { margin-top: 10px; }
+.evolucao__seg { margin-top: 8px; }
 .evolucao__sub { margin-top: 8px; font-size: 12px; }
 .chart-delta { fill: #8a93a6; }
 .tag-estimativa { display: inline-block; padding: 1px 6px; margin-right: 4px; border-radius: 4px; background: rgba(245, 177, 61, 0.14); color: #f5c46b; font-size: 10.5px; font-weight: 600; letter-spacing: 0.2px; text-transform: uppercase; }
@@ -1021,6 +1022,74 @@ a { color: inherit; }
 /* Pequenos toques: cards respondem ao passar o mouse; botões com leve elevação. */
 .cand { transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-out); }
 .cand--click:hover, .btn-row:hover { transform: translateY(-1px); }
+
+/* Contador ao vivo (estimativa) */
+.vivo { display: flex; gap: 18px; margin-top: 7px; }
+.vivo__n { display: flex; flex-direction: column; min-width: 0; }
+.vivo__n b { font-size: 17px; line-height: 1.15; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; white-space: nowrap; }
+.vivo__n small { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.vivo--on .vivo__n b { background: linear-gradient(90deg, #fff 0%, #cfe0ff 50%, #fff 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: vivo-brilho 2.2s linear infinite; }
+@keyframes vivo-brilho { from { background-position: 200% 0; } to { background-position: 0 0; } }
+.vivo__nota { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: 10.5px; color: #6f788a; white-space: nowrap; }
+.vivo__nota i { width: 6px; height: 6px; border-radius: 50%; background: #f5b13d; flex-shrink: 0; }
+.vivo--on + .vivo__nota i { background: #22c55e; animation: pulse 1.6s infinite; }
+
+/* Barras do panorama por região também "em progresso". */
+.apurando .stack > span:not(.outros)::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.3) 50%, transparent 80%);
+  transform: translateX(-130%);
+  animation: barra-brilho 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+.apurando .reg:nth-child(2) .stack > span::after { animation-delay: 0.4s; }
+.apurando .reg:nth-child(3) .stack > span::after { animation-delay: 0.8s; }
+.apurando .reg:nth-child(4) .stack > span::after { animation-delay: 1.2s; }
+.apurando .reg:nth-child(5) .stack > span::after { animation-delay: 1.6s; }
+.apurando .callout__bar i, .apurando .stats .bar > i { position: relative; overflow: hidden; }
+.apurando .callout__bar i::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.45) 50%, transparent 80%);
+  transform: translateX(-130%);
+  animation: barra-brilho 2.4s ease-in-out infinite;
+}
+
+/* Rosca de seções apuradas: brilho pulsando na ponta enquanto a apuração acontece. */
+.apurando .donut svg circle:last-child { animation: rosca-brilho 2.4s ease-in-out infinite; }
+@keyframes rosca-brilho { 0%, 100% { filter: drop-shadow(0 0 2px rgba(52, 227, 164, 0.35)); } 50% { filter: drop-shadow(0 0 7px rgba(52, 227, 164, 0.8)); } }
+
+/* Anel do líder "respirando". */
+.apurando .cand--lider .avatar { animation: lider-anel 2.6s ease-in-out infinite; }
+@keyframes lider-anel { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 55%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 0%, transparent); } }
+
+/* Ponto "ao vivo": onda a cada checagem do TSE. */
+.live__dot { position: relative; }
+.live__dot--ping::after { content: ''; position: absolute; inset: -1px; border-radius: 50%; border: 2px solid var(--green); animation: ping 1.2s ease-out forwards; }
+@keyframes ping { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3.2); opacity: 0; } }
+
+/* Feed: atualização nova chega com um flash verde. */
+.upd { animation: fade-in 0.5s ease, upd-novo 2s ease-out; border-radius: 6px; }
+@keyframes upd-novo { 0% { background: rgba(34, 197, 94, 0.16); } 100% { background: transparent; } }
+
+/* Troca de cargo: o conteúdo dos cards entra deslizando. */
+.troca .card > * { animation: troca 0.5s var(--ease-out) both; }
+@keyframes troca { from { opacity: 0.25; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Fundo com brilho suave em movimento. */
+body::before {
+  content: ''; position: fixed; inset: -25%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(32% 28% at 18% 12%, rgba(61, 123, 245, 0.1), transparent 70%),
+    radial-gradient(28% 26% at 82% 18%, rgba(239, 75, 85, 0.07), transparent 70%),
+    radial-gradient(36% 32% at 50% 96%, rgba(52, 227, 164, 0.05), transparent 70%);
+  animation: aurora 28s ease-in-out infinite alternate;
+}
+@keyframes aurora { from { transform: translate3d(-2%, -1%, 0) rotate(0deg); } to { transform: translate3d(2%, 2%, 0) rotate(6deg); } }
+
+/* Cards respondem ao mouse com um brilho sutil na borda. */
+@media (hover: hover) {
+  .card { transition: border-color 0.3s, box-shadow 0.3s; }
+  .card:hover { border-color: #2a3346; box-shadow: 0 0 0 1px rgba(91, 147, 255, 0.05), 0 14px 40px -20px rgba(61, 123, 245, 0.4); }
+}
 
 /* Radar: linha no topo que corre a cada checagem do TSE (5 s) e pisca verde com dado novo. */
 .radar { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 50; pointer-events: none; overflow: hidden; }

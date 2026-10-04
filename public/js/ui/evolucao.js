@@ -1,5 +1,33 @@
 import { pct, hora, esc, nomeProprio } from '../format.js';
 import { projetarResultado } from '../projecao.js';
+import { estimarAgora } from '../aovivo.js';
+
+const int = (v) => Math.round(v).toLocaleString('pt-BR');
+
+// Contador "ao vivo": seções e votos avançando no ritmo da apuração (estimativa, ver aovivo.js).
+export function htmlAoVivo(d) {
+  const e = estimarAgora(d);
+  if (!e) return '';
+  const pre = e.estimando ? '≈ ' : '';
+  return `<div class="vivo ${e.estimando ? 'vivo--on' : ''}">
+      <div class="vivo__n"><b data-vivo="secoes">${pre}${int(e.secoes)}</b><small>seções apuradas</small></div>
+      <div class="vivo__n"><b data-vivo="votos">${pre}${int(e.votos)}</b><small>votos válidos</small></div>
+    </div>
+    <div class="vivo__nota"><i></i><span data-vivo="nota">${e.estimando ? 'estimativa ao vivo entre as divulgações do TSE' : 'aguardando nova divulgação do TSE'}</span></div>`;
+}
+
+// Atualiza só os textos do contador (chamado ~11 vezes por segundo).
+export function tickAoVivo(d) {
+  const e = estimarAgora(d);
+  const box = document.querySelector('.vivo');
+  if (!e || !box) return;
+  const pre = e.estimando ? '≈ ' : '';
+  box.classList.toggle('vivo--on', e.estimando);
+  box.querySelector('[data-vivo="secoes"]').textContent = pre + int(e.secoes);
+  box.querySelector('[data-vivo="votos"]').textContent = pre + int(e.votos);
+  const nota = document.querySelector('[data-vivo="nota"]');
+  if (nota) nota.textContent = e.estimando ? 'estimativa ao vivo entre as divulgações do TSE' : 'aguardando nova divulgação do TSE';
+}
 
 const HORA = 3600e3;
 const hh = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false });
@@ -220,9 +248,11 @@ export function renderEvolucao(d, largura, state) {
       <div class="evolucao__chart">${renderCandidatos(d, largura)}</div>`;
   }
   const { pill, svg } = renderSecoes(d, largura);
+  const vivo = htmlAoVivo(d);
   return `<div class="evolucao__txt">
       <h2 class="card__title">Evolução da apuração nacional</h2>
-      ${seg ? `${seg}<p class="card__sub evolucao__sub">Percentual de seções totalizadas</p>` : '<p class="card__sub" style="margin-top:12px">Percentual de seções totalizadas</p>'}
+      ${seg}
+      ${vivo || `<p class="card__sub" style="margin-top:${seg ? 8 : 12}px">Percentual de seções totalizadas</p>`}
     </div>
     <div class="evolucao__chart">${pill}${svg}</div>`;
 }
