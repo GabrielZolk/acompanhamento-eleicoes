@@ -8,6 +8,8 @@ import { pills } from './disputa.js';
 import * as modal from './modais.js';
 
 const PAGINA = 100;
+// Filtro "Só eleitos": oficial do TSE, garantido pela conta (majoritárias) ou dentro das vagas (deputados).
+const ganha = (c) => c.eleito || c.projetado || c.garantido === 'eleito';
 const plural = { 'Deputado Federal': 'Deputados federais', 'Deputado Estadual': 'Deputados estaduais', 'Deputado Distrital': 'Deputados distritais', Governador: 'Governador', Senador: 'Senado' };
 
 export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
@@ -56,7 +58,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
   function filtrar(lista) {
     const t = semAcento(st.termo.trim());
     const T = t.toUpperCase();
-    return lista.filter((c) => (!st.eleitos || c.eleito || c.projetado) && (!t || semAcento(c.nome).includes(t) || c.n.startsWith(t) || c.partido === T));
+    return lista.filter((c) => (!st.eleitos || ganha(c)) &&(!t || semAcento(c.nome).includes(t) || c.n.startsWith(t) || c.partido === T));
   }
 
   function render() {
@@ -132,7 +134,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
   });
   $('[data-todos]').addEventListener('change', (ev) => {
     st.todos = ev.target.checked;
-    $('[data-so-eleitos]').hidden = st.todos || !st.lista?.candidatos.some((c) => c.eleito || c.projetado);
+    $('[data-so-eleitos]').hidden = st.todos || !st.lista?.candidatos.some(ganha);
     if (st.todos) buscarRemoto();
     else render();
   });
@@ -151,15 +153,17 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
       st.lista = j;
       if (!modal.aberto()) return;
       const nEleitos = j.candidatos.filter((c) => c.eleito).length;
+      const nGarantidos = j.candidatos.filter((c) => c.garantido === 'eleito').length;
       $('[data-resumo]').textContent = [
         `${int(j.total)} candidatos`,
         j.vagas > 1 ? `${int(j.vagas)} vagas` : null,
         `${pct(j.secoes?.pct, 2)} das seções apuradas`,
         nEleitos ? `${nEleitos} eleitos` : null,
+        nGarantidos ? `${nGarantidos} ${nGarantidos === 1 ? 'eleito garantido' : 'eleitos garantidos'} pela conta` : null,
       ].filter(Boolean).join(' · ');
       const nDentro = j.candidatos.filter((c) => c.projetado).length;
       if (!nEleitos && nDentro) $('[data-rot-eleitos]').textContent = `Dentro das vagas (${nDentro})`;
-      $('[data-so-eleitos]').hidden = !nEleitos && !nDentro;
+      $('[data-so-eleitos]').hidden = !nEleitos && !nDentro && !nGarantidos;
       render();
     })
     .catch((err) => {

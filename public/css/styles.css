@@ -402,6 +402,16 @@ a { color: inherit; }
 .pill--eleito { background: rgba(34, 197, 94, 0.16); color: var(--green-2); }
 .pill--turno { background: rgba(109, 134, 255, 0.16); color: #9fb0ff; }
 .pill--dentro { background: rgba(245, 177, 61, 0.14); color: #f5c46b; }
+/* Vitória matematicamente garantida, ainda sem a confirmação do TSE: mesma cor do oficial,
+   fundo mais leve, contorno e cadeado. */
+.pill.pill--garantido {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 50%, transparent);
+}
+.pill--garantido svg { flex-shrink: 0; }
 .cand--click { cursor: pointer; }
 .cand--click:hover { border-color: #34405a; }
 .btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
