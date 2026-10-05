@@ -98,8 +98,12 @@ export function parseUnificado(raw, { foto } = {}) {
   if (agremiacoes.length) {
     const vagasPorAgr = Object.fromEntries((carg.agr || []).map((a) => [a.n, int(a.vag)]));
     const usadas = {};
+    // Com os eleitos já marcados pelo TSE não há projeção: eles podem diferir dos mais votados de cada
+    // agremiação (Assembleia de MS em 2026: um dos mais votados não foi eleito) e, somando os dois,
+    // as cadeiras passariam do número de vagas.
+    const oficial = candidatos.some((c) => c.eleito);
     for (const c of candidatos) {
-      if (c.votos > 0 && (usadas[c.agr] || 0) < (vagasPorAgr[c.agr] || 0)) {
+      if (!oficial && c.votos > 0 && (usadas[c.agr] || 0) < (vagasPorAgr[c.agr] || 0)) {
         usadas[c.agr] = (usadas[c.agr] || 0) + 1;
         c.projetado = true;
       }
