@@ -47,6 +47,8 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   modal "Projeções por cidade" com Presidente (país e estados), Governador e Senado por estado.
 - **Eleitos** (botão no canto e menu Consultas): por cargo e lugar; oficial do TSE quando a totalização termina,
   antes disso quem lidera ou está dentro das vagas (provisório). `/api/eleitos`.
+- **2º turno** (25/10/2026): faixa no card do Presidente (eleito, 2º turno oficial/garantido ou muito provável) com contagem regressiva; modal com o par de Presidente e os governadores com 2º turno.
+- **Simulador do 2º turno**: cada visitante distribui os votos dos eliminados entre os finalistas e compartilha a imagem do cenário.
 - **Aviso de virada**: quando muda o primeiro colocado (país ou estado) ou, no Senado, quem está dentro das vagas.
 - **Compartilhar**: gera uma imagem 4:5 do resultado exibido (WhatsApp/Instagram) ou baixa o PNG no computador.
 - **Modo TV** (menu Consultas): tela cheia, alterna sozinho entre cargos e estados a cada 15 s, mantém a tela ligada.
