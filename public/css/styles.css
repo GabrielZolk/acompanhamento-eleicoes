@@ -217,6 +217,8 @@ a { color: inherit; }
 .live--end .live__title { color: var(--accent-2); }
 .live--err .live__title { color: #ff8189; }
 .live__sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+/* TSE segue com o andamento mas não republica o resultado: aviso discreto, não erro do site. */
+.live--parado .live__sub { color: #c9a868; cursor: help; }
 .live__online { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 11.5px; color: var(--text-2); white-space: nowrap; }
 .live__online svg { color: var(--green-2); flex-shrink: 0; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18); } 50% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0.04); } }

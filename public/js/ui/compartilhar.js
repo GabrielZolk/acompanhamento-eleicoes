@@ -130,7 +130,7 @@ export async function gerarImagem(d, uf) {
   // rodapé
   ctx.font = F(400, 26);
   ctx.fillStyle = '#8a93a6';
-  ctx.fillText(`Dados oficiais do TSE · atualizado às ${hora(d.atualizadoEm)}`, 72, H - 92);
+  ctx.fillText(`Dados oficiais do TSE · atualizado às ${hora(d.resultadoEm || d.atualizadoEm)}`, 72, H - 92);
   ctx.font = F(700, 30);
   ctx.fillStyle = '#ffffff';
   ctx.fillText(location.host, 72, H - 48);

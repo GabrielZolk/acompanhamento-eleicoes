@@ -13,7 +13,10 @@ export function estimarAgora(d) {
   const apuradas = n.secoes?.apuradas || 0;
   const validos = n.votos?.validos || 0;
   const p = d.previsao || {};
-  const idade = Date.now() - (d.atualizadoEm || Date.now());
+  // Idade do resultado (os números de base vêm dele), não do andamento: se o TSE parar de
+  // republicar o resultado, a estimativa para depois de 3 min mesmo com o andamento mudando.
+  const base = d.resultadoEm || d.atualizadoEm;
+  const idade = base ? Date.now() - base : 0;
   if (!total || !apuradas || p.status !== 'estimada' || !(p.ritmoPorHora > 0) || idade > LIMITE_MS) {
     return { secoes: apuradas, votos: validos, oficial: apuradas, estimando: false };
   }
@@ -26,7 +29,7 @@ export function estimarAgora(d) {
   const chave = `${d.cargo.key}:${d.semExterior ? 1 : 0}`;
   const agora = Date.now();
   if (ultimo.chave === chave && ultimo.secoes > secoes) {
-    if (ultimo.base !== d.atualizadoEm) ultimo.desde = ultimo.desde || agora;
+    if (ultimo.base !== base) ultimo.desde = ultimo.desde || agora;
     if (agora - (ultimo.desde || agora) < SEGURA_MS) {
       secoes = ultimo.secoes;
       votos = Math.max(votos, ultimo.votos);
@@ -34,6 +37,6 @@ export function estimarAgora(d) {
   } else {
     ultimo.desde = 0;
   }
-  ultimo = { chave, base: d.atualizadoEm, secoes, votos, desde: ultimo.desde };
+  ultimo = { chave, base, secoes, votos, desde: ultimo.desde };
   return { secoes, votos, oficial: apuradas, estimando: true };
 }
