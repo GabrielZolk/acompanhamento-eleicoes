@@ -17,9 +17,10 @@ function selo(i, n, ranking) {
   return `<span class="cand__rank ${i < 3 ? 'cand__rank--cor' : ''}">${i + 1}</span>`;
 }
 
-function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
+// chave: identificador único da linha quando o número de urna se repete (lista com vários estados).
+function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true, chave }) {
   const ganha = c.eleito || c.projetado || /2º turno/i.test(c.situacao || '');
-  return `<div class="cand ${lider ? 'cand--lider' : ''} ${ganha && !lider ? 'cand--ganha' : ''}" data-key="c${c.n}" style="--c:${c.cor}">
+  return `<div class="cand ${lider ? 'cand--lider' : ''} ${ganha && !lider ? 'cand--ganha' : ''}" data-key="${chave || `c${c.n}`}" style="--c:${c.cor}">
     ${selo(i, c.n, ranking)}
     ${avatar(c)}
     <div class="cand__info">
@@ -34,12 +35,13 @@ function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true }) {
   </div>`;
 }
 
-function linhaPartido(p, i, { lider, ranking = true }) {
-  const det = p.eleitos
+// det: texto do detalhe ao lado da sigla (na visão Brasil: estados liderados ou vagas ocupadas).
+function linhaPartido(p, i, { lider, ranking = true, det: detTexto }) {
+  const det = detTexto || (p.eleitos
     ? `${p.eleitos} ${p.eleitos === 1 ? 'eleito' : 'eleitos'}`
     : p.cadeiras != null && p.votos > 0
       ? `≈ ${p.cadeiras} ${p.cadeiras === 1 ? 'cadeira' : 'cadeiras'}`
-      : `${int(p.candidatos)} candidatos`;
+      : `${int(p.candidatos)} candidatos`);
   return `<div class="cand cand--click ${lider ? 'cand--lider' : ''}" data-key="p${esc(p.sigla)}" data-partido="${esc(p.sigla)}" title="Ver o desempenho do ${esc(p.sigla)} em todos os cargos" style="--c:${p.cor}">
     ${ranking ? selo(i, '', true) : '<span class="cand__rank">–</span>'}
     ${avatarPartido(p)}
@@ -55,11 +57,12 @@ function linhaPartido(p, i, { lider, ranking = true }) {
   </div>`;
 }
 
-// Chip compacto ("SP ▾") com um <select> nativo transparente por cima.
+// Chip compacto ("SP ▾") com um <select> nativo transparente por cima. "Brasil" (br) soma os estados.
 function seletorUF(uf) {
   return `<label class="chip chip--select" title="Escolher estado">
     ${uf.toUpperCase()} ${ICON.chevDown}
     <select data-action="uf" aria-label="Estado">
+      <option value="br" ${uf === 'br' ? 'selected' : ''}>Brasil (todos os estados)</option>
       ${UFS.map((u) => `<option value="${u.uf}" ${u.uf === uf ? 'selected' : ''}>${esc(u.nome)} (${u.uf.toUpperCase()})</option>`).join('')}
     </select>
   </label>`;
@@ -118,16 +121,28 @@ export function renderDisputa(d, state) {
       ${stats({ eleitorado: n.eleitorado, secoes: n.secoes, eleitorado2022: d.eleitorado2022, nacional: true })}`;
   }
 
-  const e = d.estados[state.uf];
-  const nomeUF = UF_BY_CODE[state.uf]?.nome || state.uf.toUpperCase();
+  // Visão "Brasil" (uf = br): soma dos estados, que o servidor manda em d.nacional.
+  const br = state.uf === 'br';
+  const e = br ? d.nacional : d.estados[state.uf];
+  const nomeUF = br ? 'Brasil' : UF_BY_CODE[state.uf]?.nome || state.uf.toUpperCase();
   const temVotos = e?.secoes?.apuradas > 0;
   const prop = cargo.proporcional;
-  const visao = prop ? state.visaoDep : 'candidatos';
+  // Governador e Senado no Brasil: um partido por linha (estados liderados / vagas ocupadas).
+  const visao = prop ? state.visaoDep : br ? 'partidos' : 'candidatos';
   let corpo;
-  if (!e || !e.votos) {
-    corpo = `<p class="empty">Resultado de ${esc(nomeUF)} indisponível no momento.</p>`;
+  if (!e || !e.votos || (br && !e.partidos)) {
+    corpo = `<p class="empty">${br ? 'Resultado nacional' : `Resultado de ${esc(nomeUF)}`} indisponível no momento.</p>`;
   } else if (visao === 'partidos') {
-    corpo = e.partidos.slice(0, VISIVEIS).map((p, i) => linhaPartido(p, i, { lider: i === 0 && temVotos, ranking: temVotos })).join('');
+    corpo = e.partidos
+      .slice(0, VISIVEIS)
+      .map((p, i) => linhaPartido(p, i, { lider: i === 0 && temVotos, ranking: temVotos, det: br && !prop ? assentosBR(p) : null }))
+      .join('');
+  } else if (br) {
+    // Deputados mais votados do país: a UF vai junto do partido e o % é o do estado do candidato.
+    corpo = (e.maisVotados || [])
+      .slice(0, VISIVEIS)
+      .map((c, i) => linhaCandidato({ ...c, partido: `${c.partido} · ${c.uf.toUpperCase()}` }, i, { lider: false, mostrarVotos: true, ranking: temVotos, chave: `c${c.uf}${c.n}` }))
+      .join('');
   } else {
     const vagas = prop ? 0 : e.vagas || 1;
     corpo = e.candidatos
@@ -141,9 +156,12 @@ export function renderDisputa(d, state) {
     // Deputados: Federal × Estadual (Distrital no DF) e Partidos × Candidatos.
     const seg = (acao, attr, valor, rotulo, on) =>
       `<button data-action="${acao}" ${attr}="${valor}" class="${on ? 'is-on' : ''}" aria-pressed="${on}">${rotulo}</button>`;
+    // No Brasil o título fica curto para caber numa linha ao lado do seletor; o nome completo vai no title.
+    const titulo = br ? `${cargo.key === 'camara' ? 'Câmara' : 'Assembleias'} · Brasil` : tituloDoCargo(cargo, state.uf);
+    const completo = cargo.key === 'camara' ? 'Câmara dos Deputados' : 'Assembleias Legislativas e Câmara Legislativa do DF';
     cabecalho = `<div class="disputa__head disputa__head--prop">
         <div class="card__head">
-          <h2 class="card__title">${esc(tituloDoCargo(cargo, state.uf))}</h2>
+          <h2 class="card__title"${br ? ` title="${esc(completo)} · ${somaUFs(e)}"` : ''}>${esc(titulo)}</h2>
           <div class="disputa__acoes"><button class="chip chip--btn" data-action="compartilhar" title="Compartilhar uma imagem deste resultado" aria-label="Compartilhar">${ICON.share}</button>${seletorUF(state.uf)}</div>
         </div>
         <div class="disputa__sub">
@@ -158,7 +176,8 @@ export function renderDisputa(d, state) {
         </div>
       </div>`;
   } else {
-    const sub = `Votos válidos&nbsp; •&nbsp; ${esc(nomeUF)}${cargo.key === 'senado' && e?.vagas ? `&nbsp; •&nbsp; ${e.vagas} vagas` : ''}`;
+    const vagas = cargo.key === 'senado' && e?.vagas ? `&nbsp; •&nbsp; ${e.vagas} vagas` : '';
+    const sub = br ? `${somaUFs(e, true)}&nbsp; •&nbsp; ${vagas ? `${e.vagas} vagas` : 'por partido'}` : `Votos válidos&nbsp; •&nbsp; ${esc(nomeUF)}${vagas}`;
     cabecalho = `<div class="card__head disputa__head">
         <div>
           <h2 class="card__title">${esc(cargo.titulo)}</h2>
@@ -179,5 +198,17 @@ export function renderDisputa(d, state) {
           <button class="btn-row" data-action="cadeiras">Projeção de cadeiras ${ICON.chevRight}</button>
         </div>`
       : `<button class="btn-row" data-action="candidatos">${botao} ${ICON.chevRight}</button>`}
-    ${stats({ eleitorado: e?.eleitorado, secoes: e?.secoes, rotuloEleitorado: `aptos a votar em ${state.uf.toUpperCase()}` })}`;
+    ${stats({ eleitorado: e?.eleitorado, secoes: e?.secoes, rotuloEleitorado: br ? 'aptos a votar no Brasil' : `aptos a votar em ${state.uf.toUpperCase()}` })}`;
+}
+
+// "soma dos 27 estados" (no 2º turno de Governador, só os estados com disputa).
+export const somaUFs = (n, maiuscula) => `${maiuscula ? 'Soma' : 'soma'} dos ${n?.ufs || 27} estados`;
+
+// Detalhe de um partido na visão Brasil (soma dos estados), usado também na imagem compartilhada.
+export function assentosBR(p) {
+  const n = (v, um, varios) => `${v} ${v === 1 ? um : varios}`;
+  if (p.cadeiras > 0) return `≈ ${n(p.cadeiras, 'cadeira', 'cadeiras')}`;
+  if (p.vagas > 0) return `≈ ${n(p.vagas, 'vaga', 'vagas')}`;
+  if (p.lidera > 0) return `lidera em ${n(p.lidera, 'estado', 'estados')}`;
+  return null;
 }

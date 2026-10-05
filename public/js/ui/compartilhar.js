@@ -3,6 +3,7 @@
 // As fotos dos candidatos não entram: o servidor do TSE não permite usá-las em <canvas>.
 import { pct, int, nomeProprio, hora } from '../format.js';
 import { UF_BY_CODE, tituloDoCargo, nomeDoCargo } from '../ufs.js';
+import { assentosBR, somaUFs } from './disputa.js';
 
 const W = 1080, H = 1350;
 
@@ -10,6 +11,15 @@ function linhas(d, uf) {
   if (d.cargo.federal) {
     const n = d.nacional;
     return { onde: d.semExterior ? 'Brasil (sem exterior)' : 'Brasil', secoes: n.secoes, itens: n.candidatos.slice(0, 5).map((c) => ({ nome: nomeProprio(c.nome), sub: c.partido, pct: c.pct, votos: c.votos, cor: c.cor })) };
+  }
+  if (uf === 'br') {
+    // Visão Brasil dos cargos estaduais: partidos na soma dos estados (cadeiras, estados liderados ou vagas).
+    const n = d.nacional;
+    return {
+      onde: `Brasil · ${somaUFs(n)}`,
+      secoes: n.secoes,
+      itens: (n.partidos || []).slice(0, 6).map((p) => ({ nome: p.sigla, sub: assentosBR(p) || nomeProprio(p.nome), pct: p.pct, votos: p.votos, cor: p.cor })),
+    };
   }
   const e = d.estados[uf] || {};
   const onde = UF_BY_CODE[uf]?.nome || uf.toUpperCase();
@@ -59,7 +69,8 @@ export async function gerarImagem(d, uf) {
   ctx.fillText('APURAÇÃO ELEITORAL 2026', 72, 112);
   ctx.fillStyle = '#ffffff';
   ctx.font = F(700, 64);
-  ctx.fillText(d.cargo.federal ? 'Presidente' : tituloDoCargo(d.cargo, uf).replace('Disputa para ', ''), 72, 196);
+  const titulo = uf === 'br' && d.cargo.key === 'assembleia' ? 'Assembleias Legislativas' : tituloDoCargo(d.cargo, uf).replace('Disputa para ', '');
+  ctx.fillText(d.cargo.federal ? 'Presidente' : titulo, 72, 196);
   ctx.font = F(600, 40);
   ctx.fillStyle = '#c9cfdb';
   ctx.fillText(onde, 72, 252);
@@ -77,7 +88,9 @@ export async function gerarImagem(d, uf) {
   ctx.fill();
 
   // candidatos / partidos
+  // Com 6 linhas (deputados) tudo sobe um pouco para o detalhe não ficar embaixo da barra.
   const topo = 410, alto = itens.length > 5 ? 136 : 160;
+  const o = alto < 160 ? { circ: 44, nome: 54, sub: 86, pct: 60, votos: 88, barra: 98 } : { circ: 52, nome: 62, sub: 100, pct: 68, votos: 102, barra: 114 };
   itens.forEach((it, i) => {
     const y = topo + i * alto;
     retangulo(ctx, 56, y, W - 112, alto - 22, 26);
@@ -88,38 +101,38 @@ export async function gerarImagem(d, uf) {
     ctx.stroke();
     // posição
     ctx.beginPath();
-    ctx.arc(116, y + 52, 28, 0, Math.PI * 2);
+    ctx.arc(116, y + o.circ, 28, 0, Math.PI * 2);
     ctx.fillStyle = it.cor;
     ctx.fill();
     ctx.fillStyle = '#fff';
     ctx.font = F(700, 30);
     ctx.textAlign = 'center';
-    ctx.fillText(String(i + 1), 116, y + 63);
+    ctx.fillText(String(i + 1), 116, y + o.circ + 11);
     ctx.textAlign = 'left';
     // nome e partido
     ctx.font = F(700, 40);
     ctx.fillStyle = '#fff';
     let nome = it.nome;
     while (ctx.measureText(nome).width > 560 && nome.length > 4) nome = nome.slice(0, -2) + '…';
-    ctx.fillText(nome, 166, y + 62);
+    ctx.fillText(nome, 166, y + o.nome);
     ctx.font = F(600, 26);
     ctx.fillStyle = it.cor;
-    ctx.fillText(it.sub || '', 166, y + 100);
+    ctx.fillText(it.sub || '', 166, y + o.sub);
     // percentual
     ctx.textAlign = 'right';
     ctx.font = F(700, 52);
     ctx.fillStyle = '#fff';
-    ctx.fillText(pct(it.pct), W - 88, y + 68);
+    ctx.fillText(pct(it.pct), W - 88, y + o.pct);
     ctx.font = F(400, 24);
     ctx.fillStyle = '#8a93a6';
-    ctx.fillText(`${int(it.votos)} votos`, W - 88, y + 102);
+    ctx.fillText(`${int(it.votos)} votos`, W - 88, y + o.votos);
     ctx.textAlign = 'left';
     // barra
     const bw = W - 112 - 64;
-    retangulo(ctx, 88, y + alto - 46, bw, 10, 5);
+    retangulo(ctx, 88, y + o.barra, bw, 10, 5);
     ctx.fillStyle = '#1a2030';
     ctx.fill();
-    retangulo(ctx, 88, y + alto - 46, Math.max(10, (bw * Math.min(100, it.pct)) / 100), 10, 5);
+    retangulo(ctx, 88, y + o.barra, Math.max(10, (bw * Math.min(100, it.pct)) / 100), 10, 5);
     ctx.fillStyle = it.cor;
     ctx.shadowColor = it.cor;
     ctx.shadowBlur = i === 0 ? 18 : 0;

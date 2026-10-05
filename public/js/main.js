@@ -23,7 +23,8 @@ const params = new URLSearchParams(location.search);
 
 const state = {
   cargo: CARGOS[params.get('cargo')] ? params.get('cargo') : 'presidente',
-  uf: UF_BY_CODE[params.get('uf')] && params.get('uf') !== 'zz' ? params.get('uf') : 'sp',
+  // "br": visão Brasil (soma dos estados) dos cargos estaduais.
+  uf: params.get('uf') === 'br' || (UF_BY_CODE[params.get('uf')] && params.get('uf') !== 'zz') ? params.get('uf') : 'sp',
   incluirExterior: params.get('exterior') !== '0',
   mapaModo: 'lider',
   regiaoModo: 'validos',
@@ -79,6 +80,14 @@ function setExterior(incluir) {
 
 function selecionarUF(uf) {
   const federal = CARGOS[state.cargo].federal;
+  if (uf === 'br') {
+    // Visão Brasil (só nos cargos estaduais): nenhum estado fica fixado no mapa.
+    if (federal) return;
+    state.uf = 'br';
+    state.pins = [];
+    syncURL();
+    return render();
+  }
   if (!UF_BY_CODE[uf] || (uf === 'zz' && (!federal || !state.incluirExterior))) return;
   const pins = state.pins || [];
   if (federal) {
@@ -155,7 +164,7 @@ $('disputa').addEventListener('click', (ev) => {
   if (!alvo || !state.data) return;
   const acao = alvo.dataset.action;
   if (acao === 'todos') modal.abrir(modal.modalTodos(vista(), state));
-  else if (acao === 'candidatos') abrirCandidatos({ cargo: state.cargo, uf: state.uf, cores: state.data.cores });
+  else if (acao === 'candidatos') abrirCandidatos({ cargo: state.cargo, uf: state.uf, cores: state.data.cores, painel: state.data });
   else if (acao === 'cadeiras') abrirCadeiras(state.data, state.uf, (sigla) => abrirPartidos(sigla));
   else if (acao === 'compartilhar') {
     alvo.classList.add('is-busy');
@@ -196,7 +205,7 @@ $('updates').addEventListener('click', (ev) => {
 
 // ------------------------------------------------------------------ render
 function pinsPadrao(d) {
-  if (!CARGOS[state.cargo].federal) return [state.uf];
+  if (!CARGOS[state.cargo].federal) return state.uf === 'br' ? [] : [state.uf];
   const recente = d.atualizacoes.find((u) => u.uf !== 'sp' && u.uf !== 'zz')?.uf;
   return ['sp', recente || 'ce'];
 }

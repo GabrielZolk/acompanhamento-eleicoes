@@ -51,7 +51,8 @@ function seletorUF(uf) {
 }
 
 export function abrirProjecoes({ aba = 'presidente', uf = 'sp', cores = {}, semExterior = false } = {}) {
-  const st = { aba, uf: uf === 'zz' ? 'sp' : uf, seq: 0 };
+  // Exterior e visão Brasil (br) não têm Governador/Senado próprios: abre em São Paulo.
+  const st = { aba, uf: UF_BY_CODE[uf] && uf !== 'zz' ? uf : 'sp', seq: 0 };
   modal.abrir(`<h3>Projeções do resultado</h3>
     <p class="card__sub">Estimativa calculada cidade a cidade com os votos apurados até agora</p>
     <div class="mtabs" data-proj-abas>${[['presidente', 'Presidente'], ['governador', 'Governador'], ['senado', 'Senado']]

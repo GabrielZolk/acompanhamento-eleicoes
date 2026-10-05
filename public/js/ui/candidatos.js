@@ -4,27 +4,41 @@ import { int, pct, esc, nomeProprio, semAcento, ufLabel } from '../format.js';
 import { CARGOS, UF_BY_CODE, nomeDoCargo, tituloDoCargo } from '../ufs.js';
 import { corPartido } from '../colors.js';
 import { avatar, linhaLista, ICON } from './common.js';
-import { pills } from './disputa.js';
+import { pills, somaUFs } from './disputa.js';
 import * as modal from './modais.js';
 
 const PAGINA = 100;
 const plural = { 'Deputado Federal': 'Deputados federais', 'Deputado Estadual': 'Deputados estaduais', 'Deputado Distrital': 'Deputados distritais', Governador: 'Governador', Senador: 'Senado' };
 
-export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
+// Visão Brasil: os mais votados do país que já vêm no painel (deputados: os 10 primeiros;
+// Governador e Senado: todos, pois o painel traz a lista completa de cada estado).
+function maisVotadosBR(d) {
+  const lista = d?.nacional?.maisVotados || Object.entries(d?.estados || {}).flatMap(([u, e]) => (e.candidatos || []).map((c) => ({ ...c, uf: u })));
+  return [...lista].sort((a, b) => b.votos - a.votos).map((c, i) => ({ ...c, pos: i + 1 }));
+}
+
+export function abrirCandidatos({ cargo: cargoKey, uf, cores = {}, painel = null }) {
   const cargo = CARGOS[cargoKey];
-  const st = { lista: null, erro: null, termo: '', eleitos: false, todos: false, limite: PAGINA, remoto: null, buscando: false, seq: 0 };
-  const nomeUF = UF_BY_CODE[uf]?.nome || uf.toUpperCase();
+  // uf = "br": abre direto na busca em todos os estados (não há lista completa nacional).
+  const brasil = uf === 'br';
+  const inicial = brasil ? maisVotadosBR(painel) : null;
+  const st = { lista: null, erro: null, termo: '', eleitos: false, todos: brasil, limite: PAGINA, remoto: null, buscando: false, seq: 0 };
+  const nomeUF = brasil ? 'Brasil' : UF_BY_CODE[uf]?.nome || uf.toUpperCase();
   const corDe = (sigla) => cores[sigla] || corPartido(sigla);
+  const n = painel?.nacional;
+  const resumoBR = brasil && n
+    ? [`${int(n.totalCandidatos)} candidatos · ${somaUFs(n)}`, n.vagas > 1 ? `${int(n.vagas)} vagas` : null, `${pct(n.secoes?.pct, 2)} das seções apuradas`].filter(Boolean).join(' · ')
+    : 'Busca em todos os estados';
 
   modal.abrir(`<h3>${esc(plural[nomeDoCargo(cargo, uf)] || tituloDoCargo(cargo, uf))} — ${esc(nomeUF)}</h3>
-    <p class="card__sub" data-resumo>Carregando candidatos…</p>
+    <p class="card__sub" data-resumo>${brasil ? esc(resumoBR) : 'Carregando candidatos…'}</p>
     <div class="cbusca">
       <label class="cbusca__input">
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <input type="search" data-busca placeholder="Buscar por nome, número ou partido" autocomplete="off" aria-label="Buscar candidato">
       </label>
       <label class="check" data-so-eleitos hidden><input type="checkbox" data-eleitos><span class="check__box">${CHECK}</span><span data-rot-eleitos>Só eleitos</span></label>
-      <label class="check"><input type="checkbox" data-todos><span class="check__box">${CHECK}</span>Todos os estados</label>
+      <label class="check" ${brasil ? 'title="Para ver a lista completa de um estado, escolha o estado no painel"' : ''}><input type="checkbox" data-todos ${brasil ? 'checked disabled' : ''}><span class="check__box">${CHECK}</span>Todos os estados</label>
     </div>
     <div class="cinfo" data-info></div>
     <div class="mlist" data-lista>${'<div class="mrow skeleton" style="height:56px"></div>'.repeat(5)}</div>
@@ -68,6 +82,13 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
       return;
     }
     if (st.todos) {
+      if (semAcento(st.termo.trim()).length < 3 && inicial?.length) {
+        info.textContent = `${painel?.nacional?.maisVotados ? `Os ${inicial.length} mais votados do país` : `${int(inicial.length)} candidatos, em ordem de votação`} · digite 3 letras para buscar`;
+        lista.innerHTML = inicial.slice(0, st.limite).map((c) => linha(c, true)).join('');
+        mais.hidden = inicial.length <= st.limite;
+        mais.innerHTML = `Mostrar mais ${int(Math.min(PAGINA, inicial.length - st.limite))} ${ICON.chevDown}`;
+        return;
+      }
       if (semAcento(st.termo.trim()).length < 3) {
         lista.innerHTML = `<p class="empty">Digite pelo menos 3 letras do nome, o número ou o partido para buscar em todos os estados.</p>`;
         info.textContent = '';
@@ -141,6 +162,7 @@ export function abrirCandidatos({ cargo: cargoKey, uf, cores = {} }) {
     render();
   });
 
+  if (brasil) return render();
   fetch(`/api/candidatos?cargo=${cargoKey}&uf=${uf}`)
     .then(async (r) => {
       const j = await r.json();

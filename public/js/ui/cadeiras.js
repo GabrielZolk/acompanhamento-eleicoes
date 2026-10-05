@@ -56,14 +56,16 @@ function lista(bancadas, total) {
 export function abrirCadeiras(d, uf, onPartido) {
   const cargo = d.cargo;
   const federal = cargo.key === 'camara';
-  let escopo = 'uf';
+  // Aberta a partir da visão Brasil (uf = br): só o país, sem a aba do estado.
+  const brasil = uf === 'br';
+  let escopo = brasil ? 'br' : 'uf';
 
   const render = () => {
     let bancadas, total, sub;
     if (escopo === 'br') {
       bancadas = d.bancadas || [];
       total = bancadas.reduce((s, b) => s + b.cadeiras, 0);
-      sub = federal ? 'Câmara dos Deputados · todos os estados' : 'Soma das 27 Assembleias e da Câmara Legislativa do DF';
+      sub = federal ? 'Câmara dos Deputados · todos os estados' : 'Soma das 26 Assembleias Legislativas e da Câmara Legislativa do DF';
     } else {
       const e = d.estados[uf] || {};
       bancadas = (e.partidos || []).filter((p) => p.cadeiras > 0).map((p) => ({ sigla: p.sigla, cadeiras: p.cadeiras, cor: p.cor || corPartido(p.sigla) }));
@@ -73,12 +75,12 @@ export function abrirCadeiras(d, uf, onPartido) {
     const secoes = escopo === 'br' ? d.nacional.secoes : d.estados[uf]?.secoes;
     const final = d.status === 'finalizado';
     const fed = escopo === 'uf' ? (d.estados[uf]?.agremiacoes || []).filter((a) => a.tipo === 'Federação' && a.vagas > 0) : [];
-    modal.corpo.innerHTML = `<h3>Projeção de cadeiras — ${esc(nomeDoCargo(cargo, uf).replace('Deputado', 'Deputados').replace('Federal', 'federais').replace('Estadual', 'estaduais').replace('Distrital', 'distritais'))}</h3>
+    modal.corpo.innerHTML = `<h3>Projeção de cadeiras — ${esc(nomeDoCargo(cargo, uf).replace('Deputado', 'Deputados').replace('Federal', 'federais').replace('Estadual', brasil ? 'estaduais e distritais' : 'estaduais').replace('Distrital', 'distritais'))}</h3>
       <p class="card__sub">${esc(sub)}</p>
-      <div class="mtabs">
+      ${brasil ? '' : `<div class="mtabs">
         <button data-escopo="uf" class="${escopo === 'uf' ? 'is-active' : ''}">${esc(UF_BY_CODE[uf]?.nome || uf.toUpperCase())}</button>
         <button data-escopo="br" class="${escopo === 'br' ? 'is-active' : ''}">${federal ? 'Brasil (513)' : 'Todos os estados'}</button>
-      </div>
+      </div>`}
       ${total ? hemiciclo(bancadas, total) + lista(bancadas, total) : '<p class="empty">Ainda não há votos suficientes para projetar as cadeiras.</p>'}
       ${fed.length ? `<p class="nota">Federações (contam como um partido na divisão das vagas): ${fed.map((a) => `${esc(a.sigla)} — ${a.vagas} ${a.vagas === 1 ? 'vaga' : 'vagas'}`).join(' · ')}. Acima, cada vaga aparece no partido do candidato mais votado da federação.</p>` : ''}
       <p class="nota"><b>${final ? 'Resultado final.' : 'Estimativa.'}</b> ${final ? '' : `Calculada com os votos apurados até agora (${pct(secoes?.pct, 2)} das seções) pela distribuição de vagas que o TSE refaz a cada atualização: quociente eleitoral, quociente partidário e sobras. Muda até o fim da totalização.`}</p>`;

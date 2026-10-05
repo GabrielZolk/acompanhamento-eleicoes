@@ -144,6 +144,12 @@ function painelEstadual({ cargo, estados, ab }) {
 
   let validosNac = 0, totalNac = 0, brancosNac = 0, nulosNac = 0;
   let geradoEm = ab?.geradoEm || 0, final = UF_LIST.length > 0;
+  // Visão "Brasil" do card da disputa: soma dos estados por partido e, nos proporcionais,
+  // os deputados mais votados do país.
+  const senado = cargo.key === 'senado';
+  const partidosNac = {};
+  let maisVotados = [];
+  let candidatosNac = 0, vagasNac = 0, ufsNac = 0;
 
   for (const uf of UF_LIST) {
     const e = estados[uf];
@@ -204,7 +210,33 @@ function painelEstadual({ cargo, estados, ab }) {
       partidos,
       lider,
     };
+
+    ufsNac++; // no 2º turno de Governador só parte dos estados tem disputa
+    candidatosNac += e.candidatos.length;
+    vagasNac += e.cargo.vagas || 0;
+    for (const p of e.partidos) {
+      const t = (partidosNac[p.sigla] ||= { sigla: p.sigla, nome: p.nome, votos: 0, candidatos: 0, assentos: 0 });
+      t.votos += p.votos;
+      t.candidatos += p.candidatos;
+      if (camara) t.assentos += p.cadeiras || 0;
+    }
+    if (camara) {
+      // Os 10 mais votados de cada estado bastam para achar os 10 mais votados do país.
+      maisVotados.push(...candidatos.map((c) => ({ ...c, uf })));
+      maisVotados = maisVotados.sort((a, b) => b.votos - a.votos).slice(0, 10);
+    } else if (e.secoes.apuradas > 0) {
+      // Governador: partido do candidato que lidera o estado. Senado: partidos dentro das vagas agora.
+      for (const c of e.candidatos.slice(0, senado ? e.cargo.vagas || 1 : 1)) {
+        if (c.votos > 0 && partidosNac[c.partido]) partidosNac[c.partido].assentos++;
+      }
+    }
   }
+
+  // Cadeiras projetadas (deputados), estados liderados (Governador) ou vagas ocupadas (Senado).
+  const campoNac = camara ? 'cadeiras' : senado ? 'vagas' : 'lidera';
+  const partidosBR = Object.values(partidosNac)
+    .map(({ assentos, ...p }) => ({ ...p, pct: pct(p.votos, validosNac), [campoNac]: assentos, cor: corDe(p.sigla) }))
+    .sort((a, b) => b[campoNac] - a[campoNac] || b.votos - a.votos || b.candidatos - a.candidatos || a.sigla.localeCompare(b.sigla));
 
   // Projeção de cadeiras no país (soma dos estados), com os votos apurados até agora.
   const bancadas = camara
@@ -272,6 +304,11 @@ function painelEstadual({ cargo, estados, ab }) {
         pctNulos: pct(nulosNac, totalNac),
       },
       candidatos: [],
+      ufs: ufsNac,
+      totalCandidatos: candidatosNac,
+      vagas: vagasNac,
+      partidos: partidosBR,
+      maisVotados: camara ? maisVotados : undefined,
     },
     estados: est,
     regioes,
