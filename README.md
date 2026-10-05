@@ -54,6 +54,12 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
 - **Lista completa de candidatos** de qualquer cargo estadual, com pesquisa por nome, número ou partido, filtro de
   eleitos e busca em todos os estados (`/api/candidatos`).
 - **Busca** (Ctrl/⌘ K): estados, exterior e todos os municípios — abre o resultado da cidade para o cargo atual.
+- **Comparação com 2022** (Presidente): cartões e dica do mapa, resultado de cada cidade e modal de partidos (PT e PL)
+  mostram o resultado de 2022 e a variação de cada partido; o seletor do mapa tem "Variação desde 2022" (mudança da
+  vantagem PL × PT, por estado ou cidade). A comparação é por partido, porque o candidato do PL mudou (Jair Bolsonaro
+  em 2022, Flávio Bolsonaro em 2026); o 1º turno compara com o 1º de 2022 e o 2º com o 2º. Dados estáticos em
+  `public/data/historico/` (baixados pelo navegador só quando usados, sem consultar o TSE), gerados por
+  `npm run build:historico` a partir do Portal de Dados Abertos do TSE.
 
 ## Como funciona
 

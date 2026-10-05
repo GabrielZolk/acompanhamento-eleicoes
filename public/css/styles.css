@@ -618,6 +618,51 @@ a { color: inherit; }
 .legend__ramp { height: 8px; border-radius: 4px; margin: 4px 0 6px; }
 .legend__scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
+/* ------------------------------------------------------------------ comparação com 2022 (Presidente) */
+/* Cartões e tooltip do mapa */
+.h22-co { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line-2); }
+.h22-co__t { display: flex; justify-content: space-between; gap: 6px; font-size: 10.5px; color: var(--muted); margin-bottom: 2px; white-space: nowrap; }
+.h22-co__t span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.h22-co__r { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 32px; align-items: center; gap: 5px; height: 19px; font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.h22-co__r b { padding: 0 4px; border-radius: 3px; background: var(--c); color: #fff; font-size: 9.5px; font-weight: 700; line-height: 14px; }
+.h22-co__nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h22-co__v { color: #fff; font-weight: 600; }
+.h22-co__d { text-align: right; color: var(--c); font-weight: 600; filter: brightness(1.25); }
+/* Legenda do modo "Variação desde 2022" */
+.h22-leg__br { font-size: 11.5px; color: var(--text-2); margin: 5px 0 1px; }
+.h22-leg__br b { color: #fff; font-weight: 600; }
+.h22-leg { font-size: 10.5px; line-height: 1.4; color: var(--muted); margin-top: 4px; white-space: normal; }
+/* Resultado da cidade */
+.h22 { margin: -4px 0 16px; padding: 11px 14px 12px; border-radius: 10px; background: #121824; border: 1px solid var(--line-2); }
+.h22--carregando { font-size: 12px; color: var(--muted); }
+.h22__tit { font-size: 13.5px; font-weight: 600; color: #fff; }
+.h22__tit small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.h22__em { margin: 3px 0 8px; font-size: 12.5px; color: var(--text-2); }
+.h22__em b { color: #fff; font-weight: 600; }
+.h22__tab { display: flex; flex-direction: column; gap: 2px; }
+.h22__lin { display: grid; grid-template-columns: minmax(0, 1fr) 62px 62px 84px; gap: 0 10px; align-items: center; min-height: 26px; font-size: 13px; color: #fff; font-variant-numeric: tabular-nums; }
+.h22__lin > span:not(:first-child) { text-align: right; white-space: nowrap; }
+.h22__lin--cab { min-height: 18px; font-size: 11px; color: var(--muted); }
+.h22__p { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.h22__p i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+.h22__p b { font-weight: 700; }
+.h22__p small { min-width: 0; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h22__d { color: var(--c); font-weight: 600; filter: brightness(1.25); }
+.h22 .nota { margin-top: 7px; }
+/* Desempenho por partido (PT e PL) */
+.h22-part { font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.h22-part b { color: #fff; font-weight: 600; }
+@media (max-width: 640px) {
+  .h22-co__t { font-size: 10px; gap: 4px; }
+  .h22-co__r { grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 4px; font-size: 11px; }
+  .h22-co__nm { font-size: 10.5px; }
+  .h22-leg, .h22-leg__br { width: 100%; }
+  .h22 { padding: 10px 11px; }
+  .h22__lin { grid-template-columns: minmax(0, 1fr) 46px 46px 64px; gap: 0 6px; font-size: 12.5px; }
+  .h22__p { flex-wrap: wrap; gap: 0 7px; }
+  .h22__p small { flex-basis: 100%; padding-left: 16px; font-size: 11px; white-space: normal; }
+}
+
 /* ------------------------------------------------------------------ regiões */
 .regioes { padding: 15px 16px 6px 14px; }
 .regioes__head { display: flex; align-items: center; gap: 12px; margin-bottom: 7px; }

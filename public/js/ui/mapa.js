@@ -1,6 +1,7 @@
 import { esc, pct, mix, nomeProprio } from '../format.js';
 import { UF_BY_CODE } from '../ufs.js';
 import { morph } from '../morph.js';
+import { estado2022, municipio2022, brasilSemExterior2022, candidatosPorPartido, comparar, pp, turno2022, aoCarregar2022, definirTurno2026 } from '../compara2022.js';
 
 const SEM = '#2c313c';
 const ESCURO = '#0e131c';
@@ -18,6 +19,10 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 // Marcador do exterior (votos para Presidente), no canto noroeste, fora do território.
 const EXT = { x: -28, y: -6, w: 152, h: 42 };
 const EXT_C = [EXT.x + EXT.w / 2, EXT.y + EXT.h / 2];
+// Modo "Variação desde 2022": a cor fica cheia a partir desta mudança (pontos percentuais) na vantagem
+// PL × PT; o centro da escala é claro para não se confundir com o cinza de "sem dados".
+const VAR_MAX = 10;
+const NEUTRO = '#dfe3ea';
 
 export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub, nivelEl, dica, onSelect, onUnpin, onModo, onNivel, onMunicipio }) {
   let geo = null;
@@ -249,8 +254,70 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       ${rows.length ? rows.map((r, i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${r.cor}">
         <span class="dot"></span><span class="nome">${esc(r.sigla ? r.nome : nomeProprio(r.nome))}</span><b>${pct(r.pct)}</b></div>`).join('')
         : `<div class="callout__row">Sem dados ainda</div>`}
+      ${data.cargo.federal ? bloco2022(comparacaoUF(uf)) : ''}
       <div class="callout__foot">Seções apuradas: ${pct(e?.secoes?.pct)}</div>
       <div class="callout__bar"><i style="width:${(e?.secoes?.pct || 0).toFixed(2)}%"></i></div>`;
+  }
+
+  // ------------------------------------------------------- comparação com 2022 (Presidente)
+  // Por partido, porque o candidato do PL mudou: PT = Lula nos dois anos; PL = Jair Bolsonaro em 2022
+  // e Flávio Bolsonaro em 2026. Os dados de 2022 chegam sob demanda (compara2022.js).
+  const partidos26 = () => candidatosPorPartido(data.nacional?.candidatos);
+  const corPT = () => partidos26().pt?.cor || '#ef4b55';
+  const corPL = () => partidos26().pl?.cor || '#3d7bf5';
+
+  // Percentuais de PT e PL em 2026 num estado (null enquanto não há votos).
+  function atual26UF(uf) {
+    const e = data.estados[uf];
+    if (!(e?.secoes?.apuradas > 0) || !e.candidatos?.some((c) => c.votos > 0)) return null;
+    const { pt, pl } = partidos26();
+    const pctDe = (c) => (c && e.candidatos.find((x) => x.n === c.n)?.pct) || 0;
+    return { pt: pctDe(pt), pl: pctDe(pl) };
+  }
+  // Na cidade vêm só os 5 primeiros ([número, %, partido]): quem ficou de fora conta como 0.
+  function atual26Mun(r) {
+    if (!(r?.a > 0) || !(r.c?.[0]?.[1] > 0)) return null;
+    const pctDe = (sg) => r.c.find((x) => x[2] === sg)?.[1] || 0;
+    return { pt: pctDe('PT'), pl: pctDe('PL') };
+  }
+  const comparacaoUF = (uf) => comparar(estado2022(data.turno, uf), atual26UF(uf));
+  function comparacaoMun(uf, cdi) {
+    const r = munDados[uf]?.[cdi];
+    return comparar(municipio2022(data.turno, { uf, cdi, cd: r?.cd }), atual26Mun(r));
+  }
+
+  // "Em 2022 · por partido": percentual de cada um em 2022 e a variação do partido até agora (p.p.).
+  // No 2º turno a comparação é com o 2º turno de 2022 (a legenda e o resultado da cidade dizem qual);
+  // o cartão não repete o turno para caber na largura.
+  function bloco2022(c) {
+    if (!c) return '';
+    const linha = (sg, nome, v22, d, cor) => `<div class="h22-co__r" style="--c:${cor}">
+      <b>${sg}</b><span class="h22-co__nm">${nome}</span><span class="h22-co__v">${pct(v22)}</span>${d == null ? '' : `<span class="h22-co__d">${pp(d, '')}</span>`}</div>`;
+    return `<div class="h22-co">
+      <div class="h22-co__t"><span>Em 2022 · por partido</span>${c.dPT == null ? '' : '<span>var. p.p.</span>'}</div>
+      ${linha('PT', 'Lula', c.pt22, c.dPT, corPT())}
+      ${linha('PL', 'J. Bolsonaro', c.pl22, c.dPL, corPL())}
+    </div>`;
+  }
+
+  function corVariacao(dv) {
+    if (dv == null || !Number.isFinite(dv)) return SEM;
+    return mix(NEUTRO, dv >= 0 ? corPL() : corPT(), Math.min(1, Math.abs(dv) / VAR_MAX) ** 0.8);
+  }
+
+  function legendaVariacao() {
+    const n = data.nacional;
+    const { pt, pl } = candidatosPorPartido(n?.candidatos);
+    // Brasil inteiro como referência (respeita o "Incluir exterior").
+    const a26 = n?.secoes?.apuradas > 0 && pt && pl ? { pt: pt.pct, pl: pl.pct } : null;
+    const br = comparar(data.semExterior ? brasilSemExterior2022(data.turno) : estado2022(data.turno, 'br'), a26);
+    const dv = br?.dVantagem;
+    return `<div class="legend__title">Vantagem PL × PT desde 2022</div>
+      <div class="legend__ramp" style="background:linear-gradient(90deg,${corPT()},${NEUTRO},${corPL()})"></div>
+      <div class="legend__scale"><span>PT +${VAR_MAX}</span><span>0</span><span>PL +${VAR_MAX}</span></div>
+      ${dv == null ? '' : `<div class="h22-leg__br">Brasil: <b>${pp(dv)}</b> ${Math.abs(dv) < 0.05 ? '' : dv > 0 ? 'para o PL' : 'para o PT'}</div>`}
+      <div class="legend__item" style="--c:${SEM}"><span class="legend__dot"></span><span>Sem votos apurados</span></div>
+      <div class="h22-leg">Pontos percentuais dos válidos, ante o ${turno2022(data.turno)}º turno de 2022. No PL: Jair (2022) e Flávio (2026).</div>`;
   }
 
   // ------------------------------------------------------------ municípios
@@ -265,6 +332,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     const r = munDados[uf]?.[cdi];
     if (!r || !(r.a > 0) || !(r.c?.[0]?.[1] > 0)) return SEM;
     if (st.mapaModo === 'secoes') return mix('#1c2944', '#5b93ff', Math.min(1, r.a / 100));
+    if (st.mapaModo === 'var22') return corVariacao(comparacaoMun(uf, cdi)?.dVantagem);
     const [n, p, sg] = r.c[0];
     const cor = corDoLider(n, sg);
     if (!cor) return SEM;
@@ -280,6 +348,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     return `<div class="callout__title"><span>${esc(nomeProprio(r.nm))} (${uf.toUpperCase()})</span></div>
       ${r.c.map(([n, p, sg], i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${corDoLider(n, sg) || '#94a3b8'}">
         <span class="dot"></span><span class="nome">${esc(nomeDoCandidato(uf, n, sg))}</span><b>${pct(p)}</b></div>`).join('')}
+      ${data.cargo.federal ? bloco2022(comparacaoMun(uf, cdi)) : ''}
       <div class="callout__foot">Seções apuradas: ${pct(r.a)}${apurou ? '' : ' · sem votos ainda'}</div>
       <div class="callout__bar"><i style="width:${(r.a || 0).toFixed(2)}%"></i></div>`;
   }
@@ -342,6 +411,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       const p = (e.secoes.pct || 0) / 100;
       return p > 0 ? mix('#1c2944', '#5b93ff', p) : SEM;
     }
+    if (modo === 'var22') return corVariacao(comparacaoUF(uf)?.dVantagem);
     if (modo.startsWith('cand:')) {
       const n = modo.slice(5);
       const c = data.nacional.candidatos.find((x) => x.n === n);
@@ -356,10 +426,12 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function opcoes() {
     const ops = [];
-    if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ['secoes', 'Seções apuradas']];
+    const var22 = ['var22', 'Variação desde 2022'];
+    if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ['secoes', 'Seções apuradas'], ...(data.cargo.federal ? [var22] : [])];
     if (data.cargo.federal) {
       ops.push(['lider', 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
       for (const c of data.nacional.candidatos.slice(0, 3)) ops.push([`cand:${c.n}`, `Votação: ${nomeProprio(c.nome)}`]);
+      ops.push(var22);
     } else {
       ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
     }
@@ -368,6 +440,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function subtitulo() {
     const m = st.mapaModo;
+    if (m === 'var22') return `Quanto a vantagem do PL sobre o PT mudou desde 2022 em cada ${nivel === 'mun' ? 'cidade' : 'estado'}`;
     if (nivel === 'mun') return m === 'secoes' ? 'Percentual de seções apuradas em cada cidade' : 'Candidato mais votado em cada cidade; quanto mais forte a cor, maior a vantagem';
     if (m === 'secoes') return 'Percentual de seções apuradas em cada estado';
     if (m.startsWith('cand:')) {
@@ -385,6 +458,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
 
   function htmlLegenda() {
     const m = st.mapaModo;
+    if (m === 'var22') return legendaVariacao();
     if (nivel === 'mun' && m !== 'secoes') return legendaMun();
     if (m === 'secoes') {
       return `<div class="legend__title">Seções apuradas</div>
@@ -449,7 +523,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     return i === 0 ? 'left:40px;bottom:96px' : 'right:15px;top:12px';
   }
 
-  return {
+  const api = {
     async init() {
       const g = await fetch('data/brasil-uf.json').then((r) => r.json());
       build(g);
@@ -468,6 +542,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       const anterior = data;
       data = d;
       st = state;
+      definirTurno2026(d.turno);
       if (!geo) return;
       // Pulso de luz nos estados com seções novas desde a última atualização exibida.
       const recentes = d.atualizacoes || [];
@@ -533,4 +608,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       requestAnimationFrame(posicionarCallouts);
     },
   };
+  // Dados de 2022 chegaram: redesenha com o último payload (cartões, cores e legenda).
+  aoCarregar2022(() => data && geo && api.update(data, st));
+  return api;
 }

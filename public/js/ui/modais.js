@@ -3,6 +3,7 @@ import { UF_BY_CODE } from '../ufs.js';
 import { avatar, avatarPartido, linhaLista } from './common.js';
 import { pills } from './disputa.js';
 import { linhaAtualizacao } from './paineis.js';
+import { municipio2022, carregarMunicipios2022, candidatosPorPartido, comparar, pp, turno2022 } from '../compara2022.js';
 
 const modal = document.getElementById('modal');
 const body = document.getElementById('modal-body');
@@ -100,5 +101,45 @@ export function modalMunicipio(m) {
   return `<h3>${esc(nomeProprio(m.municipio))} (${ufLabel(m.uf)})</h3>
     <p class="card__sub">${esc(m.cargo)} · votos válidos</p>
     ${grade(m.secoes, m.votos)}
+    ${m.cargo === 'Presidente' ? comparacao2022(m) : ''}
     <div class="mlist">${camara ? partidos.slice(0, 20).map(linhaPartido).join('') : m.candidatos.map(linhaCand).join('')}</div>`;
+}
+
+// ------------------------------------------------------------------ comparação com 2022 (Presidente)
+// Por partido, porque o candidato do PL mudou (Jair Bolsonaro em 2022, Flávio Bolsonaro em 2026).
+// Os municípios de 2022 chegam sob demanda: enquanto isso fica um espaço reservado, trocado ao chegar.
+function comparacao2022(m) {
+  const chave = `${m.uf}-${m.abrangencia}`;
+  const a22 = municipio2022(m.turno, { uf: m.uf, cd: m.abrangencia });
+  if (a22 === undefined) {
+    carregarMunicipios2022(m.turno).then(
+      () => {
+        const el = body.querySelector(`[data-h22="${chave}"]`);
+        if (el) el.outerHTML = comparacao2022(m);
+      },
+      () => body.querySelector(`[data-h22="${chave}"]`)?.remove(),
+    );
+    return `<div class="h22 h22--carregando" data-h22="${esc(chave)}">Carregando o resultado de 2022…</div>`;
+  }
+  if (!a22) return '';
+  const { pt, pl } = candidatosPorPartido(m.candidatos);
+  const apurou = m.secoes?.apuradas > 0 && m.votos?.validos > 0;
+  const c = comparar(a22, apurou ? { pt: pt?.pct || 0, pl: pl?.pct || 0 } : null);
+  const t = turno2022(m.turno);
+  const linha = (sg, cor, nomes, v22, v26, d) => `<div class="h22__lin" style="--c:${cor}">
+      <span class="h22__p"><i></i><b>${sg}</b><small>${nomes}</small></span>
+      <span>${pct(v22)}</span><span>${v26 == null ? '—' : pct(v26)}</span><span class="h22__d">${d == null ? '—' : pp(d)}</span></div>`;
+  const vant = (v) => `${pp(Math.abs(v)).replace('+', '')} para o ${v >= 0 ? 'PL' : 'PT'}`;
+  return `<div class="h22">
+    <div class="h22__tit">Comparação com 2022 <small>· ${t}º turno · por partido</small></div>
+    <p class="h22__em">Em 2022: <b>Lula ${pct(c.pt22)}</b> · <b>Bolsonaro ${pct(c.pl22)}</b></p>
+    <div class="h22__tab">
+      <div class="h22__lin h22__lin--cab"><span>Partido</span><span>2022</span><span>2026</span><span>Variação</span></div>
+      ${linha('PT', pt?.cor || '#ef4b55', 'Lula', c.pt22, c.pt26, c.dPT)}
+      ${linha('PL', pl?.cor || '#3d7bf5', 'Jair → Flávio Bolsonaro', c.pl22, c.pl26, c.dPL)}
+    </div>
+    <p class="nota">Vantagem: ${vant(c.vantagem22)} em 2022${c.dVantagem == null ? '' : `; ${vant(c.vantagem22 + c.dVantagem)} agora`}.
+      O candidato do PL mudou (Jair Bolsonaro em 2022, Flávio Bolsonaro em 2026), por isso a comparação é por partido.
+      Percentuais dos votos válidos${apurou && m.secoes.pct < 100 ? `; 2026 com ${pct(m.secoes.pct)} das seções apuradas` : ''}. Fonte de 2022: TSE.</p>
+  </div>`;
 }

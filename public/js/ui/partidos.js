@@ -4,6 +4,7 @@ import { int, pct, esc, nomeProprio, semAcento } from '../format.js';
 import { UFS } from '../ufs.js';
 import { avatar, avatarPartido, linhaLista, seloGarantido } from './common.js';
 import * as modal from './modais.js';
+import { carregarUFs2022, turnoAtual2026, pp } from '../compara2022.js';
 
 let resumo = null; // cache do /api/partidos
 
@@ -53,24 +54,55 @@ function cartoes(p, vagas) {
   return `<div class="pcards">${pres}${gov}${sen}${fed}${est}</div>`;
 }
 
-function tabelaEstados(p) {
+// ------------------------------------------------------------------ Presidente em 2022 (PT e PL)
+// Comparação por partido: o candidato do PL mudou (Jair Bolsonaro em 2022, Flávio Bolsonaro em 2026).
+// i: posição dos votos do candidato no registro [eleitorado, válidos, Lula, Bolsonaro].
+const CAND_2022 = { PT: { nome: 'Lula', i: 2 }, PL: { nome: 'Jair Bolsonaro', i: 3 } };
+const pct2022 = (r, i) => (r?.[1] > 0 ? (r[i] / r[1]) * 100 : null);
+
+function presidente2022(p, h22) {
+  const c = CAND_2022[p.sigla];
+  if (!c || !h22?.[1] || !h22?.[2]) return '';
+  const turno = (t) => {
+    const br = h22[t].br;
+    const venceu = br[c.i] > br[c.i === 2 ? 3 : 2];
+    return `${t}º turno: <b>${pct(pct2022(br, c.i), 2)}</b> (${venceu ? (t === 2 ? 'eleito' : '1º lugar') : '2º lugar'})`;
+  };
+  const t = turnoAtual2026();
+  const agora = p.presidente ? Math.round(p.presidente.pct * 10) / 10 - Math.round(pct2022(h22[t].br, c.i) * 10) / 10 : null;
+  return `<h4 class="psec">Presidente em 2022</h4>
+    <div class="h22-part"><b>${c.nome}</b> · ${turno(1)} · ${turno(2)}</div>
+    ${agora == null ? '' : `<p class="nota">Agora, ${esc(nomeProprio(p.presidente.nome))} tem ${pct(p.presidente.pct, 1)}: <b>${pp(agora)}</b> ante o ${t}º turno de 2022${p.sigla === 'PL' ? ' (comparação por partido: o candidato mudou)' : ''}.</p>`}`;
+}
+
+function tabelaEstados(p, h22) {
   const cel = (v, tipo) => {
     if (!v) return '<td class="vazio">—</td>';
     if (tipo === 'prop') return `<td>${pct(v[0], 1)}${v[1] ? ` <b class="cad">${v[1]}</b>` : ''}</td>`;
     const dentro = tipo === 'maj' && v[1] <= (v[2] || 1);
     return `<td class="${dentro ? 'dentro' : ''}">${pct(v[0], 1)} <small>${ord(v[1])}</small></td>`;
   };
+  // PT e PL: coluna com o Presidente de 2022 no estado e a variação (p.p.) até agora.
+  const c22 = p.presidente && CAND_2022[p.sigla] && h22?.[turnoAtual2026()] ? CAND_2022[p.sigla] : null;
+  const cel22 = (uf, v26) => {
+    const v = pct2022(h22[turnoAtual2026()].uf[uf], c22.i);
+    if (v == null) return '<td class="vazio">—</td>';
+    const d = v26 ? Math.round(v26[0] * 10) / 10 - Math.round(v * 10) / 10 : null;
+    return `<td>${pct(v, 1)}${d == null ? '' : ` <small>${pp(d, '')}</small>`}</td>`;
+  };
   const linhas = UFS.filter((u) => p.estados[u.uf]).map((u) => {
     const e = p.estados[u.uf];
-    return `<tr><th>${u.uf.toUpperCase()}</th>${p.presidente ? cel(e.presidente, 'pos') : ''}${cel(e.governador, 'maj')}${cel(e.senado, 'maj')}${cel(e.camara, 'prop')}${cel(e.assembleia, 'prop')}</tr>`;
+    return `<tr><th>${u.uf.toUpperCase()}</th>${p.presidente ? cel(e.presidente, 'pos') : ''}${c22 ? cel22(u.uf, e.presidente) : ''}${cel(e.governador, 'maj')}${cel(e.senado, 'maj')}${cel(e.camara, 'prop')}${cel(e.assembleia, 'prop')}</tr>`;
   });
   if (!linhas.length) return '';
   return `<h4 class="psec">Por estado</h4>
     <div class="ptabela"><table>
-      <thead><tr><th></th>${p.presidente ? '<th>Presidente</th>' : ''}<th>Governador</th><th>Senado</th><th>Dep. fed. <small>(cadeiras)</small></th><th>Dep. est. <small>(cadeiras)</small></th></tr></thead>
+      <thead><tr><th></th>${p.presidente ? '<th>Presidente</th>' : ''}${c22 ? `<th>Pres. 2022 <small>(${turnoAtual2026()}º t.)</small></th>` : ''}<th>Governador</th><th>Senado</th><th>Dep. fed. <small>(cadeiras)</small></th><th>Dep. est. <small>(cadeiras)</small></th></tr></thead>
       <tbody>${linhas.join('')}</tbody>
     </table></div>
-    <p class="nota">Percentual dos votos válidos no estado. Em destaque: lidera (governador) ou está dentro das vagas (Senado). Nos deputados, o número em negrito é a projeção de cadeiras.</p>`;
+    <p class="nota">Percentual dos votos válidos no estado. Em destaque: lidera (governador) ou está dentro das vagas (Senado). Nos deputados, o número em negrito é a projeção de cadeiras.${
+      c22 ? ` Pres. 2022: ${c22.nome} no ${turnoAtual2026()}º turno de 2022 e, ao lado, a variação até agora em pontos percentuais.` : ''
+    }</p>`;
 }
 
 function listaCands(titulo, cands, cargo, cor) {
@@ -93,13 +125,14 @@ function listaCands(titulo, cands, cargo, cor) {
     .join('')}</div>`;
 }
 
-function detalhe(j) {
+function detalhe(j, h22) {
   const p = j.partido;
   return `<div class="phead">${avatarPartido(p)}
       <div style="min-width:0"><h3>${esc(p.nome === p.sigla ? p.sigla : nomeProprio(p.nome))}</h3>
       <p class="card__sub">${esc(p.sigla)}${p.n ? ` · número ${esc(p.n)}` : ''}${p.federacao ? ` · ${esc(nomeProprio(p.federacao))}` : ''}</p></div></div>
     ${cartoes(p, j.vagas)}
-    ${tabelaEstados(p)}
+    ${presidente2022(p, h22)}
+    ${tabelaEstados(p, h22)}
     ${listaCands('Candidatos a governador', p.governador.candidatos, 'governador', p.cor)}
     ${listaCands('Candidatos ao Senado', p.senado.candidatos, 'senado', p.cor)}
     ${listaCands('Deputados federais mais votados', p.camara.top, 'camara', p.cor)}
@@ -136,10 +169,14 @@ export function abrirPartidos(sigla) {
     const id = ++st.seq;
     $('[data-detalhe]').innerHTML = '<p class="empty">Carregando…</p>';
     try {
-      const r = await fetch(`/api/partidos?sigla=${encodeURIComponent(sg)}`);
+      // PT e PL: totais de Presidente em 2022 por UF (arquivo estático de poucos KB), para a comparação.
+      const [r, h22] = await Promise.all([
+        fetch(`/api/partidos?sigla=${encodeURIComponent(sg)}`),
+        CAND_2022[sg] ? carregarUFs2022().catch(() => null) : null,
+      ]);
       const j = await r.json();
       if (id !== st.seq || !modal.aberto()) return;
-      $('[data-detalhe]').innerHTML = r.ok ? detalhe(j) : `<p class="empty">${esc(j.erro || 'Partido não encontrado.')}</p>`;
+      $('[data-detalhe]').innerHTML = r.ok ? detalhe(j, h22) : `<p class="empty">${esc(j.erro || 'Partido não encontrado.')}</p>`;
     } catch {
       if (id === st.seq && modal.aberto()) $('[data-detalhe]').innerHTML = '<p class="empty">Falha de conexão com o servidor.</p>';
     }

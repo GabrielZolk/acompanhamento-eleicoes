@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "build:map": "node tools/build-map.mjs"
+    "build:map": "node tools/build-map.mjs",
+    "build:historico": "node tools/build-historico-2022.mjs"
   }
 }
