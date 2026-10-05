@@ -1407,3 +1407,176 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ------------------------------------------------------------------ simulador do 2º turno */
+/* Modal mais largo só quando mostra o simulador (controles e resultado lado a lado). */
+.modal__card:has(> #modal-body > .sim) { width: min(1040px, 100%); max-height: min(92vh, 980px); }
+.sim { container: sim / inline-size; --ca: #3d7bf5; --cb: #ef4b55; }
+.sim__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sim__kicker { display: block; margin: 0 44px 6px 0; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
+.modal .sim__topo .card__sub { margin-bottom: 10px; }
+.sim__aviso { display: flex; align-items: center; gap: 9px; margin: 0 0 16px; padding: 8px 12px; border-radius: 9px; background: rgba(245, 177, 61, 0.08); border: 1px solid rgba(245, 177, 61, 0.32); color: #f5c46b; font-size: 12.5px; line-height: 1.4; }
+.sim__aviso b { color: #ffd58a; font-weight: 600; }
+.sim__aviso svg { flex-shrink: 0; }
+
+/* Celular e telas estreitas: uma coluna, placar grudado no topo enquanto a pessoa mexe nas linhas. */
+.sim__grade { display: flex; flex-direction: column; gap: 12px; }
+.sim__res { display: contents; }
+.sim__placar {
+  order: -1; position: sticky; top: 0; z-index: 3; padding: 11px 13px 10px; border-radius: 12px; border: 1px solid var(--line-2);
+  background:
+    radial-gradient(90% 160% at 0% 0%, color-mix(in srgb, var(--ca) 17%, transparent), transparent 62%),
+    radial-gradient(90% 160% at 100% 0%, color-mix(in srgb, var(--cb) 17%, transparent), transparent 62%),
+    #10151f;
+  box-shadow: 0 12px 26px -16px rgba(0, 0, 0, 0.95);
+}
+/* O placar gruda abaixo do padding do modal: esta faixa na cor do modal esconde as linhas que
+   passariam por esse vão. Parado, ela cai sobre a margem do aviso (mesma cor, invisível). */
+.sim__placar::before { content: ''; position: absolute; left: -1px; right: -1px; bottom: 100%; height: 22px; background: #0f141e; }
+.sim__aviso { margin-bottom: 22px; }
+@media (max-width: 640px) {
+  .sim__placar::before { height: 16px; }
+  .sim__aviso { margin-bottom: 16px; }
+}
+.sim__duelo { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 10px; }
+.sim__lado { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.sim__lado--b { align-items: flex-end; text-align: right; }
+.sim__ltopo { display: none; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sim__lado--b .sim__ltopo { flex-direction: row-reverse; }
+.sim__lnome { max-width: 100%; font-size: 12.5px; font-weight: 600; color: color-mix(in srgb, var(--c) 55%, #eef2f8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sim__lpart { display: none; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; color: color-mix(in srgb, var(--c) 70%, #c9cfdb); margin-top: 1px; }
+.sim__lpct { font-size: 23px; font-weight: 800; line-height: 1.1; letter-spacing: -0.6px; color: var(--text-2); font-variant-numeric: tabular-nums; transition: color 0.3s, text-shadow 0.3s; }
+.sim__lado.is-win .sim__lpct { color: #fff; text-shadow: 0 0 18px color-mix(in srgb, var(--c) 75%, transparent); }
+.sim__lvotos { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sim__x { padding-bottom: 16px; color: var(--muted-2); font-size: 13px; font-weight: 600; }
+.sim__venc { display: none; padding: 2px 8px; border-radius: 999px; background: var(--c); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; box-shadow: 0 0 14px -3px var(--c); }
+.sim__barra { position: relative; display: flex; gap: 3px; height: 12px; margin: 9px 0 8px; }
+.sim__barra > i { flex: 0 0 auto; height: 100%; min-width: 6px; border-radius: 6px; transition: width 0.55s var(--ease-out), box-shadow 0.4s; }
+.sim__ba { background: linear-gradient(90deg, color-mix(in srgb, var(--ca) 65%, #000), var(--ca)); }
+.sim__bb { background: linear-gradient(90deg, var(--cb), color-mix(in srgb, var(--cb) 65%, #000)); }
+.sim__ba.is-win { box-shadow: 0 0 16px -3px var(--ca); }
+.sim__bb.is-win { box-shadow: 0 0 16px -3px var(--cb); }
+.sim__meio { position: absolute; left: 50%; top: -4px; bottom: -4px; border-left: 1.5px dashed rgba(255, 255, 255, 0.6); }
+.sim__meio span { display: none; position: absolute; top: -15px; left: -11px; font-size: 9.5px; color: #8a93a6; }
+.sim__frase { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--text-2); }
+.sim__frase b { color: #fff; font-weight: 700; }
+.sim__frase .sim__quem { color: color-mix(in srgb, var(--c) 45%, #fff); }
+.sim__selo { margin: 4px 0 0; font-size: 10.5px; font-weight: 600; color: #f5c46b; }
+
+.sim__det { order: 2; padding: 13px 14px 14px; border-radius: 12px; background: #121824; border: 1px solid var(--line-2); }
+.sim__stat { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0; font-size: 12.5px; color: var(--muted); }
+.sim__stat b { color: #fff; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.sim__share {
+  width: 100%; height: 42px; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 9px;
+  border-radius: 10px; border: 1px solid #5a6cff; background: linear-gradient(180deg, #4255e6, #3443c9); color: #fff; font-size: 13.5px; font-weight: 600;
+  box-shadow: 0 8px 22px -10px rgba(67, 87, 236, 0.8); transition: transform 0.2s var(--ease-out), box-shadow 0.2s, opacity 0.2s;
+}
+.sim__share:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(67, 87, 236, 0.95); }
+.sim__share:disabled { opacity: 0.65; cursor: progress; transform: none; }
+.sim__share:focus-visible, .sim__preset:focus-visible { outline: 2px solid #8fa7ff; outline-offset: 2px; }
+
+/* Cenários prontos */
+.sim__presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.sim__preset { height: 36px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line-2); background: #121824; color: var(--text-2); font-size: 12.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; }
+.sim__preset:hover { color: #fff; border-color: #34405a; }
+.sim__preset[aria-pressed='true'] { background: #1d2540; border-color: #4357ec; color: #fff; box-shadow: 0 0 16px -6px rgba(67, 87, 236, 0.9); }
+/* Altura reservada para o texto mais longo: trocar de cenário não empurra as linhas no meio do arraste. */
+.sim__desc { margin: 9px 0 12px; min-height: 54px; font-size: 12px; line-height: 1.5; color: var(--muted); }
+.sim__desc b { color: var(--text-2); font-weight: 600; }
+
+/* Linhas: um eliminado (ou brancos e nulos, abstenção) por cartão */
+.sim__fontes { display: flex; flex-direction: column; gap: 8px; }
+.sim__fonte { position: relative; overflow: hidden; padding: 11px 12px 14px; border-radius: 12px; background: var(--row); border: 1px solid #1d2432; transition: border-color 0.2s, box-shadow 0.2s; }
+.sim__fonte:focus-within { border-color: color-mix(in srgb, var(--c) 40%, #2a3346); box-shadow: 0 0 22px -14px var(--c); }
+.sim__fonte.is-off { padding-bottom: 11px; background: transparent; border-style: dashed; }
+.sim__fhead { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sim__finfo { flex: 1; min-width: 0; }
+.sim__fnome { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sim__fsub { margin-top: 2px; font-size: 11.5px; line-height: 1.35; color: var(--muted); }
+.sim__ico { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 10px; background: #1a2030; border: 1px solid var(--line-2); color: var(--text-2); }
+.sim__linha { display: grid; gap: 2px; margin-top: 8px; }
+.sim__linha--lado { transition: opacity 0.25s; }
+.sim__fonte.is-zero .sim__linha--lado { opacity: 0.45; }
+.sim__rot { font-size: 11.5px; font-weight: 500; color: var(--muted); }
+/* Pontas com largura fixa nos dois controles: os trilhos ficam alinhados. */
+.sim__lctrl, .sim__pctrl { display: grid; grid-template-columns: 54px minmax(0, 1fr) 54px; align-items: center; gap: 10px; }
+.sim__pctrl > b { text-align: right; font-size: 13.5px; color: #fff; font-variant-numeric: tabular-nums; }
+.sim__ponta { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.sim__ponta--b { align-items: flex-end; text-align: right; }
+.sim__ponta small { max-width: 100%; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sim__ponta b { font-size: 13.5px; color: #fff; font-variant-numeric: tabular-nums; }
+.sim__leg { display: flex; flex-wrap: wrap; gap: 3px 14px; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.sim__leg span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.sim__leg i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.sim__leg-f i { background: #2a3142; box-shadow: inset 0 0 0 1px #3a4458; }
+.sim__leg b { color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sim__tira { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; display: flex; background: #1a2030; }
+.sim__tira i { height: 100%; transition: width 0.35s var(--ease-out); }
+.sim__ta { background: var(--ca); }
+.sim__tb { background: var(--cb); }
+.sim__fonte.is-off .sim__tira { display: none; }
+
+/* Controles deslizantes (alvo grande para o dedo; trilho em cores, polegar com brilho) */
+.sim__slider { position: relative; display: block; min-width: 0; }
+.sim__slider--lado::before { content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 16px; margin: -8px 0 0 -1px; border-radius: 1px; background: rgba(255, 255, 255, 0.35); pointer-events: none; }
+.sim__range {
+  --trk: #252c3c; --th: #7d93ff;
+  position: relative; z-index: 1; display: block; width: 100%; height: 32px; margin: 0; background: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.sim__range:focus { outline: none; }
+.sim__slider--lado .sim__range { --trk: linear-gradient(90deg, color-mix(in srgb, var(--ca) 72%, #0e131c), color-mix(in srgb, var(--cb) 72%, #0e131c)); }
+.sim__range--part { --v: 0%; --trk: linear-gradient(90deg, #7d93ff var(--v), #252c3c var(--v)); }
+.sim__range::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: var(--trk); }
+.sim__range::-moz-range-track { height: 8px; border-radius: 4px; background: var(--trk); }
+.sim__range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; box-sizing: border-box; width: 24px; height: 24px; margin-top: -8px; border-radius: 50%;
+  background: #fff; border: 5px solid var(--th); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 14px -2px var(--th); transition: transform 0.15s var(--ease-out);
+}
+.sim__range::-moz-range-thumb { box-sizing: border-box; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 5px solid var(--th); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 14px -2px var(--th); }
+.sim__range:active::-webkit-slider-thumb { transform: scale(1.12); }
+.sim__range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(125, 147, 255, 0.45), 0 0 14px -2px var(--th); }
+.sim__range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(125, 147, 255, 0.45), 0 0 14px -2px var(--th); }
+
+/* Abstenção: chave liga/desliga */
+.sim__switch { position: relative; display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.sim__switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.sim__switch i { position: relative; width: 38px; height: 22px; border-radius: 999px; background: #252c3c; border: 1px solid var(--line-2); transition: background 0.2s, border-color 0.2s; }
+.sim__switch i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #c9cfdb; transition: transform 0.2s var(--ease-out), background 0.2s; }
+.sim__switch input:checked + i { background: #3443c9; border-color: #5a6cff; }
+.sim__switch input:checked + i::after { transform: translateX(16px); background: #fff; }
+.sim__switch input:focus-visible + i { box-shadow: 0 0 0 3px rgba(90, 108, 255, 0.45); }
+
+/* Tablet: rótulo à esquerda do controle e cenários numa linha. */
+@container sim (min-width: 560px) {
+  .sim__presets { display: flex; flex-wrap: wrap; }
+  .sim__desc { min-height: 36px; }
+  .sim__fsub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sim__linha { grid-template-columns: 138px minmax(0, 1fr); align-items: center; gap: 12px; margin-top: 6px; }
+  .sim__leg { margin-top: 6px; padding-left: 150px; }
+}
+
+/* Computador: controles à esquerda e resultado fixo à direita. */
+@container sim (min-width: 860px) {
+  .sim__grade { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 22px; align-items: start; }
+  .sim__res { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 4px; }
+  .sim__placar { position: relative; top: auto; padding: 16px 16px 14px; box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9); }
+  .sim__placar::before { display: none; }
+  .sim__ltopo { display: flex; }
+  .sim__lado.is-win .sim__venc { display: inline-block; }
+  .sim__lnome { font-size: 14px; color: #fff; }
+  .sim__lpart { display: block; }
+  .sim__lpct { font-size: 32px; margin-top: 6px; }
+  .sim__lvotos { font-size: 11.5px; margin-top: 2px; }
+  .sim__x { padding-bottom: 30px; font-size: 15px; }
+  .sim__barra { height: 16px; margin: 26px 0 12px; }
+  .sim__barra > i { border-radius: 8px; }
+  .sim__meio span { display: block; }
+  .sim__frase { font-size: 14px; }
+  .sim__selo { margin-top: 8px; }
+}
+
+/* O bloco global acima não alcança o polegar dos controles (pseudoelemento do navegador). */
+@media (prefers-reduced-motion: reduce) {
+  .sim__range::-webkit-slider-thumb { transition: none; }
+}
