@@ -1,6 +1,7 @@
 import { int, pct, sinal, esc, nomeProprio } from '../format.js';
 import { UFS, UF_BY_CODE, tituloDoCargo } from '../ufs.js';
 import { avatar, avatarPartido, donut, ICON, cnt, seloGarantido } from './common.js';
+import { destaqueSegundoTurno } from './segundoturno.js';
 
 const VISIVEIS = 6;
 
@@ -102,7 +103,9 @@ export function renderDisputa(d, state) {
   if (cargo.federal) {
     const n = d.nacional;
     const temVotos = n.secoes.apuradas > 0;
-    const lista = n.candidatos.slice(0, VISIVEIS);
+    // Presidente eleito ou 2º turno certo/provável: a faixa entra no lugar do último candidato.
+    const t2 = temVotos ? destaqueSegundoTurno(d) : '';
+    const lista = n.candidatos.slice(0, t2 ? VISIVEIS - 1 : VISIVEIS);
     return `<div class="disputa__head">
         <div class="card__head">
           <h2 class="card__title">${esc(cargo.titulo)}</h2>
@@ -118,9 +121,9 @@ export function renderDisputa(d, state) {
         </div>
       </div>
       <div class="disputa__list" data-flip>
-        ${lista.map((c, i) => linhaCandidato(c, i, { lider: i === 0 && temVotos, mostrarVotos: true, ranking: temVotos })).join('')}
+        ${t2}${lista.map((c, i) => linhaCandidato(c, i, { lider: i === 0 && temVotos, mostrarVotos: true, ranking: temVotos })).join('')}
       </div>
-      <button class="btn-row" data-action="todos">Ver todos os candidatos ${n.candidatos.length > VISIVEIS ? `(${n.candidatos.length})` : ''} ${ICON.chevRight}</button>
+      <button class="btn-row" data-action="todos">Ver todos os candidatos ${n.candidatos.length > lista.length ? `(${n.candidatos.length})` : ''} ${ICON.chevRight}</button>
       ${stats({ eleitorado: n.eleitorado, secoes: n.secoes, eleitorado2022: d.eleitorado2022, nacional: true })}`;
   }
 
