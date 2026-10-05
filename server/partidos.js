@@ -17,6 +17,7 @@ const candidatoResumo = (c, uf, pos, extra = {}) => ({
   pos,
   eleito: c.eleito,
   situacao: c.situacao,
+  garantido: c.garantido || null,
   foto: c.foto,
   ...extra,
 });

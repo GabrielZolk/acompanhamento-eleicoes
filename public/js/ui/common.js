@@ -42,6 +42,13 @@ export function linhaLista({ pos, avatarHtml, nome, titulo = '', selo = '', uf =
   </div>`;
 }
 
+// Selo de vitória matematicamente garantida (o TSE só marca ao fim da totalização do lugar):
+// mesma cor do selo oficial, com contorno e cadeado para não se confundir com ele.
+export const DICA_GARANTIDO = 'Matematicamente garantido · o TSE confirma ao fim da totalização';
+export function seloGarantido(tipo, rotulo = tipo === 'eleito' ? 'Eleito' : '2º turno') {
+  return `<span class="pill ${tipo === 'eleito' ? 'pill--eleito' : 'pill--turno'} pill--garantido" title="${DICA_GARANTIDO}">${rotulo}${ICON.cadeado}</span>`;
+}
+
 export function avatarPartido(p, cls = '') {
   return `<div class="avatar avatar--party ${cls}" style="--c:${p.cor}"><div class="avatar__inner"><span>${esc(p.sigla.slice(0, 6))}</span></div></div>`;
 }
@@ -68,4 +75,5 @@ export const ICON = {
   arrowRight: `<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   people: `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.5" cy="6" r="3" fill="currentColor" opacity=".9"/><path d="M1.8 16.5c.6-3.2 2.9-5 5.7-5s5.1 1.8 5.7 5" fill="currentColor" opacity=".9"/><circle cx="14" cy="7" r="2.3" fill="currentColor" opacity=".55"/><path d="M13.6 11.2c2.4.1 4.2 1.7 4.7 4.6h-4" fill="currentColor" opacity=".55"/></svg>`,
   clock: `<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.8V10l2.8 1.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  cadeado: `<svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.2" width="8" height="5.8" rx="1.3" fill="currentColor"/><path d="M4 5.4V3.9a2 2 0 0 1 4 0v1.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`,
 };

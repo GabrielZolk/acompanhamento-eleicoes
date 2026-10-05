@@ -23,7 +23,17 @@ export function montarPainel({ cargoKey, nacional, estados, ab, tracker, inicio 
   const corpo = cargo.federal
     ? painelPresidente({ nacional, estados, ab })
     : painelEstadual({ cargo, estados, ab });
-  return { ...base, ...corpo };
+  return { ...base, ...corpo, ...horarios({ cargo, nacional, estados, ab }) };
+}
+
+// O TSE às vezes para de republicar o resultado (-u.json) enquanto o andamento (-ab.json) segue
+// mudando. Por isso os dois horários vão separados: o cabeçalho mostra o do resultado e avisa quando
+// ele está parado. "atualizadoEm" (o mais novo dos dois) continua no payload por compatibilidade.
+function horarios({ cargo, nacional, estados, ab }) {
+  const resultadoEm = cargo.federal
+    ? nacional?.geradoEm
+    : Math.max(0, ...UF_LIST.map((uf) => estados[uf]?.geradoEm || 0));
+  return { resultadoEm: resultadoEm || null, andamentoEm: ab?.geradoEm || null };
 }
 
 function status(secoes, final) {

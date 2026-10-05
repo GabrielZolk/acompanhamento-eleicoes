@@ -1,9 +1,10 @@
-// Eleitos por lugar: Presidente, governadores, Senado e deputados. Oficial (TSE) quando a
-// totalização do lugar termina; antes disso, quem lidera / está dentro das vagas (provisório).
+// Eleitos por lugar: Presidente, governadores, Senado e deputados. Três níveis: oficial (TSE) quando
+// a totalização do lugar termina; garantido quando os votos que faltam já não mudam o resultado
+// (calculado no servidor, ver server/garantia.js); e, nos demais, quem lidera / está dentro das vagas.
 import { int, pct, esc, nomeProprio, semAcento } from '../format.js';
 import { UFS, UF_BY_CODE } from '../ufs.js';
 import { corPartido } from '../colors.js';
-import { avatar } from './common.js';
+import { avatar, seloGarantido } from './common.js';
 import * as modal from './modais.js';
 
 const ABAS = [
@@ -16,8 +17,11 @@ const ABAS = [
 
 const nome = (c) => nomeProprio(c.nome);
 const selo = {
-  eleito: '<span class="pill pill--eleito">Eleito</span>',
-  turno: '<span class="pill pill--turno">2º turno</span>',
+  eleito: '<span class="pill pill--eleito" title="Confirmado pelo TSE">Eleito (TSE)</span>',
+  eleitoGarantido: seloGarantido('eleito', 'Eleito · garantido'),
+  turno: '<span class="pill pill--turno" title="Confirmado pelo TSE">2º turno (TSE)</span>',
+  turnoGarantido: seloGarantido('segundoTurno', '2º turno · garantido'),
+  turnoProv: '<span class="pill pill--dentro" title="O 2º turno já é certo, mas esta vaga ainda pode mudar">2º turno · provisório</span>',
   lidera: '<span class="pill pill--dentro">Lidera · provisório</span>',
   dentro: '<span class="pill pill--dentro">Dentro · provisório</span>',
 };
@@ -36,23 +40,40 @@ function majoritario(m) {
   if (m.eleitos.length) return m.eleitos.map((c) => pessoa(c, 'eleito')).join('');
   if (m.segundoTurno.length) return m.segundoTurno.map((c) => pessoa(c, 'turno')).join('');
   if (!m.lideres.length) return '<span class="el-vazio">Sem votos apurados ainda</span>';
+  // 2º turno já certo pela conta: os dois primeiros, cada um garantido ou ainda provisório.
+  if (m.haveraSegundoTurno) return m.lideres.slice(0, 2).map((c) => pessoa(c, c.garantido === 'segundoTurno' ? 'turnoGarantido' : 'turnoProv')).join('');
   const n = Math.max(1, m.vagas || 1);
-  return m.lideres.slice(0, n).map((c) => pessoa(c, n > 1 ? 'dentro' : 'lidera')).join('');
+  return m.lideres.slice(0, n).map((c) => pessoa(c, c.garantido === 'eleito' ? 'eleitoGarantido' : n > 1 ? 'dentro' : 'lidera')).join('');
 }
 
 const barra = (s) => `<div class="el-apurado" title="${pct(s?.pct)} das seções apuradas"><i style="width:${(s?.pct || 0).toFixed(1)}%"></i><span>${pct(s?.pct)}</span></div>`;
 
+// Situação de um lugar majoritário: oficial do TSE, garantida pela conta ou ainda em apuração.
+function situacao(m) {
+  if (m.eleitos.length) return 'eleitoTSE';
+  if (m.segundoTurno.length) return 'turnoTSE';
+  if ((m.lideres || []).some((c) => c.garantido === 'eleito')) return 'eleitoGarantido';
+  if (m.haveraSegundoTurno) return 'turnoGarantido';
+  return 'apurando';
+}
+
 function conta(estados, chave) {
-  let eleitos = 0, turno = 0, apurando = 0;
+  const r = { eleitos: 0, eleitosTSE: 0, turno: 0, turnoTSE: 0, apurando: 0 };
   for (const e of Object.values(estados)) {
-    if (chave === 'prop') {
-      if (e.oficiais) eleitos++;
-      else apurando++;
-    } else if (e.eleitos.length) eleitos++;
-    else if (e.segundoTurno.length) turno++;
-    else apurando++;
+    const s = chave === 'prop' ? (e.oficiais ? 'eleitoTSE' : 'apurando') : situacao(e);
+    if (s === 'eleitoTSE' || s === 'eleitoGarantido') r.eleitos++;
+    if (s === 'turnoTSE' || s === 'turnoGarantido') r.turno++;
+    if (s === 'eleitoTSE') r.eleitosTSE++;
+    if (s === 'turnoTSE') r.turnoTSE++;
+    if (s === 'apurando') r.apurando++;
   }
-  return { eleitos, turno, apurando };
+  return r;
+}
+
+// " (2 pelo TSE · 5 garantidos)": de onde vem a contagem.
+function origem(tse, garantidos) {
+  const p = [tse ? `${tse} pelo TSE` : '', garantidos ? `${garantidos} ${garantidos === 1 ? 'garantido' : 'garantidos'}` : ''].filter(Boolean);
+  return p.length ? ` (${p.join(' · ')})` : '';
 }
 
 function filtra(termo, textos) {
@@ -63,8 +84,10 @@ function filtra(termo, textos) {
 function abaPresidente(d, termo) {
   const m = d.presidente;
   if (!m) return '<p class="empty">Resultado indisponível.</p>';
-  const situacao = m.eleitos.length ? 'Eleito no 1º turno' : m.segundoTurno.length ? 'Haverá 2º turno' : 'Em apuração';
-  return `<div class="el-resumo"><b>${situacao}</b>${m.eleitos.length || m.segundoTurno.length ? ' · oficial do TSE' : ' · resultado provisório'}</div>
+  const s = situacao(m);
+  const titulo = s.startsWith('eleito') ? 'Eleito no 1º turno' : s.startsWith('turno') ? 'Haverá 2º turno' : 'Em apuração';
+  const fonte = s.endsWith('TSE') ? 'oficial do TSE' : s === 'apurando' ? 'resultado provisório' : 'garantido pela conta dos votos que faltam · o TSE confirma ao fim da totalização';
+  return `<div class="el-resumo"><b>${titulo}</b> · ${fonte}</div>
     <div class="el-linha el-linha--grande">
       <span class="uf-chip">BR</span>
       <div class="el-pessoas">${majoritario(m)}</div>
@@ -79,7 +102,22 @@ function abaMajoritaria(estados, termo, cargo) {
     .map((u) => `<div class="el-linha"><span class="uf-chip" title="${esc(u.nome)}">${u.uf.toUpperCase()}</span><div class="el-pessoas">${majoritario(estados[u.uf])}</div>${barra(estados[u.uf].secoes)}</div>`)
     .join('');
   const total = Object.keys(estados).length;
-  return `<div class="el-resumo"><b>${c.eleitos}</b> de ${total} ${cargo === 'senado' ? 'estados com senadores eleitos' : 'eleitos'}${c.turno ? ` · <b>${c.turno}</b> com 2º turno` : ''} · <b>${c.apurando}</b> em apuração</div>
+  let resumo;
+  if (cargo === 'senado') {
+    // No Senado a conta é por cadeira: um estado pode ter uma vaga definida e a outra ainda em disputa.
+    let vagas = 0, tse = 0, garantidos = 0, abertos = 0;
+    for (const e of Object.values(estados)) {
+      const g = e.eleitos.length ? 0 : (e.lideres || []).filter((p) => p.garantido === 'eleito').length;
+      vagas += e.vagas || 1;
+      tse += e.eleitos.length;
+      garantidos += g;
+      if (e.eleitos.length + g < (e.vagas || 1)) abertos++;
+    }
+    resumo = `<b>${tse + garantidos}</b> de ${vagas} senadores eleitos${origem(tse, garantidos)} · <b>${abertos}</b> ${abertos === 1 ? 'estado' : 'estados'} com vaga em disputa`;
+  } else {
+    resumo = `<b>${c.eleitos}</b> de ${total} eleitos${origem(c.eleitosTSE, c.eleitos - c.eleitosTSE)}${c.turno ? ` · <b>${c.turno}</b> com 2º turno${origem(c.turnoTSE, c.turno - c.turnoTSE)}` : ''} · <b>${c.apurando}</b> em apuração`;
+  }
+  return `<div class="el-resumo">${resumo}</div>
     <div class="el-lista">${linhas || '<p class="empty">Nada encontrado.</p>'}</div>`;
 }
 
@@ -108,7 +146,7 @@ function abaDeputados(estados, termo) {
 export function abrirEleitos(abaInicial = 'presidente') {
   const st = { aba: abaInicial, termo: '', dados: null };
   modal.abrir(`<h3>Eleitos</h3>
-    <p class="card__sub">Oficial do TSE quando a totalização do lugar termina · antes disso, quem lidera ou está dentro das vagas (provisório)</p>
+    <p class="card__sub">Oficial do TSE quando a totalização do lugar termina · antes disso, <b>garantido</b> quando os votos que faltam já não mudam o resultado e provisório para quem só lidera ou está dentro das vagas</p>
     <div class="mtabs mtabs--scroll" data-abas>${ABAS.map(([k, t]) => `<button data-aba-el="${k}" class="${k === st.aba ? 'is-active' : ''}">${t}</button>`).join('')}</div>
     <label class="cbusca__input el-busca"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="search" data-el-busca placeholder="Buscar nome, partido ou estado" autocomplete="off" aria-label="Buscar"></label>

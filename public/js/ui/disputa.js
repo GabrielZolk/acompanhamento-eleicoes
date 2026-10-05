@@ -1,12 +1,15 @@
 import { int, pct, sinal, esc, nomeProprio } from '../format.js';
 import { UFS, UF_BY_CODE, tituloDoCargo } from '../ufs.js';
-import { avatar, avatarPartido, donut, ICON, cnt } from './common.js';
+import { avatar, avatarPartido, donut, ICON, cnt, seloGarantido } from './common.js';
 
 const VISIVEIS = 6;
 
+// Oficial do TSE primeiro; depois a vitória matematicamente garantida (majoritárias) e, nos
+// deputados, quem está dentro das vagas agora.
 export function pills(c) {
   if (c.eleito) return `<span class="pill pill--eleito">Eleito</span>`;
   if (/2º turno/i.test(c.situacao)) return `<span class="pill pill--turno">2º turno</span>`;
+  if (c.garantido) return seloGarantido(c.garantido);
   if (c.projetado) return `<span class="pill pill--dentro" title="Dentro das vagas com os votos apurados até agora">Dentro</span>`;
   return '';
 }
@@ -19,7 +22,7 @@ function selo(i, n, ranking) {
 
 // chave: identificador único da linha quando o número de urna se repete (lista com vários estados).
 function linhaCandidato(c, i, { lider, mostrarVotos, ranking = true, chave }) {
-  const ganha = c.eleito || c.projetado || /2º turno/i.test(c.situacao || '');
+  const ganha = c.eleito || c.projetado || c.garantido || /2º turno/i.test(c.situacao || '');
   return `<div class="cand ${lider ? 'cand--lider' : ''} ${ganha && !lider ? 'cand--ganha' : ''}" data-key="${chave || `c${c.n}`}" style="--c:${c.cor}">
     ${selo(i, c.n, ranking)}
     ${avatar(c)}

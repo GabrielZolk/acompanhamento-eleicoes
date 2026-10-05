@@ -9,6 +9,18 @@ function tempoDesde(t) {
   return m < 60 ? `atualizado há ${m} min` : `atualizado às ${hora(t)}`;
 }
 
+// Horário dos números exibidos: a geração do arquivo de resultado do TSE (payloads antigos só
+// trazem atualizadoEm, que mistura resultado e andamento).
+const horaResultado = (d) => d?.resultadoEm || d?.atualizadoEm || null;
+
+// O TSE às vezes segue publicando o andamento (-ab.json) mas para de republicar o resultado.
+// Resultado parado há mais de 10 min com o andamento mais novo (folga de 1 min): avisa desde quando.
+const PARADO_MS = 10 * 60e3;
+function resultadoParado(d) {
+  const r = horaResultado(d);
+  return !!(r && d.andamentoEm && d.andamentoEm - r > 60e3 && Date.now() - r > PARADO_MS);
+}
+
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 
 export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos, onTV, onProjecoes }) {
@@ -189,20 +201,29 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
   });
 
   // ------------------------------------------------------------ Status
+  let ultimo = null; // último status desenhado (o relógio percebe quando o resultado passa a contar como parado)
   function renderStatus(d, state) {
     const aba = state.cargo === 'assembleia' ? 'camara' : state.cargo;
     tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.cargo === aba));
-    let cls, titulo, sub;
+    let cls, titulo, sub, dica = '';
     const turno = `${d?.turno || 1}º turno`;
     const dia = dataExtenso(d?.inicio || Date.now());
+    const resultado = horaResultado(d);
+    const parado = d?.status === 'apurando' && resultadoParado(d);
+    ultimo = { d, state, parado };
     if (state.erro && !d) {
       cls = 'live--err'; titulo = 'Sem conexão'; sub = 'Tentando reconectar…';
     } else if (!d) {
       cls = 'live--wait'; titulo = 'Conectando…'; sub = 'Buscando dados do TSE';
     } else if (state.erro || d.servidor?.erro) {
-      cls = 'live--err'; titulo = 'Instabilidade na conexão'; sub = `Último dado: ${hora(d.atualizadoEm)}`;
+      cls = 'live--err'; titulo = 'Instabilidade na conexão'; sub = `Último dado: ${hora(resultado)}`;
     } else if (d.status === 'finalizado') {
       cls = 'live--end'; titulo = 'Apuração finalizada'; sub = `${dia} · ${turno} · ${pct(d.nacional.secoes.pct)} das seções`;
+    } else if (parado) {
+      // Não é falha do site: o TSE segue andando, só não republicou o resultado. Texto curto para
+      // caber na largura de sempre do bloco (a barra superior não muda de tamanho).
+      cls = 'live--wait live--parado'; titulo = 'Aguardando o TSE'; sub = `Último resultado às ${hora(resultado)}`;
+      dica = `O TSE segue publicando o andamento da apuração (último às ${hora(d.andamentoEm)}), mas não republica o resultado desde ${hora(resultado)}. Os números voltam a mudar quando ele publicar.`;
     } else if (d.status === 'apurando') {
       cls = 'live--on'; titulo = 'Atualização ao vivo'; sub = `${turno} · `;
     } else {
@@ -215,15 +236,17 @@ const estados = UFS.filter((u) => semAcento(u.nome).includes(t) || u.uf === t).m
     const online = state.presenca > 0
       ? `<div class="live__online" title="Pessoas com o painel aberto e visível agora"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="currentColor"/><path d="M1.5 21c.6-4.2 3.6-6.5 7.5-6.5s6.9 2.3 7.5 6.5z" fill="currentColor"/><circle cx="17.5" cy="9" r="3" fill="currentColor" opacity=".6"/><path d="M17 14.6c3 .3 5 2.3 5.5 5.4h-4.3c-.3-2.1-1.2-3.9-2.6-5.1z" fill="currentColor" opacity=".6"/></svg>${int(state.presenca)} ${state.presenca === 1 ? 'pessoa acompanhando' : 'pessoas acompanhando'}</div>`
       : '';
-    const desde = cls === 'live--on' && d?.atualizadoEm
-      ? `<span data-desde="${d.atualizadoEm}" title="Dados do TSE gerados às ${hora(d.atualizadoEm)}">${tempoDesde(d.atualizadoEm)}</span>`
+    const desde = cls === 'live--on' && resultado
+      ? `<span data-desde="${resultado}" title="Resultado gerado pelo TSE às ${hora(resultado)}">${tempoDesde(resultado)}</span>`
       : '';
-    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub">${esc(sub)}${desde}</div>${online}</div>`;
+    live.innerHTML = `<span class="live__dot"></span><div><div class="live__title">${esc(titulo)}</div><div class="live__sub"${dica ? ` title="${esc(dica)}"` : ''}>${esc(sub)}${desde}</div>${online}</div>`;
   }
 
-  // Relógio do "atualizado há": só troca o texto, sem redesenhar o cabeçalho.
+  // Relógio do "atualizado há": só troca o texto, sem redesenhar o cabeçalho. Redesenha só quando
+  // o resultado passa a contar como parado (ou deixa de contar) sem que chegue dado novo.
   setInterval(() => {
     for (const el of document.querySelectorAll('[data-desde]')) el.textContent = tempoDesde(Number(el.dataset.desde));
+    if (ultimo?.d && (ultimo.d.status === 'apurando' && resultadoParado(ultimo.d)) !== ultimo.parado) renderStatus(ultimo.d, ultimo.state);
   }, 1000);
 
   return { renderStatus };

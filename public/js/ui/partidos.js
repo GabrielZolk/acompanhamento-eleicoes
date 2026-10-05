@@ -2,7 +2,7 @@
 // no país e por estado, com os candidatos do partido.
 import { int, pct, esc, nomeProprio, semAcento } from '../format.js';
 import { UFS } from '../ufs.js';
-import { avatar, avatarPartido, linhaLista } from './common.js';
+import { avatar, avatarPartido, linhaLista, seloGarantido } from './common.js';
 import * as modal from './modais.js';
 
 let resumo = null; // cache do /api/partidos
@@ -28,6 +28,7 @@ const ord = (n) => `${n}º`;
 const situacao = (c, cargo) => {
   if (c.eleito) return '<span class="pill pill--eleito">Eleito</span>';
   if (/2º turno/i.test(c.situacao || '')) return '<span class="pill pill--turno">2º turno</span>';
+  if (c.garantido) return seloGarantido(c.garantido);
   if (c.dentro) return `<span class="pill pill--dentro">${cargo === 'governador' ? 'Lidera' : 'Dentro'}</span>`;
   return '';
 };
