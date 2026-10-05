@@ -38,6 +38,9 @@ export function parseVotos(v = {}) {
 
 const tipoAgremiacao = { c: 'Coligação', f: 'Federação', i: 'Partido isolado' };
 
+// O TSE marca e = "s" também em quem vai ao 2º turno (com st = "2º turno"): eleito é só o resto.
+const eleitoTSE = (c) => c.e === 's' && !/2º turno/i.test(c.st || '');
+
 // garantia: marca quem já tem a vitória matematicamente garantida (só no resultado de um lugar
 // inteiro — país ou UF —, nunca no de um município).
 export function parseUnificado(raw, { foto, garantia = false } = {}) {
@@ -70,7 +73,7 @@ export function parseUnificado(raw, { foto, garantia = false } = {}) {
         votos: (int(par.tvtn) || nominais) + int(par.tvtl),
         legenda: int(par.tvtl),
         candidatos: cands.length,
-        eleitos: cands.filter((c) => c.e === 's').length,
+        eleitos: cands.filter(eleitoTSE).length,
       });
       for (const c of cands) {
         const vice = c.vs?.[0];
@@ -84,7 +87,7 @@ export function parseUnificado(raw, { foto, garantia = false } = {}) {
           agr: agr.n,
           votos: int(c.vap),
           pct: num(c.pvap),
-          eleito: c.e === 's',
+          eleito: eleitoTSE(c),
           situacao: c.st || '',
           destino: c.dvt || '', // destinação do voto: "Válido" ou "Anulado sub judice"
           seq: int(c.seq),
