@@ -33,8 +33,13 @@ async function load(url, parse) {
 
 const fotoDe = (cargo, uf) => (sq) => urls.foto(cargo.ele, cargo.federal ? 'br' : uf, sq);
 
-const carregarUF = (cargo, uf) =>
-  load(urls.unificado(cargo.ele, cdDoCargo(cargo, uf), uf), (d) => parseUnificado(d, { foto: fotoDe(cargo, uf) }));
+// Resultado de um lugar inteiro. Marca quem já tem a vitória matematicamente garantida, menos no
+// Presidente por UF (não elege ninguém). Todo load() do mesmo arquivo usa esta função: o objeto
+// normalizado fica em cache e é o mesmo para painel, versão, eleitos e candidatos.
+const parseLugar = (cargo, uf) => (d) => parseUnificado(d, { foto: fotoDe(cargo, uf), garantia: !cargo.federal || uf === 'br' });
+const carregarNacional = (cargo) => load(urls.unificado(cargo.ele, cargo.cd, 'br'), parseLugar(cargo, 'br'));
+
+const carregarUF = (cargo, uf) => load(urls.unificado(cargo.ele, cdDoCargo(cargo, uf), uf), parseLugar(cargo, uf));
 
 async function carregarCargo(cargo) {
   const ufs = cargo.federal ? [...UF_LIST, 'zz'] : UF_LIST;
@@ -43,9 +48,7 @@ async function carregarCargo(cargo) {
     const e = await carregarUF(cargo, uf);
     if (e) estados[uf] = e;
   });
-  const nacional = cargo.federal
-    ? await load(urls.unificado(cargo.ele, cargo.cd, 'br'), (d) => parseUnificado(d, { foto: fotoDe(cargo, 'br') }))
-    : null;
+  const nacional = cargo.federal ? await carregarNacional(cargo) : null;
   return { nacional, estados };
 }
 
@@ -91,7 +94,7 @@ export async function obterVersao(cargoKey) {
   const cargo = CARGOS[cargoKey];
   const [ab, nacional] = await Promise.all([
     load(urls.acompanhamento(cargo.ele), parseAcompanhamento),
-    cargo.federal ? load(urls.unificado(cargo.ele, cargo.cd, 'br'), (d) => parseUnificado(d, { foto: fotoDe(cargo, 'br') })) : null,
+    cargo.federal ? carregarNacional(cargo) : null,
   ]);
   return { versao: versaoDe(ab, nacional), geradoEm: Math.max(ab?.geradoEm || 0, nacional?.geradoEm || 0) || null };
 }
@@ -175,7 +178,7 @@ export async function obterMunicipio({ cargo: cargoKey, uf, mun }) {
   let cores;
   if (cargo.federal) {
     // Mesmas cores do painel nacional.
-    const nac = await load(urls.unificado(cargo.ele, cargo.cd, 'br'), (d) => parseUnificado(d, { foto: fotoDe(cargo, 'br') }));
+    const nac = await carregarNacional(cargo);
     cores = atribuirCores((nac?.candidatos || []).map((c) => ({ key: c.n, partido: c.partido })));
   } else {
     cores = atribuirCores(r.candidatos.map((c) => ({ key: c.n, partido: c.partido })));
@@ -206,6 +209,8 @@ const compacto = (c, uf, pos) => ({
   eleito: c.eleito,
   projetado: !!c.projetado,
   situacao: c.situacao,
+  // Só nas disputas majoritárias; fica de fora nos milhares de candidatos a deputado.
+  ...(c.garantido ? { garantido: c.garantido } : {}),
   pos,
   uf,
 });

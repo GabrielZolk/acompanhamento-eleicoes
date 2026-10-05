@@ -1,9 +1,10 @@
 // Eleitos por lugar e cargo. Usa a marcação oficial do TSE (eleito / 2º turno) quando a
-// totalização termina; antes disso, informa quem lidera ou está dentro das vagas, como provisório.
+// totalização termina; antes disso, quem já tem a vitória matematicamente garantida (garantia.js)
+// e, nos demais, quem lidera ou está dentro das vagas, como provisório.
 import { UFS } from '../public/js/ufs.js';
 
 const UF_LIST = UFS.map((u) => u.uf);
-const resumo = (c, pos) => ({ n: c.n, nome: c.nome, partido: c.partido, votos: c.votos, pct: c.pct, pos, foto: c.foto });
+const resumo = (c, pos) => ({ n: c.n, nome: c.nome, partido: c.partido, votos: c.votos, pct: c.pct, pos, foto: c.foto, garantido: c.garantido || null });
 const segundoTurno = (c) => /2º turno/i.test(c.situacao || '');
 
 function majoritario(e) {
@@ -18,6 +19,7 @@ function majoritario(e) {
     vagas,
     eleitos,
     segundoTurno: turno,
+    haveraSegundoTurno: !!e.haveraSegundoTurno, // certo pela conta, antes da marcação do TSE
     lideres: apurou ? cands.slice(0, Math.max(2, vagas)).map((c, i) => resumo(c, i + 1)) : [],
   };
 }

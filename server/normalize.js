@@ -1,6 +1,7 @@
 // Converte os JSONs "unificados" (-u.json) e de acompanhamento (-ab.json) do TSE
 // para o modelo usado pelo painel.
 import { num, int, parseTseDate } from './util.js';
+import { marcarGarantidos } from './garantia.js';
 
 const pctOf = (part, total) => (total > 0 ? (part / total) * 100 : 0);
 
@@ -37,7 +38,9 @@ export function parseVotos(v = {}) {
 
 const tipoAgremiacao = { c: 'Coligação', f: 'Federação', i: 'Partido isolado' };
 
-export function parseUnificado(raw, { foto } = {}) {
+// garantia: marca quem já tem a vitória matematicamente garantida (só no resultado de um lugar
+// inteiro — país ou UF —, nunca no de um município).
+export function parseUnificado(raw, { foto, garantia = false } = {}) {
   if (!raw?.carg?.length) return null;
   const carg = raw.carg[0];
   const candidatos = [];
@@ -83,6 +86,7 @@ export function parseUnificado(raw, { foto } = {}) {
           pct: num(c.pvap),
           eleito: c.e === 's',
           situacao: c.st || '',
+          destino: c.dvt || '', // destinação do voto: "Válido" ou "Anulado sub judice"
           seq: int(c.seq),
           vice: vice ? { nome: vice.nmu, partido: vice.sgp, tipo: vice.tp } : null,
           foto: foto ? foto(c.sqcand) : null,
@@ -109,7 +113,7 @@ export function parseUnificado(raw, { foto } = {}) {
     for (const p of partidos) p.cadeiras = cadeiras[p.sigla] || 0;
     agremiacoes.sort((a, b) => b.vagas - a.vagas || b.votos - a.votos);
   }
-  return {
+  const lugar = {
     ele: raw.ele,
     turno: int(raw.t),
     abrangencia: raw.cdabr,
@@ -126,6 +130,7 @@ export function parseUnificado(raw, { foto } = {}) {
     agremiacoes,
     quociente: int(carg.qe) || null,
   };
+  return garantia ? marcarGarantidos(lugar) : lugar;
 }
 
 export function parseAcompanhamento(raw) {
