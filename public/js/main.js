@@ -17,6 +17,7 @@ import { compartilhar } from './ui/compartilhar.js';
 import { criarModoTV } from './ui/tv.js';
 import { abrirEleitos, criarBotaoEleitos } from './ui/eleitos.js';
 import { abrirProjecoes } from './ui/projecoes.js';
+import { abrirSegundoTurno } from './ui/segundoturno.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -128,6 +129,7 @@ const header = createHeader({
   listaPartidos,
   onTV: () => tv.entrar(),
   onProjecoes: () => abrirTelaProjecoes(CARGOS[state.cargo].federal || CARGOS[state.cargo].proporcional ? 'presidente' : state.cargo),
+  onSegundoTurno: () => abrirTelaSegundoTurno(),
   onUF: selecionarUF,
   onMunicipio: abrirMunicipio,
 });
@@ -173,6 +175,7 @@ $('disputa').addEventListener('click', (ev) => {
       .catch(() => mostrarAviso('Não foi possível gerar a imagem'))
       .finally(() => alvo.classList.remove('is-busy'));
   }
+  else if (acao === 'segundo-turno') abrirTelaSegundoTurno();
   else if (acao === 'dep-tipo') setCargo(alvo.dataset.cargo);
   else if (acao === 'visao') {
     state.visaoDep = alvo.dataset.v;
@@ -258,6 +261,23 @@ $('evolucao').addEventListener('click', (ev) => {
 
 function abrirTelaProjecoes(aba) {
   abrirProjecoes({ aba, uf: state.uf, cores: state.data?.cores || {}, semExterior: !state.incluirExterior });
+}
+
+// 2º turno (destaque do card e menu Consultas). O Presidente vai já com o filtro de exterior, o mesmo
+// objeto que o simulador recebe: a vista atual quando o cargo é Presidente; senão o último painel do
+// Presidente em cache ou, sem ele, uma única consulta ao painel do Presidente.
+function abrirTelaSegundoTurno() {
+  abrirSegundoTurno({ painel: painelPresidente() });
+}
+async function painelPresidente() {
+  if (state.cargo === 'presidente' && state.data) return vista();
+  if (!cache.presidente) {
+    const r = await fetch('/api/painel?cargo=presidente');
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.erro || `HTTP ${r.status}`);
+    cache.presidente ||= mesclarHistorico(j);
+  }
+  return vistaExterior(cache.presidente, state.incluirExterior);
 }
 
 // Projeção por cidade para o card de evolução (Presidente). A cada 60 s enquanto a aba Projeção está aberta.

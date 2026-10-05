@@ -114,6 +114,8 @@ function painelPresidente({ nacional, estados, ab }) {
       eleitorado: nacional?.eleitorado || ab?.br?.eleitorado || null,
       votos: nacional?.votos || null,
       candidatos: candidatos.map((c) => ({ ...c, cor: cores[c.n] })),
+      // 2º turno certo pela conta, antes da marcação do TSE (server/garantia.js): destaque do card.
+      haveraSegundoTurno: !!nacional?.haveraSegundoTurno,
     },
     estados: est,
     regioes,

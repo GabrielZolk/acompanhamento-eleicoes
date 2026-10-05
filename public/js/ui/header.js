@@ -23,7 +23,7 @@ function resultadoParado(d) {
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 
-export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos, onTV, onProjecoes }) {
+export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaPartidos, onTV, onProjecoes, onSegundoTurno }) {
   const tabs = document.querySelectorAll('.tabs__item[data-cargo]');
   const btnMenu = document.getElementById('consultas-btn');
   const menu = document.getElementById('consultas-menu');
@@ -43,6 +43,7 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
   // ------------------------------------------------------------ Consultas
   function renderMenu() {
     menu.innerHTML = `
+      <button class="dropdown__item" data-act="segundo-turno">2º turno<small>Data, contagem regressiva, Presidente e governadores</small></button>
       <button class="dropdown__item" data-act="projecoes">Projeções por cidade<small>Presidente, governador e Senado (estimativa)</small></button>
       <button class="dropdown__item" data-act="eleitos">Eleitos<small>Quem já foi eleito em cada lugar, por cargo</small></button>
       <button class="dropdown__item" data-act="tv">Modo TV<small>Tela cheia, alterna sozinho entre cargos e estados</small></button>
@@ -63,6 +64,11 @@ export function createHeader({ onCargo, onUF, onMunicipio, onPartido, listaParti
     toggleMenu();
   });
   menu.addEventListener('click', (ev) => {
+    if (ev.target.closest('[data-act="segundo-turno"]')) {
+      toggleMenu(false);
+      onSegundoTurno();
+      return;
+    }
     if (ev.target.closest('[data-act="projecoes"]')) {
       toggleMenu(false);
       onProjecoes();
