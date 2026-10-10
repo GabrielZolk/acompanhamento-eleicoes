@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Raio-X do Brasil — Indicadores oficiais por mandato presidencial</title>
+  <meta name="description" content="Inflação, desemprego, renda, PIB, salário mínimo, juros, dólar e dívida pública em séries longas, com os mandatos presidenciais marcados. Dados oficiais do IBGE e do Banco Central." />
+  <meta name="theme-color" content="#0a0e16" />
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/dados.css" />
+</head>
+<body>
+  <div class="pagina">
+    <header class="topo">
+      <a class="marca" href="/" aria-label="Raio-X do Brasil — início">
+        <img class="marca__logo" src="/img/logo.svg" alt="" width="52" height="52" />
+        <span class="marca__txt">
+          <span class="marca__titulo">Raio-X do <em>Brasil</em></span>
+          <span class="marca__sub">Indicadores oficiais por mandato presidencial</span>
+        </span>
+      </a>
+      <nav class="topo__nav" aria-label="Navegação">
+        <a class="topo__link" href="/">← Início</a>
+        <a class="topo__link topo__link--destaque" href="/apuracao">Apuração 2026</a>
+      </nav>
+    </header>
+
+    <main id="conteudo">
+      <section id="grade-sec" aria-labelledby="grade-titulo">
+        <div class="intro">
+          <h1 id="grade-titulo" class="intro__titulo">Os números do país, mandato a mandato</h1>
+          <p class="intro__txt">Dados oficiais do IBGE e do Banco Central, com atualização diária automática. As faixas ao fundo dos gráficos marcam cada mandato presidencial. O site não atribui causa: cada indicador depende de muitos fatores, inclusive internacionais e de decisões tomadas em outros períodos.</p>
+        </div>
+        <div class="grade" id="grade" aria-live="polite">
+          <p class="carregando">Carregando indicadores…</p>
+        </div>
+      </section>
+
+      <section id="detalhe" class="detalhe" hidden aria-labelledby="det-titulo"></section>
+    </main>
+
+    <footer class="rodape" id="rodape">
+      <span>Fontes: IBGE e Banco Central do Brasil.</span>
+      <span id="rodape-data"></span>
+    </footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="/js/dados/main.js"></script>
+</body>
+</html>
