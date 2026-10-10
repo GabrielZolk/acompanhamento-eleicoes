@@ -33,7 +33,9 @@ const MIME = {
 function servirArquivo(res, pathname) {
   let file = path.normalize(path.join(PUBLIC, decodeURIComponent(pathname)));
   if (!file.startsWith(PUBLIC)) return json(res, 403, { erro: 'Proibido' });
-  if (pathname === '/' || !path.extname(file)) file = path.join(PUBLIC, 'index.html');
+  // Como o cleanUrls da Vercel: /apuracao serve apuracao.html.
+  if (pathname === '/') file = path.join(PUBLIC, 'index.html');
+  else if (!path.extname(file)) file = fs.existsSync(file + '.html') ? file + '.html' : path.join(PUBLIC, 'index.html');
   fs.readFile(file, (err, data) => {
     if (err) return json(res, 404, { erro: 'Não encontrado' });
     res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
