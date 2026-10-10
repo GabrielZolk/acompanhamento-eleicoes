@@ -1,0 +1,42 @@
+# Atualiza diariamente os indicadores do "Raio-X do Brasil" (public/data/indicadores/) a partir das APIs
+# oficiais do Banco Central (SGS) e do IBGE (SIDRA). Só faz commit se algum arquivo mudou: a saída do
+# script é determinística (sem carimbo de hora), então sem dado novo não há diff.
+name: Indicadores
+
+on:
+  schedule:
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: indicadores
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Gerar indicadores
+        run: npm run build:indicadores
+
+      - name: Commit se houver mudança
+        run: |
+          if [ -z "$(git status --porcelain -- public/data/indicadores)" ]; then
+            echo "Sem mudanças nos indicadores."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/indicadores
+          git commit -m "Atualiza indicadores (Raio-X do Brasil)"
+          git push
