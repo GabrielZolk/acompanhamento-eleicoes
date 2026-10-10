@@ -63,6 +63,27 @@ funciona igual, mas esse histórico fica na memória da função e no navegador 
   `public/data/historico/` (baixados pelo navegador só quando usados, sem consultar o TSE), gerados por
   `npm run build:historico` a partir do Portal de Dados Abertos do TSE.
 
+## Indicadores (Raio-X do Brasil)
+
+Séries históricas de indicadores oficiais (desde jan/2003, quando há série comparável) em
+`public/data/indicadores/` (`indice.json` com mandatos, contexto e metadados; um `{id}.json` por indicador, pontos
+`["AAAA-MM", valor]`; trimestres usam o último mês). Só fontes oficiais, sem chave de API:
+
+| Indicador | Fonte |
+| --- | --- |
+| Inflação (IPCA 12 meses) | Banco Central, SGS 13522 (IBGE) |
+| Desemprego | IBGE, PNAD Contínua — SIDRA 6381 (Brasil, trimestre móvel) e 4099 (UFs, trimestral); desde 2012 |
+| Renda média real do trabalho | IBGE, PNAD Contínua — SIDRA 6390, variável 5933; desde 2012 |
+| PIB (acumulado em 4 trimestres) | IBGE, Contas Nacionais — SIDRA 5932, variável 6562 |
+| Salário mínimo real | SGS 1619 (nominal) deflacionado pelo IPCA mensal (SGS 433) até o último mês divulgado |
+| Selic (meta) | SGS 432 (diária; valor em vigor no fim de cada mês) |
+| Dólar comercial | SGS 3698 (venda, média mensal; nominal) |
+| Dívida bruta do governo geral (% PIB) | SGS 13762; desde dez/2006 |
+
+Para regenerar: `npm run build:indicadores`. O workflow `.github/workflows/indicadores.yml` roda todo dia
+(09:30 UTC) e só faz commit quando algum dado muda: a saída não tem carimbo de hora (`atualizadoEm` é o período do
+último ponto e `geradoEm`, o mais recente deles). Se uma fonte falhar, o arquivo anterior é mantido.
+
 ## Como funciona
 
 O TSE não oferece push (WebSocket/SSE): ele publica arquivos num CDN, com cache de ~30 s, e numera cada
