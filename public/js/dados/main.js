@@ -13,6 +13,7 @@ import { htmlImpostos } from './impostos.js';
 import { htmlLeis } from './leis.js';
 import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
+import { htmlPoder } from './poder.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
@@ -165,6 +166,7 @@ function renderResumos() {
   $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos });
   $('#resumo-leis').innerHTML = resumoLeis({ leis: estado.leis, mandatos: estado.mandatos });
   $('#resumo-historico').innerHTML = resumoHistorico(base);
+  $('#poder').innerHTML = htmlPoder(estado.dados, estado.mandatos);
 }
 
 function renderImpostos() {
