@@ -11,11 +11,21 @@
 //     móvel, Brasil), 4099 (desocupação trimestral por UF) e 6390 (rendimento médio real habitual, trimestre
 //     móvel); Contas Nacionais Trimestrais, tabela 5932 (PIB, taxa acumulada em 4 trimestres); IPCA por grupo e
 //     subitem, tabelas 655, 2938, 1419 e 7060 (alimentação no domicílio e itens do mercado.json).
+//     Também: juros do cartão de crédito rotativo (22022) e do crédito livre a pessoas físicas (20740),
+//     endividamento (29037) e comprometimento de renda das famílias (29034), resultado primário (5793) e juros
+//     nominais (5760) do setor público consolidado, % do PIB em 12 meses.
 //   - ANP, Levantamento de Preços de Combustíveis (gov.br/anp, séries históricas mensais em XLSX, Brasil e
 //     estados): gasolina comum e GLP (botijão de 13 kg). O XLSX é lido sem dependências por tools/xlsx.mjs.
+//   - Tesouro Nacional (tesourotransparente.gov.br): Resultado do Tesouro Nacional, série histórica mensal (XLSX
+//     achado pela API CKAN; arrecadação de impostos e contribuições federais) e Estimativa da Carga Tributária
+//     Bruta do Governo Geral (XLSX anexo à edição mais recente da publicação anual).
+//   - INPE, PRODES (TerraBrasilis): taxa anual de desmatamento na Amazônia Legal, soma dos nove estados (JSON
+//     do painel; o nome do arquivo muda a cada ano e é lido do código do painel).
 //
 // Formato:
-//   indice.json: { geradoEm, mandatos: [...], contexto: [...], indicadores: [{ id, titulo, ..., arquivo, porUF }] }
+//   indice.json: { geradoEm, mandatos: [...], contexto: [...], indicadores: [{ id, titulo, ..., tema, arquivo, porUF }] }
+//                (`tema`: custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas, economia
+//                ou meio ambiente; `periodicidade` "anual": o período "AAAA-MM" é o ano de 12 meses terminado nele)
 //   {id}.json:   { id, atualizadoEm: "AAAA-MM", serie: [["AAAA-MM", valor], ...], nominal?: [...], porUF?: { sp: [...], ... } }
 //                (`nominal`: só nos combustíveis, preço da época sem correção; `serie` e `porUF` são valores reais)
 //   mercado.json: { atualizadoEm, fonte, fonteUrl, itens: [{ id, nome, grupo, serie }] } — variação mensal do IPCA
@@ -74,6 +84,13 @@ const baixarArquivo = (url) => baixar(url, async (res) => {
   if (buf.length < 4 || buf.readUInt32LE(0) !== 0x04034b50) throw new Error(`resposta não é XLSX em ${url}`);
   return buf;
 }, { ...UA, Accept: '*/*' });
+
+// Página HTML (ou script) como texto. O gov.br responde 404 a quem pede só application/json.
+const baixarTexto = (url) => baixar(url, async (res) => {
+  const txt = await res.text();
+  if (!txt.trim()) throw new Error(`resposta vazia em ${url}`);
+  return txt;
+}, { ...UA, Accept: 'text/html,application/xhtml+xml,*/*' });
 
 // ---------------------------------------------------------------- Banco Central (SGS)
 // Devolve [{ data: "AAAA-MM-DD", valor }] em ordem, sem repetidos, só até hoje (a série 432 e a 1619 trazem
@@ -159,7 +176,8 @@ let ipcaIndice = null;
 async function indiceIPCA() {
   if (!ipcaIndice) {
     ipcaIndice = (async () => {
-      const ipca = mensal(await sgs(433), 2);
+      // Desde 2002 para que a arrecadação em 12 meses (soma de meses corrigidos) já exista em jan/2003.
+      const ipca = mensal(await sgs(433, '2002-01'), 2);
       const indice = new Map();
       let nivel = 1;
       for (const [p, v] of ipca) indice.set(p, (nivel *= 1 + v / 100));
@@ -238,6 +256,102 @@ async function combustivel(produto, desde = INICIO) {
   return { serie: real(nominalBR), nominal: nominalBR.map(([p, v]) => [p, arred(v, 2)]), porUF, base };
 }
 
+// ---------------------------------------------------------------- Tesouro Nacional
+// Resultado do Tesouro Nacional (RTN), série histórica mensal: o nome do XLSX muda a cada mês
+// (seriehistoricajul26.xlsx...), então o endereço vem da API CKAN do Tesouro Transparente.
+const TESOURO_CKAN = 'https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=resultado-do-tesouro-nacional';
+const RTN_PAGINA = 'https://www.tesourotransparente.gov.br/ckan/dataset/resultado-do-tesouro-nacional';
+
+// Linhas da tabela 1.1 (R$ milhões correntes, mensal) → Map(rótulo → Map("AAAA-MM" → valor)), só das linhas
+// cujo rótulo casa com algum dos regex pedidos.
+async function rtnMensal(rotulos) {
+  const pacote = await baixarJSON(TESOURO_CKAN);
+  const rec = pacote?.result?.resources?.find((r) => /xlsx/i.test(r.format) && /s[ée]rie hist[óo]rica.*mensal/i.test(r.name));
+  if (!rec) throw new Error('RTN: planilha mensal não encontrada no CKAN do Tesouro');
+  const planilhas = lerXlsx(await baixarArquivo(rec.url));
+  const tab = planilhas.find((p) => p.nome.trim() === '1.1');
+  if (!tab) throw new Error('RTN: aba 1.1 ausente');
+  const iCab = tab.linhas.findIndex((l) => l && semAcento(l[0]) === 'DISCRIMINACAO');
+  if (iCab < 0) throw new Error('RTN: cabeçalho "Discriminação" não encontrado');
+  const periodos = tab.linhas[iCab].map((c) => (typeof c === 'number' ? dataExcel(c).slice(0, 7) : null));
+  const out = new Map();
+  for (const re of rotulos) {
+    const linha = tab.linhas.slice(iCab + 1).find((l) => l && typeof l[0] === 'string' && re.test(l[0].trim()));
+    if (!linha) throw new Error(`RTN: linha ${re} não encontrada`);
+    const m = new Map();
+    linha.forEach((v, i) => { if (i && periodos[i] && typeof v === 'number') m.set(periodos[i], v); });
+    out.set(re, m);
+  }
+  return out;
+}
+
+// Estimativa da Carga Tributária Bruta do Governo Geral (publicação anual). A página da publicação lista as
+// edições ("/AAAA/id"); a mais recente tem o anexo "Base CTB GG.xlsx", cuja Tabela 1 traz a carga em % do PIB.
+const CTB_PAGINA = 'https://www.tesourotransparente.gov.br/publicacoes/carga-tributaria-do-governo-geral';
+
+async function cargaTributaria() {
+  const lista = await baixarTexto(CTB_PAGINA);
+  const edicoes = [...lista.matchAll(/carga-tributaria-do-governo-geral\/(\d{4})\/(\d+)/g)]
+    .map((m) => ({ ano: Number(m[1]), id: Number(m[2]) }))
+    .sort((a, b) => b.ano - a.ano || b.id - a.id);
+  if (!edicoes.length) throw new Error('carga tributária: nenhuma edição na página da publicação');
+  const { ano, id } = edicoes[0];
+  const pagina = await baixarTexto(`${CTB_PAGINA}/${ano}/${id}`);
+  const anexos = [...pagina.matchAll(/<a\b[^>]*href="(https:\/\/thot-arquivos\.tesouro\.gov\.br\/publicacao-anexo\/\d+)"[^>]*title="([^"]*\.xlsx)"/gi)]
+    .map((m) => ({ url: m[1], nome: m[2] }));
+  const anexo = anexos.find((a) => /ctb|carga/i.test(a.nome)) || anexos[0];
+  if (!anexo) throw new Error(`carga tributária: edição ${ano} sem anexo XLSX`);
+  const tab = lerXlsx(await baixarArquivo(anexo.url)).find((p) => /^tabela 1\b/i.test(p.nome.trim()));
+  if (!tab) throw new Error('carga tributária: aba "Tabela 1" ausente');
+  const iCab = tab.linhas.findIndex((l) => l && /^ESFERA DE GOVERNO$/.test(semAcento(l[0] ?? '')) && typeof l[1] === 'number');
+  if (iCab < 0) throw new Error('carga tributária: cabeçalho de anos não encontrado');
+  const anos = tab.linhas[iCab];
+  // A tabela tem duas linhas "Governo Geral": em R$ milhões e em fração do PIB (0,32 = 32%); fica a segunda.
+  const linha = tab.linhas.slice(iCab + 1).find((l) => l && semAcento(l[0] ?? '') === 'GOVERNO GERAL' &&
+    l.slice(1, anos.length).every((v) => v == null || (typeof v === 'number' && v > 0 && v < 1)));
+  if (!linha) throw new Error('carga tributária: linha do governo geral em % do PIB não encontrada');
+  const serie = [];
+  for (let i = 1; i < anos.length; i++) {
+    if (typeof anos[i] === 'number' && typeof linha[i] === 'number') serie.push([`${anos[i]}-12`, arred(linha[i] * 100, 2)]);
+  }
+  return { serie, edicao: ano };
+}
+
+// ---------------------------------------------------------------- INPE (PRODES / TerraBrasilis)
+// O painel do PRODES lê as taxas de um JSON cujo nome tem o ano (rates2025.json); o nome atual é lido do script
+// do painel, com tentativa direta dos últimos anos se isso falhar.
+const PRODES_PAINEL = 'https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates';
+const PRODES_ARQS = 'https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/';
+
+async function taxasPRODES() {
+  const nomes = [];
+  try {
+    const html = await baixarTexto(PRODES_PAINEL);
+    const app = html.match(/src="([^"]*\/app\.[0-9a-f]+\.js)"/)?.[1];
+    if (app) {
+      const js = await baixarTexto(new URL(app, PRODES_PAINEL).href);
+      for (const m of js.matchAll(/rates(\d{4})\.json/g)) nomes.push(m[0]);
+    }
+  } catch (err) {
+    console.warn(`  (painel do PRODES ilegível: ${err.message.slice(0, 100)}; tentando nomes por ano)`);
+  }
+  const ano = Number(hoje.slice(0, 4));
+  for (let a = ano; a >= ano - 3; a--) nomes.push(`rates${a}.json`);
+  for (const nome of [...new Set(nomes)]) {
+    let json;
+    try { json = await baixarJSON(PRODES_ARQS + nome); } catch { continue; }
+    if (!Array.isArray(json?.periods)) continue;
+    const serie = json.periods.map((p) => {
+      const area = p.features.reduce((s, f) => s + f.areas.reduce((t, a) => t + a.area, 0), 0);
+      return [`${p.endDate.year}-${pad2(p.endDate.month)}`, area, p.features.length];
+    });
+    const estranho = serie.find(([, , n]) => n !== 9);
+    if (estranho) throw new Error(`PRODES: ${estranho[0]} com ${estranho[2]} estados (esperado 9)`);
+    return serie.map(([p, v]) => [p, Math.round(v)]).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  }
+  throw new Error('PRODES: arquivo de taxas não encontrado');
+}
+
 // ---------------------------------------------------------------- indicadores
 // Cada um tem os metadados do índice e `montar()`, que devolve { serie, porUF?, meta? } (meta sobrescreve
 // campos do índice que dependem dos dados, como o mês de referência do salário mínimo real).
@@ -246,6 +360,7 @@ const INDICADORES = [
     id: 'ipca',
     titulo: 'Inflação (IPCA em 12 meses)',
     curto: 'Inflação',
+    tema: 'custo de vida',
     unidade: '%',
     casas: 2,
     periodicidade: 'mensal',
@@ -261,6 +376,7 @@ const INDICADORES = [
     id: 'alimentos',
     titulo: 'Inflação dos alimentos (alimentação no domicílio, 12 meses)',
     curto: 'Alimentos',
+    tema: 'custo de vida',
     unidade: '%',
     casas: 2,
     periodicidade: 'mensal',
@@ -296,6 +412,7 @@ const INDICADORES = [
     id: 'desemprego',
     titulo: 'Taxa de desemprego (desocupação)',
     curto: 'Desemprego',
+    tema: 'renda e emprego',
     unidade: '%',
     casas: 1,
     periodicidade: 'mensal',
@@ -321,6 +438,7 @@ const INDICADORES = [
     id: 'renda',
     titulo: 'Renda média do trabalho (real)',
     curto: 'Renda',
+    tema: 'renda e emprego',
     unidade: 'R$',
     casas: 0,
     periodicidade: 'mensal',
@@ -338,6 +456,7 @@ const INDICADORES = [
     id: 'pib',
     titulo: 'Crescimento do PIB (acumulado em 4 trimestres)',
     curto: 'PIB',
+    tema: 'economia',
     unidade: '%',
     casas: 1,
     periodicidade: 'trimestral',
@@ -355,6 +474,7 @@ const INDICADORES = [
     id: 'salario',
     titulo: 'Salário mínimo real',
     curto: 'Salário mínimo',
+    tema: 'renda e emprego',
     unidade: 'R$',
     casas: 0,
     periodicidade: 'mensal',
@@ -379,6 +499,7 @@ const INDICADORES = [
     id: 'gasolina',
     titulo: 'Preço da gasolina comum',
     curto: 'Gasolina',
+    tema: 'custo de vida',
     unidade: 'R$/litro',
     casas: 2,
     periodicidade: 'mensal',
@@ -402,6 +523,7 @@ const INDICADORES = [
     id: 'botijao',
     titulo: 'Preço do botijão de gás (13 kg)',
     curto: 'Botijão',
+    tema: 'custo de vida',
     unidade: 'R$/13 kg',
     casas: 2,
     periodicidade: 'mensal',
@@ -425,6 +547,7 @@ const INDICADORES = [
     id: 'selic',
     titulo: 'Taxa básica de juros (meta Selic)',
     curto: 'Selic',
+    tema: 'crédito e dívidas',
     unidade: '%',
     casas: 2,
     periodicidade: 'mensal',
@@ -443,6 +566,7 @@ const INDICADORES = [
     id: 'dolar',
     titulo: 'Dólar comercial (média mensal)',
     curto: 'Dólar',
+    tema: 'economia',
     unidade: 'R$/US$',
     casas: 2,
     periodicidade: 'mensal',
@@ -458,6 +582,7 @@ const INDICADORES = [
     id: 'divida',
     titulo: 'Dívida bruta do governo geral',
     curto: 'Dívida pública',
+    tema: 'impostos e contas públicas',
     unidade: '% do PIB',
     casas: 1,
     periodicidade: 'mensal',
@@ -468,6 +593,189 @@ const INDICADORES = [
     nota: 'A série com a metodologia atual (adotada em 2008) começa em dezembro de 2006; não há dado comparável antes disso.',
     async montar() {
       return { serie: mensal(await sgs(13762, '2006-01'), 2) };
+    },
+  },
+  {
+    id: 'juros_cartao',
+    titulo: 'Juros do cartão de crédito rotativo',
+    curto: 'Juros do cartão',
+    tema: 'crédito e dívidas',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Taxa média de juros do cartão de crédito rotativo para pessoas físicas, em % ao ano: o que se paga ' +
+      'quando não se quita a fatura inteira.',
+    fonte: 'Banco Central — Estatísticas monetárias e de crédito (SGS 22022)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/22022-taxa-media-de-juros-das-operacoes-de-credito-com-recursos-livres---pessoas-fisicas---cartao-d',
+    nota: 'Média das operações de rotativo regular e não regular (pagamento mínimo e atraso). Desde abril de 2017 o ' +
+      'rotativo só pode ser usado por um mês, e desde janeiro de 2024 os juros e encargos totais ficam limitados ao ' +
+      'valor da dívida original (Lei 14.690/2023). A série atual começa em março de 2011.',
+    async montar() {
+      return { serie: mensal(await sgs(22022, '2011-01'), 2) };
+    },
+  },
+  {
+    id: 'juros_pf',
+    titulo: 'Juros do crédito para pessoas físicas',
+    curto: 'Juros (pessoa física)',
+    tema: 'crédito e dívidas',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Taxa média de juros das operações de crédito com recursos livres para pessoas físicas (cartão, cheque ' +
+      'especial, crédito pessoal, consignado, veículos etc.), em % ao ano.',
+    fonte: 'Banco Central — Estatísticas monetárias e de crédito (SGS 20740)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/20740-taxa-media-de-juros-das-operacoes-de-credito-com-recursos-livres---pessoas-fisicas---total',
+    nota: 'Recursos livres: crédito com taxa negociada livremente (exclui crédito imobiliário e rural com recursos ' +
+      'direcionados). A série atual começa em março de 2011.',
+    async montar() {
+      return { serie: mensal(await sgs(20740, '2011-01'), 2) };
+    },
+  },
+  {
+    id: 'endividamento',
+    titulo: 'Endividamento das famílias',
+    curto: 'Endividamento',
+    tema: 'crédito e dívidas',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Dívidas das famílias com bancos e demais instituições financeiras em proporção da renda das famílias ' +
+      'acumulada nos últimos 12 meses.',
+    fonte: 'Banco Central (SGS 29037)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/29037-endividamento-das-familias-com-o-sistema-financeiro-nacional-em-relacao-a-renda-acumulada-dos',
+    nota: 'Inclui o crédito habitacional; sem ele (SGS 29038) o endividamento é cerca de 19 pontos menor. A renda é a ' +
+      'renda nacional disponível bruta das famílias. Os últimos meses podem ser revistos.',
+    async montar() {
+      return { serie: mensal(await sgs(29037, '2005-01'), 2) };
+    },
+  },
+  {
+    id: 'comprometimento',
+    titulo: 'Comprometimento da renda com dívidas',
+    curto: 'Renda comprometida',
+    tema: 'crédito e dívidas',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Parte da renda mensal das famílias usada para pagar juros e amortizações de dívidas com o sistema ' +
+      'financeiro (com ajuste sazonal).',
+    fonte: 'Banco Central (SGS 29034)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/29034-comprometimento-de-renda-das-familias-com-o-servico-da-divida-com-o-sistema-financeiro-nacion',
+    nota: 'Inclui o crédito habitacional. A renda é a renda nacional disponível bruta das famílias. Os últimos meses ' +
+      'podem ser revistos.',
+    async montar() {
+      return { serie: mensal(await sgs(29034, '2005-01'), 2) };
+    },
+  },
+  {
+    id: 'carga',
+    titulo: 'Carga tributária',
+    curto: 'Carga tributária',
+    tema: 'impostos e contas públicas',
+    unidade: '% do PIB',
+    casas: 1,
+    periodicidade: 'anual',
+    descricao: 'Total de impostos, taxas e contribuições arrecadados por União, estados e municípios no ano, em ' +
+      'proporção do PIB (carga tributária bruta do governo geral).',
+    fonte: 'Tesouro Nacional — Estimativa da Carga Tributária Bruta do Governo Geral',
+    fonteUrl: CTB_PAGINA,
+    nota: 'Estimativa anual do Tesouro, revista a cada edição (a série toda segue a metodologia da edição mais recente); ' +
+      'começa em 2010. A Receita Federal publica outra estimativa, com metodologia diferente, que costuma dar cerca de ' +
+      '2 pontos a mais.',
+    async montar() {
+      const { serie, edicao } = await cargaTributaria();
+      console.log(`  (edição ${edicao} da publicação)`);
+      return { serie };
+    },
+  },
+  {
+    id: 'arrecadacao',
+    titulo: 'Arrecadação federal (12 meses, corrigida pela inflação)',
+    curto: 'Arrecadação federal',
+    tema: 'impostos e contas públicas',
+    unidade: 'R$ bi',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Impostos e contribuições federais arrecadados nos últimos 12 meses, corrigidos pelo IPCA.', // completada em montar()
+    fonte: 'Tesouro Nacional — Resultado do Tesouro Nacional, série histórica mensal; IPCA mensal do IBGE (SGS 433)',
+    fonteUrl: RTN_PAGINA,
+    nota: 'Receita administrada pela Receita Federal (impostos e contribuições, como IR, Cofins, IPI e IOF) mais a ' +
+      'arrecadação líquida da Previdência (RGPS), pelo critério de caixa. Não inclui royalties, dividendos de ' +
+      'estatais e outras receitas não tributárias. Cálculo deste painel: cada mês é corrigido pelo IPCA até o mês ' +
+      'mais recente e somado aos 11 anteriores.',
+    async montar() {
+      const RFB = /^1\.1\s*-/, RGPS = /^1\.3\s*-/;
+      const rtn = await rtnMensal([RFB, RGPS]);
+      const { indice, ultimo: ultimoIPCA } = await indiceIPCA();
+      const ps = [...rtn.get(RFB).keys()].filter((p) => rtn.get(RGPS).has(p)).sort();
+      const base = ps[ps.length - 1];
+      const nivel = (p) => indice.get(p > ultimoIPCA ? ultimoIPCA : p);
+      const real = new Map(ps.filter(nivel).map((p) => [p, ((rtn.get(RFB).get(p) + rtn.get(RGPS).get(p)) * nivel(base)) / nivel(p)]));
+      const serie = [];
+      for (const p of meses(INICIO, base)) {
+        const janela = meses(`${Number(p.slice(0, 4)) - 1}${p.slice(4)}`, p).slice(1);
+        if (janela.some((q) => !real.has(q))) continue;
+        serie.push([p, arred(janela.reduce((s, q) => s + real.get(q), 0) / 1000, 1)]); // R$ milhões → bilhões
+      }
+      return {
+        serie,
+        meta: { descricao: `Impostos e contribuições federais arrecadados nos últimos 12 meses, em reais de ${mesPorExtenso(base)} (corrigidos pelo IPCA).` },
+      };
+    },
+  },
+  {
+    id: 'primario',
+    titulo: 'Resultado primário do setor público (12 meses)',
+    curto: 'Resultado primário',
+    tema: 'impostos e contas públicas',
+    unidade: '% do PIB',
+    casas: 2,
+    periodicidade: 'mensal',
+    descricao: 'Receitas menos despesas do setor público (União, estados, municípios e estatais, sem os juros da ' +
+      'dívida) nos últimos 12 meses, em % do PIB. Positivo = superávit (sobrou dinheiro); negativo = déficit.',
+    fonte: 'Banco Central — Estatísticas fiscais (SGS 5793)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/5793-nfsp-sem-desvalorizacao-cambial--pib---fluxo-acumulado-em-12-meses---resultado-primario---tota',
+    nota: 'O Banco Central publica as necessidades de financiamento do setor público (NFSP), em que déficit é ' +
+      'positivo; aqui o sinal foi invertido para que superávit apareça como positivo. Setor público consolidado, ' +
+      'exclui Petrobras e Eletrobras e não considera a desvalorização cambial.',
+    async montar() {
+      return { serie: (await sgs(5793, '2002-01')).map(({ data, valor }) => [data.slice(0, 7), arred(-valor, 2) || 0]).filter(([p]) => p >= INICIO) };
+    },
+  },
+  {
+    id: 'juros_divida',
+    titulo: 'Gasto com juros da dívida pública (12 meses)',
+    curto: 'Juros da dívida',
+    tema: 'impostos e contas públicas',
+    unidade: '% do PIB',
+    casas: 2,
+    periodicidade: 'mensal',
+    descricao: 'Juros nominais apropriados pelo setor público consolidado (União, estados, municípios e estatais) nos ' +
+      'últimos 12 meses, em % do PIB.',
+    fonte: 'Banco Central — Estatísticas fiscais (SGS 5760)',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/5760-nfsp-sem-desvalorizacao-cambial--pib---fluxo-acumulado-em-12-meses---juros-nominais---total',
+    nota: 'Inclui o resultado das operações de swap cambial do Banco Central. Exclui Petrobras e Eletrobras.',
+    async montar() {
+      return { serie: mensal(await sgs(5760, '2002-01'), 2).filter(([p]) => p >= INICIO) };
+    },
+  },
+  {
+    id: 'desmatamento',
+    titulo: 'Desmatamento na Amazônia Legal',
+    curto: 'Desmatamento',
+    tema: 'meio ambiente',
+    unidade: 'km²',
+    casas: 0,
+    periodicidade: 'anual',
+    descricao: 'Área de floresta desmatada (corte raso) em um ano na Amazônia Legal, medida por satélite. O ano ' +
+      'PRODES vai de agosto a julho: o valor de 2024 é de agosto de 2023 a julho de 2024.',
+    fonte: 'INPE — PRODES (TerraBrasilis)',
+    fonteUrl: PRODES_PAINEL,
+    nota: 'Taxa anual somada dos nove estados da Amazônia Legal. A taxa do ano mais recente pode ser a estimativa ' +
+      'preliminar do INPE, substituída pela taxa consolidada no ano seguinte.',
+    async montar() {
+      return { serie: (await taxasPRODES()).filter(([p]) => p >= INICIO) };
     },
   },
 ];
@@ -508,6 +816,17 @@ const MERCADO_ITENS = [
   { id: 'tomate', nome: 'Tomate', grupo: 'mercado', codigo: 7212 },
   { id: 'batata', nome: 'Batata-inglesa', grupo: 'mercado', codigo: 7202 },
   { id: 'banana', nome: 'Banana-prata', grupo: 'mercado', codigo: 7260 },
+  { id: 'fora', nome: 'Alimentação fora do domicílio', grupo: 'mercado', codigo: 7433 }, // subgrupo 1201
+  { id: 'refeicao', nome: 'Refeição', grupo: 'mercado', codigo: 7434 },
+  { id: 'lanche', nome: 'Lanche', grupo: 'mercado', codigo: 7435 },
+  { id: 'aluguel', nome: 'Aluguel residencial', grupo: 'casa', codigo: 7448 },
+  { id: 'condominio', nome: 'Condomínio', grupo: 'casa', codigo: 7449 },
+  { id: 'agua', nome: 'Taxa de água e esgoto', grupo: 'casa', codigo: 7451 },
+  { id: 'plano', nome: 'Plano de saúde', grupo: 'casa', codigo: 7696 },
+  { id: 'remedios', nome: 'Produtos farmacêuticos', grupo: 'casa', codigo: 7662 }, // item 6101
+  // "Acesso à internet" tem o mesmo código nas duas tabelas; a telefonia móvel muda de código (e de nome) em 2020.
+  { id: 'internet', nome: 'Acesso à internet', grupo: 'casa', codigo: 107688 },
+  { id: 'onibus', nome: 'Ônibus urbano', grupo: 'casa', codigo: 7628 },
   { id: 'botijao', nome: 'Gás de botijão', grupo: 'casa', codigo: 7482 },
   { id: 'energia', nome: 'Energia elétrica residencial', grupo: 'casa', codigo: 7485 },
   { id: 'gasolina', nome: 'Gasolina', grupo: 'casa', codigo: 7657 },
@@ -603,7 +922,7 @@ async function main() {
   }
 
   // Ordem das chaves igual à do contrato.
-  const CHAVES = ['id', 'titulo', 'curto', 'unidade', 'casas', 'periodicidade', 'descricao', 'fonte', 'fonteUrl', 'inicioSerie', 'nota', 'arquivo', 'porUF'];
+  const CHAVES = ['id', 'titulo', 'curto', 'tema', 'unidade', 'casas', 'periodicidade', 'descricao', 'fonte', 'fonteUrl', 'inicioSerie', 'nota', 'arquivo', 'porUF'];
   const indicadores = entradas.map((e) => Object.fromEntries(CHAVES.map((k) => [k, e[k]])));
   const geradoEm = datas.filter(Boolean).sort().pop();
   gravar(path.join(outDir, 'indice.json'), { geradoEm, mandatos: MANDATOS, contexto: CONTEXTO, indicadores });
