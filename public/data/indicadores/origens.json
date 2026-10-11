@@ -1,0 +1,1102 @@
+{
+  "atualizadoEm": "2026-10-11",
+  "criterio": "Cada evento é atribuído ao governo em exercício na data do ato (assinatura da lei, medida provisória, decreto ou portaria). Leis e emendas passam pelo Congresso; quando o ato não é do Executivo (emendas constitucionais, Banco Central, STF, referendo), o campo \"autor\" indica quem decidiu. Medidas provisórias são datadas pela edição, com a lei de conversão citada junto. Itamar Franco é contado a partir de 02/10/1992 (posse interina) e Temer a partir de 12/05/2016. Datas com \"precisao\" igual a \"ano\" ou \"mes\" são aproximadas ao período indicado. Fontes: Planalto (legislação), Banco Central, Inep/MEC, Ministério da Saúde, TSE, STF, Ipea e Presidência da República.",
+  "programas": [
+    {
+      "id": "sus",
+      "nome": "SUS (Sistema Único de Saúde)",
+      "area": "saúde",
+      "eventos": [
+        {
+          "data": "1988-10-05",
+          "governo": "Sarney",
+          "tipo": "criação",
+          "texto": "Constituição de 1988 cria o SUS e define a saúde como direito de todos e dever do Estado (arts. 196 a 200).",
+          "norma": "Constituição Federal, arts. 196–200",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm",
+          "autor": "Assembleia Nacional Constituinte"
+        },
+        {
+          "data": "1990-09-19",
+          "governo": "Collor",
+          "tipo": "mudança",
+          "texto": "Lei Orgânica da Saúde regulamenta o funcionamento do SUS.",
+          "norma": "Lei 8.080/1990",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8080.htm"
+        },
+        {
+          "data": "1990-12-28",
+          "governo": "Collor",
+          "tipo": "mudança",
+          "texto": "Lei define a participação da comunidade (conselhos e conferências) e as transferências de recursos no SUS.",
+          "norma": "Lei 8.142/1990",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8142.htm"
+        },
+        {
+          "data": "1993-07-27",
+          "governo": "Itamar",
+          "tipo": "mudança",
+          "texto": "Extinção do Inamps, antigo instituto de assistência médica da Previdência; a assistência passa ao SUS.",
+          "norma": "Lei 8.689/1993",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8689.htm"
+        },
+        {
+          "data": "2000-09-13",
+          "governo": "FHC 2",
+          "tipo": "mudança",
+          "texto": "Emenda fixa recursos mínimos obrigatórios para a saúde na União, estados e municípios.",
+          "norma": "Emenda Constitucional 29/2000",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc29.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2012-01-13",
+          "governo": "Dilma 1",
+          "tipo": "mudança",
+          "texto": "Lei complementar regulamenta os valores mínimos de gasto em saúde previstos na EC 29.",
+          "norma": "Lei Complementar 141/2012",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp141.htm"
+        }
+      ]
+    },
+    {
+      "id": "bpc",
+      "nome": "BPC (Benefício de Prestação Continuada)",
+      "area": "social",
+      "eventos": [
+        {
+          "data": "1988-10-05",
+          "governo": "Sarney",
+          "tipo": "criação",
+          "texto": "Constituição garante um salário mínimo mensal a pessoa com deficiência e idoso sem meios de se manter (art. 203, V).",
+          "norma": "Constituição Federal, art. 203, V",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm",
+          "autor": "Assembleia Nacional Constituinte"
+        },
+        {
+          "data": "1993-12-07",
+          "governo": "Itamar",
+          "tipo": "mudança",
+          "texto": "Lei Orgânica da Assistência Social (LOAS) regulamenta o benefício.",
+          "norma": "Lei 8.742/1993",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8742.htm"
+        },
+        {
+          "data": "1995-12-08",
+          "governo": "FHC 1",
+          "tipo": "lançamento",
+          "texto": "Decreto regulamenta a concessão do BPC a pessoas com deficiência e idosos.",
+          "norma": "Decreto 1.744/1995",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto/antigos/d1744.htm"
+        },
+        {
+          "data": "2003-10-01",
+          "governo": "Lula 1",
+          "tipo": "ampliação",
+          "texto": "Estatuto do Idoso fixa em 65 anos a idade mínima para o BPC do idoso.",
+          "norma": "Lei 10.741/2003, art. 34",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.741.htm"
+        },
+        {
+          "data": "2021-06-22",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Lei altera o critério de renda para acesso ao BPC e cria o auxílio-inclusão.",
+          "norma": "Lei 14.176/2021 (MP 1.023/2020)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14176.htm"
+        },
+        {
+          "data": "2024-12-27",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Lei do pacote de contenção de gastos exige cadastro biométrico e altera regras de acesso ao BPC e ao Bolsa Família.",
+          "norma": "Lei 15.077/2024",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/l15077.htm"
+        }
+      ]
+    },
+    {
+      "id": "seguro-desemprego",
+      "nome": "Seguro-desemprego",
+      "area": "trabalho",
+      "eventos": [
+        {
+          "data": "1986-03-10",
+          "governo": "Sarney",
+          "tipo": "criação",
+          "texto": "Seguro-desemprego é criado no Plano Cruzado.",
+          "norma": "Decreto-Lei 2.284/1986",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2284.htm"
+        },
+        {
+          "data": "1990-01-11",
+          "governo": "Sarney",
+          "tipo": "mudança",
+          "texto": "Lei regula o seguro-desemprego e o abono salarial e cria o Fundo de Amparo ao Trabalhador (FAT).",
+          "norma": "Lei 7.998/1990",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l7998.htm"
+        },
+        {
+          "data": "2015-06-16",
+          "governo": "Dilma 2",
+          "tipo": "mudança",
+          "texto": "Lei aumenta o tempo de trabalho exigido para o primeiro pedido do seguro-desemprego.",
+          "norma": "Lei 13.134/2015 (MP 665/2014)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13134.htm"
+        }
+      ]
+    },
+    {
+      "id": "bolsa-familia",
+      "nome": "Bolsa Escola → Bolsa Família → Auxílio Brasil → Bolsa Família",
+      "area": "social",
+      "eventos": [
+        {
+          "data": "2001-04-11",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "Criado o Bolsa Escola federal, transferência de renda ligada à frequência escolar.",
+          "norma": "Lei 10.219/2001 (MP 2.140-1)",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/leis_2001/l10219.htm"
+        },
+        {
+          "data": "2001-09-06",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "Criado o Bolsa Alimentação, transferência de renda vinculada à saúde.",
+          "norma": "MP 2.206-1/2001",
+          "url": "https://www.planalto.gov.br/ccivil_03/mpv/Antigas_2001/2206-1.htm"
+        },
+        {
+          "data": "2002-01-24",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "Regulamentado o Auxílio-Gás para famílias de baixa renda.",
+          "norma": "Decreto 4.102/2002 (MP 18/2001; Lei 10.453/2002)",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto/2002/d4102.htm"
+        },
+        {
+          "data": "2003-06-13",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "Criado o Cartão Alimentação (Programa Nacional de Acesso à Alimentação), parte do Fome Zero.",
+          "norma": "Lei 10.689/2003",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.689.htm"
+        },
+        {
+          "data": "2003-10-20",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "MP 132 cria o Bolsa Família, unificando Bolsa Escola, Bolsa Alimentação, Auxílio-Gás e Cartão Alimentação; convertida em lei em janeiro de 2004.",
+          "norma": "MP 132/2003 (Lei 10.836/2004)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.836.htm"
+        },
+        {
+          "data": "2011-06-02",
+          "governo": "Dilma 1",
+          "tipo": "ampliação",
+          "texto": "Lançado o Plano Brasil Sem Miséria, que amplia a busca ativa de famílias para o programa.",
+          "norma": "Decreto 7.492/2011",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/decreto/d7492.htm"
+        },
+        {
+          "data": "2012-10-03",
+          "governo": "Dilma 1",
+          "tipo": "ampliação",
+          "texto": "Lei cria benefício extra para famílias com crianças em extrema pobreza (ação Brasil Carinhoso).",
+          "norma": "Lei 12.722/2012 (MP 570/2012)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12722.htm"
+        },
+        {
+          "data": "2020-04-02",
+          "governo": "Bolsonaro",
+          "tipo": "criação",
+          "texto": "Criado o Auxílio Emergencial, benefício temporário da pandemia, pago também a beneficiários do Bolsa Família.",
+          "norma": "Lei 13.982/2020",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l13982.htm"
+        },
+        {
+          "data": "2021-08-09",
+          "governo": "Bolsonaro",
+          "tipo": "renomeação",
+          "texto": "MP institui o Auxílio Brasil, que substitui o Bolsa Família.",
+          "norma": "MP 1.061/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/mpv/mpv1061.htm"
+        },
+        {
+          "data": "2021-12-29",
+          "governo": "Bolsonaro",
+          "tipo": "encerramento",
+          "texto": "Lei do Auxílio Brasil revoga a lei do Bolsa Família.",
+          "norma": "Lei 14.284/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14284.htm"
+        },
+        {
+          "data": "2022-07-14",
+          "governo": "Bolsonaro",
+          "tipo": "ampliação",
+          "texto": "Emenda constitucional acrescenta temporariamente R$ 200 ao Auxílio Brasil (de agosto a dezembro de 2022).",
+          "norma": "Emenda Constitucional 123/2022",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc123.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2023-03-02",
+          "governo": "Lula 3",
+          "tipo": "retomada",
+          "texto": "MP recria o Bolsa Família no lugar do Auxílio Brasil; convertida em lei em junho de 2023.",
+          "norma": "MP 1.164/2023 (Lei 14.601/2023)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14601.htm"
+        },
+        {
+          "data": "2024-12-27",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Lei do pacote de contenção de gastos altera regras do Bolsa Família e do BPC.",
+          "norma": "Lei 15.077/2024",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/l15077.htm"
+        }
+      ]
+    },
+    {
+      "id": "auxilio-gas",
+      "nome": "Auxílio-Gás → Gás do Povo",
+      "area": "social",
+      "eventos": [
+        {
+          "data": "2001-12-28",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "MP cria subsídio ao gás de cozinha (GLP) para famílias de baixa renda, o Auxílio-Gás.",
+          "norma": "MP 18/2001 (Lei 10.453/2002)",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10453.htm"
+        },
+        {
+          "data": "2004-01-09",
+          "governo": "Lula 1",
+          "tipo": "mudança",
+          "texto": "Auxílio-Gás é unificado no Bolsa Família.",
+          "norma": "Lei 10.836/2004",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.836.htm"
+        },
+        {
+          "data": "2021-11-19",
+          "governo": "Bolsonaro",
+          "tipo": "criação",
+          "texto": "Lei cria o Auxílio Gás dos Brasileiros, pago em dinheiro a famílias do CadÚnico.",
+          "norma": "Lei 14.237/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14237.htm"
+        },
+        {
+          "data": "2025-09-04",
+          "governo": "Lula 3",
+          "tipo": "renomeação",
+          "texto": "MP renomeia o programa para Auxílio Gás do Povo e cria nova modalidade de operação do auxílio.",
+          "norma": "MP 1.313/2025",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/mpv/mpv1313.htm"
+        },
+        {
+          "data": "2026-02-13",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Lei converte a MP e institui o Programa Nacional de Acesso ao Cozimento Limpo.",
+          "norma": "Lei 15.348/2026",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/l15348.htm"
+        }
+      ]
+    },
+    {
+      "id": "fies",
+      "nome": "Fies (financiamento estudantil)",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "1992-06-25",
+          "governo": "Collor",
+          "tipo": "mudança",
+          "texto": "Lei institucionaliza o Crédito Educativo (Creduc), programa antecessor do Fies.",
+          "norma": "Lei 8.436/1992",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8436.htm"
+        },
+        {
+          "data": "1999-05-27",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "MP cria o Fundo de Financiamento ao Estudante do Ensino Superior (Fies).",
+          "norma": "MP 1.827/1999",
+          "url": "https://www.planalto.gov.br/ccivil_03/mpv/Antigas/1827.htm"
+        },
+        {
+          "data": "2001-07-12",
+          "governo": "FHC 2",
+          "tipo": "mudança",
+          "texto": "Fies passa a ser regido por lei.",
+          "norma": "Lei 10.260/2001",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/leis_2001/l10260.htm"
+        },
+        {
+          "data": "2010-01-14",
+          "governo": "Lula 2",
+          "tipo": "mudança",
+          "texto": "Lei permite abater a dívida de professores da rede pública e médicos da saúde da família, entre outras mudanças.",
+          "norma": "Lei 12.202/2010",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2010/lei/l12202.htm"
+        },
+        {
+          "data": "2017-12-07",
+          "governo": "Temer",
+          "tipo": "mudança",
+          "texto": "Lei reformula o Fies (chamado de Novo Fies).",
+          "norma": "Lei 13.530/2017 (MP 785/2017)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/l13530.htm"
+        },
+        {
+          "data": "2022-06-21",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Lei cria regras para renegociar dívidas do Fies cobradas pelo governo.",
+          "norma": "Lei 14.375/2022 (MP 1.090/2021)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/lei/l14375.htm"
+        }
+      ]
+    },
+    {
+      "id": "prouni",
+      "nome": "ProUni",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "2004-09-10",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "MP cria o Programa Universidade para Todos, com bolsas em faculdades privadas em troca de isenções fiscais; convertida em lei em 2005.",
+          "norma": "MP 213/2004 (Lei 11.096/2005)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2005/lei/l11096.htm"
+        },
+        {
+          "data": "2022-05-25",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Lei muda regras do ProUni, ampliando o público elegível a estudantes que cursaram o ensino médio em escola privada sem bolsa.",
+          "norma": "Lei 14.350/2022 (MP 1.075/2021)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/lei/l14350.htm"
+        }
+      ]
+    },
+    {
+      "id": "enem",
+      "nome": "Enem",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "1998-05-28",
+          "governo": "FHC 1",
+          "tipo": "criação",
+          "texto": "Portaria do MEC cria o Exame Nacional do Ensino Médio; primeira prova em agosto de 1998.",
+          "norma": "Portaria MEC 438/1998",
+          "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/historico"
+        },
+        {
+          "data": "2004",
+          "governo": "Lula 1",
+          "tipo": "ampliação",
+          "texto": "Nota do Enem passa a ser usada para distribuir bolsas do ProUni.",
+          "norma": "Inep (histórico do Enem)",
+          "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/historico",
+          "precisao": "ano"
+        },
+        {
+          "data": "2009",
+          "governo": "Lula 2",
+          "tipo": "mudança",
+          "texto": "Novo Enem: prova muda de formato, passa a servir de seleção para universidades (Sisu) e a certificar o ensino médio.",
+          "norma": "Portaria Inep 109/2009",
+          "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/historico",
+          "precisao": "ano"
+        },
+        {
+          "data": "2017",
+          "governo": "Temer",
+          "tipo": "mudança",
+          "texto": "Certificação do ensino médio volta ao Encceja; prova passa a dois domingos consecutivos.",
+          "norma": "Inep (histórico do Enem)",
+          "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/historico",
+          "precisao": "ano"
+        }
+      ]
+    },
+    {
+      "id": "sisu",
+      "nome": "Sisu",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "2010-01-26",
+          "governo": "Lula 2",
+          "tipo": "criação",
+          "texto": "Criado o Sistema de Seleção Unificada, que usa a nota do Enem para vagas em instituições públicas.",
+          "norma": "Portaria Normativa MEC 2/2010",
+          "url": "https://www.gov.br/mec/pt-br/acesso-a-informacao-paginas-unicas/conheca-a-historia-da-educacao-brasileira"
+        }
+      ]
+    },
+    {
+      "id": "farmacia-popular",
+      "nome": "Farmácia Popular",
+      "area": "saúde",
+      "eventos": [
+        {
+          "data": "2004-04-13",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "Lei cria o Programa Farmácia Popular do Brasil, com unidades próprias em parceria com estados, municípios e entidades.",
+          "norma": "Lei 10.858/2004 (Decreto 5.090/2004)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/lei/l10.858.htm"
+        },
+        {
+          "data": "2006",
+          "governo": "Lula 1",
+          "tipo": "ampliação",
+          "texto": "Programa se estende a farmácias privadas credenciadas (Aqui Tem Farmácia Popular).",
+          "norma": "Plano Nacional de Saúde 2024–2027, seção 2.9",
+          "url": "https://www.gov.br/saude/pt-br/acesso-a-informacao/gestao-do-sus/instrumentos-de-planejamento/pns/plano-nacional-de-saude-pns-2024-2027",
+          "precisao": "ano"
+        },
+        {
+          "data": "2011",
+          "governo": "Dilma 1",
+          "tipo": "ampliação",
+          "texto": "Medicamentos para hipertensão e diabetes passam a ser gratuitos (Saúde Não Tem Preço).",
+          "norma": "Plano Nacional de Saúde 2024–2027, seção 2.9",
+          "url": "https://www.gov.br/saude/pt-br/acesso-a-informacao/gestao-do-sus/instrumentos-de-planejamento/pns/plano-nacional-de-saude-pns-2024-2027",
+          "precisao": "ano"
+        },
+        {
+          "data": "2012-05",
+          "governo": "Dilma 1",
+          "tipo": "ampliação",
+          "texto": "Gratuidade é estendida a medicamentos para asma (ação Brasil Carinhoso).",
+          "norma": "Plano Nacional de Saúde 2024–2027, seção 2.9",
+          "url": "https://www.gov.br/saude/pt-br/acesso-a-informacao/gestao-do-sus/instrumentos-de-planejamento/pns/plano-nacional-de-saude-pns-2024-2027",
+          "precisao": "mes"
+        },
+        {
+          "data": "2023-06",
+          "governo": "Lula 3",
+          "tipo": "ampliação",
+          "texto": "Governo anuncia ampliação de medicamentos gratuitos e credenciamento de farmácias em municípios mais vulneráveis.",
+          "norma": "Plano Nacional de Saúde 2024–2027, seção 2.9",
+          "url": "https://www.gov.br/saude/pt-br/acesso-a-informacao/gestao-do-sus/instrumentos-de-planejamento/pns/plano-nacional-de-saude-pns-2024-2027",
+          "precisao": "mes"
+        },
+        {
+          "data": "2025-02-13",
+          "governo": "Lula 3",
+          "tipo": "ampliação",
+          "texto": "Fim do copagamento: todos os itens do programa passam a ser gratuitos.",
+          "norma": "Portaria GM/MS 6.613/2025",
+          "url": "https://www.gov.br/saude/pt-br/composicao/sectics/farmacia-popular/legislacao/portaria-gm-ms-no-6-613-de-13-de-fevereiro-de-2025"
+        }
+      ]
+    },
+    {
+      "id": "mais-medicos",
+      "nome": "Mais Médicos / Médicos pelo Brasil",
+      "area": "saúde",
+      "eventos": [
+        {
+          "data": "2013-07-08",
+          "governo": "Dilma 1",
+          "tipo": "criação",
+          "texto": "MP cria o Programa Mais Médicos; convertida em lei em outubro de 2013.",
+          "norma": "MP 621/2013 (Lei 12.871/2013)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12871.htm"
+        },
+        {
+          "data": "2019-08-01",
+          "governo": "Bolsonaro",
+          "tipo": "criação",
+          "texto": "MP cria o Programa Médicos pelo Brasil, para a atenção primária do SUS; convertida em lei em dezembro de 2019.",
+          "norma": "MP 890/2019 (Lei 13.958/2019)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13958.htm"
+        },
+        {
+          "data": "2023-03-20",
+          "governo": "Lula 3",
+          "tipo": "retomada",
+          "texto": "MP relança o Mais Médicos com estratégia de formação de especialistas; convertida em lei em julho de 2023.",
+          "norma": "MP 1.165/2023 (Lei 14.621/2023)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14621.htm"
+        }
+      ]
+    },
+    {
+      "id": "minha-casa-minha-vida",
+      "nome": "Minha Casa Minha Vida / Casa Verde e Amarela",
+      "area": "habitação",
+      "eventos": [
+        {
+          "data": "2009-03-25",
+          "governo": "Lula 2",
+          "tipo": "criação",
+          "texto": "MP cria o Minha Casa, Minha Vida; convertida em lei em julho de 2009.",
+          "norma": "MP 459/2009 (Lei 11.977/2009)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l11977.htm"
+        },
+        {
+          "data": "2011-06-16",
+          "governo": "Dilma 1",
+          "tipo": "mudança",
+          "texto": "Lei altera o programa para a segunda fase.",
+          "norma": "Lei 12.424/2011 (MP 514/2010)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12424.htm"
+        },
+        {
+          "data": "2020-08-25",
+          "governo": "Bolsonaro",
+          "tipo": "renomeação",
+          "texto": "MP cria o Casa Verde e Amarela, que substitui o Minha Casa, Minha Vida; convertida em lei em janeiro de 2021.",
+          "norma": "MP 996/2020 (Lei 14.118/2021)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14118.htm"
+        },
+        {
+          "data": "2023-02-14",
+          "governo": "Lula 3",
+          "tipo": "retomada",
+          "texto": "MP recria o Minha Casa, Minha Vida; convertida em lei em julho de 2023.",
+          "norma": "MP 1.162/2023 (Lei 14.620/2023)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14620.htm"
+        }
+      ]
+    },
+    {
+      "id": "pix",
+      "nome": "Pix",
+      "area": "economia",
+      "nota": "O Pix é um projeto do Banco Central, autarquia federal; o campo \"governo\" indica apenas o período.",
+      "eventos": [
+        {
+          "data": "2018-12-21",
+          "governo": "Temer",
+          "tipo": "criação",
+          "texto": "Banco Central divulga os requisitos do sistema brasileiro de pagamentos instantâneos, base do futuro Pix.",
+          "norma": "Comunicado BCB 32.927/2018",
+          "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/especialnor/comunicado32927.pdf",
+          "autor": "Banco Central"
+        },
+        {
+          "data": "2020-08-12",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Resolução do Banco Central institui o arranjo Pix e seu regulamento.",
+          "norma": "Resolução BCB 1/2020",
+          "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=1",
+          "autor": "Banco Central"
+        },
+        {
+          "data": "2020-11-16",
+          "governo": "Bolsonaro",
+          "tipo": "lançamento",
+          "texto": "Pix entra em operação plena para o público.",
+          "norma": "Resolução BCB 1/2020",
+          "url": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=1",
+          "autor": "Banco Central"
+        }
+      ]
+    },
+    {
+      "id": "transposicao-sao-francisco",
+      "nome": "Transposição do São Francisco",
+      "area": "infraestrutura",
+      "nota": "A ideia é discutida desde 1847, no Império; houve estudos em 1981 (DNOCS), 1993–1994 (governo Itamar, arquivado após parecer do TCU) e 1995–2002 (governo FHC), sem execução (Ipea, Texto para Discussão 1577, 2011).",
+      "eventos": [
+        {
+          "data": "2007",
+          "governo": "Lula 2",
+          "tipo": "lançamento",
+          "texto": "Batalhão de Engenharia do Exército inicia as obras do projeto atual.",
+          "norma": "Ipea, Texto para Discussão 1577 (2011)",
+          "url": "https://repositorio.ipea.gov.br/server/api/core/bitstreams/10ed9a4b-8dd2-461f-87bc-8abb5cbf580c/content",
+          "precisao": "ano"
+        },
+        {
+          "data": "2017-03-10",
+          "governo": "Temer",
+          "tipo": "lançamento",
+          "texto": "Entregue o trecho final do Eixo Leste: as águas chegam à Paraíba (Monteiro).",
+          "norma": "Biblioteca da Presidência (discurso de 10/03/2017)",
+          "url": "http://www.biblioteca.presidencia.gov.br/presidencia/ex-presidentes/michel-temer/discursos-do-presidente-da-republica/discurso-do-presidente-da-republica-michel-temer-durante-cerimonia-de-chegada-das-aguas-do-rio-sao-francisco-a-paraiba-monteiro-pb"
+        },
+        {
+          "data": "2020-06-26",
+          "governo": "Bolsonaro",
+          "tipo": "lançamento",
+          "texto": "Eixo Norte: as águas chegam ao Ceará pela primeira vez (de Milagres-PE para Jati-CE).",
+          "norma": "Ministério do Desenvolvimento Regional",
+          "url": "https://www.gov.br/mdr/pt-br/noticias/retrospectiva-2020-em-junho-aguas-do-projeto-sao-francisco-chegam-pela-primeira-vez-ao-ceara"
+        }
+      ]
+    },
+    {
+      "id": "plano-real",
+      "nome": "Plano Real",
+      "area": "economia",
+      "eventos": [
+        {
+          "data": "1994-05-27",
+          "governo": "Itamar",
+          "tipo": "criação",
+          "texto": "Lei do Programa de Estabilização institui a Unidade Real de Valor (URV), criada por MP em fevereiro de 1994.",
+          "norma": "Lei 8.880/1994",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l8880.htm"
+        },
+        {
+          "data": "1994-07-01",
+          "governo": "Itamar",
+          "tipo": "lançamento",
+          "texto": "O real passa a ser a moeda do país.",
+          "norma": "Lei 9.069/1995 (MP 542/1994)",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"
+        },
+        {
+          "data": "1995-06-29",
+          "governo": "FHC 1",
+          "tipo": "mudança",
+          "texto": "Lei consolida as regras do Plano Real e do sistema monetário.",
+          "norma": "Lei 9.069/1995",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"
+        },
+        {
+          "data": "1999-06-21",
+          "governo": "FHC 2",
+          "tipo": "mudança",
+          "texto": "Decreto adota o regime de metas para a inflação.",
+          "norma": "Decreto 3.088/1999",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto/d3088.htm"
+        }
+      ]
+    },
+    {
+      "id": "lrf",
+      "nome": "Lei de Responsabilidade Fiscal",
+      "area": "economia",
+      "eventos": [
+        {
+          "data": "2000-05-04",
+          "governo": "FHC 2",
+          "tipo": "criação",
+          "texto": "Lei complementar fixa limites de gasto com pessoal e de endividamento e regras de transparência para União, estados e municípios.",
+          "norma": "Lei Complementar 101/2000",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp101.htm"
+        }
+      ]
+    },
+    {
+      "id": "teto-arcabouco",
+      "nome": "Teto de gastos → Arcabouço fiscal",
+      "area": "economia",
+      "eventos": [
+        {
+          "data": "2016-12-15",
+          "governo": "Temer",
+          "tipo": "criação",
+          "texto": "Emenda cria o Novo Regime Fiscal (teto de gastos), que limita o crescimento da despesa federal à inflação.",
+          "norma": "Emenda Constitucional 95/2016",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc95.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2021-12-08",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Emenda muda o regime de pagamento de precatórios e normas do Novo Regime Fiscal.",
+          "norma": "Emenda Constitucional 113/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc113.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2022-12-21",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Emenda (conhecida como PEC da Transição) exclui despesas do teto e prevê sua substituição por um novo regime fiscal em lei complementar.",
+          "norma": "Emenda Constitucional 126/2022",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc126.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2023-08-30",
+          "governo": "Lula 3",
+          "tipo": "criação",
+          "texto": "Lei complementar institui o regime fiscal sustentável (arcabouço fiscal), que substitui o teto de gastos.",
+          "norma": "Lei Complementar 200/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp200.htm"
+        }
+      ]
+    },
+    {
+      "id": "reforma-trabalhista",
+      "nome": "Reforma trabalhista (2017)",
+      "area": "trabalho",
+      "eventos": [
+        {
+          "data": "2017-03-31",
+          "governo": "Temer",
+          "tipo": "mudança",
+          "texto": "Lei amplia a terceirização e muda regras do trabalho temporário.",
+          "norma": "Lei 13.429/2017",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/l13429.htm"
+        },
+        {
+          "data": "2017-07-13",
+          "governo": "Temer",
+          "tipo": "criação",
+          "texto": "Reforma trabalhista altera a CLT: prevalência do negociado sobre o legislado em vários pontos, trabalho intermitente e fim da contribuição sindical obrigatória.",
+          "norma": "Lei 13.467/2017",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/l13467.htm"
+        }
+      ]
+    },
+    {
+      "id": "reformas-previdencia",
+      "nome": "Reformas da Previdência",
+      "area": "previdência",
+      "eventos": [
+        {
+          "data": "1998-12-15",
+          "governo": "FHC 1",
+          "tipo": "mudança",
+          "texto": "Primeira reforma: tempo de serviço é substituído por tempo de contribuição, com regras de transição.",
+          "norma": "Emenda Constitucional 20/1998",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc20.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "1999-11-26",
+          "governo": "FHC 2",
+          "tipo": "mudança",
+          "texto": "Lei cria o fator previdenciário no cálculo das aposentadorias do INSS.",
+          "norma": "Lei 9.876/1999",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/l9876.htm"
+        },
+        {
+          "data": "2003-12-19",
+          "governo": "Lula 1",
+          "tipo": "mudança",
+          "texto": "Reforma da previdência dos servidores públicos, com contribuição de aposentados e pensionistas.",
+          "norma": "Emenda Constitucional 41/2003",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc41.htm",
+          "autor": "Congresso Nacional"
+        },
+        {
+          "data": "2012-04-30",
+          "governo": "Dilma 1",
+          "tipo": "mudança",
+          "texto": "Lei cria a previdência complementar dos servidores federais (Funpresp) e o teto do INSS para novos servidores.",
+          "norma": "Lei 12.618/2012",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12618.htm"
+        },
+        {
+          "data": "2015-11-04",
+          "governo": "Dilma 2",
+          "tipo": "mudança",
+          "texto": "Lei cria regra que afasta o fator previdenciário quando idade mais contribuição atinge a pontuação exigida (85/95 progressiva).",
+          "norma": "Lei 13.183/2015 (MP 676/2015)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13183.htm"
+        },
+        {
+          "data": "2019-11-12",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Reforma institui idade mínima no INSS (65 anos para homens e 62 para mulheres) e novas regras de cálculo.",
+          "norma": "Emenda Constitucional 103/2019",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc103.htm",
+          "autor": "Congresso Nacional"
+        }
+      ]
+    },
+    {
+      "id": "pe-de-meia",
+      "nome": "Pé-de-Meia",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "2023-11-27",
+          "governo": "Lula 3",
+          "tipo": "criação",
+          "texto": "MP cria poupança de incentivo à permanência e conclusão do ensino médio.",
+          "norma": "MP 1.198/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/mpv/mpv1198.htm"
+        },
+        {
+          "data": "2024-01-16",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Lei institui o incentivo financeiro-educacional, em forma de poupança, para estudantes do ensino médio público.",
+          "norma": "Lei 14.818/2024",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/l14818.htm"
+        }
+      ]
+    },
+    {
+      "id": "desenrola",
+      "nome": "Desenrola Brasil",
+      "area": "economia",
+      "eventos": [
+        {
+          "data": "2023-06-05",
+          "governo": "Lula 3",
+          "tipo": "criação",
+          "texto": "MP cria o programa emergencial de renegociação de dívidas de pessoas físicas inadimplentes.",
+          "norma": "MP 1.176/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/mpv/mpv1176.htm"
+        },
+        {
+          "data": "2023-10-03",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Lei institui o Desenrola Brasil e regras contra o superendividamento.",
+          "norma": "Lei 14.690/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm"
+        }
+      ]
+    },
+    {
+      "id": "maria-da-penha",
+      "nome": "Lei Maria da Penha",
+      "area": "segurança",
+      "eventos": [
+        {
+          "data": "2006-08-07",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "Lei cria mecanismos para coibir a violência doméstica e familiar contra a mulher.",
+          "norma": "Lei 11.340/2006",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm"
+        },
+        {
+          "data": "2015-03-09",
+          "governo": "Dilma 2",
+          "tipo": "mudança",
+          "texto": "Lei tipifica o feminicídio como homicídio qualificado.",
+          "norma": "Lei 13.104/2015",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13104.htm"
+        },
+        {
+          "data": "2018-04-03",
+          "governo": "Temer",
+          "tipo": "mudança",
+          "texto": "Descumprir medida protetiva de urgência passa a ser crime.",
+          "norma": "Lei 13.641/2018",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13641.htm"
+        },
+        {
+          "data": "2021-07-28",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Lei cria o programa Sinal Vermelho e o crime de violência psicológica contra a mulher.",
+          "norma": "Lei 14.188/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14188.htm"
+        },
+        {
+          "data": "2024-10-09",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Pacote antifeminicídio torna o feminicídio crime autônomo e aumenta penas.",
+          "norma": "Lei 14.994/2024",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/l14994.htm"
+        },
+        {
+          "data": "2025-04-24",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Agressor pode ser submetido a monitoração eletrônica durante medida protetiva.",
+          "norma": "Lei 15.125/2025",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15125.htm"
+        }
+      ]
+    },
+    {
+      "id": "estatuto-desarmamento",
+      "nome": "Estatuto do Desarmamento e decretos de armas",
+      "area": "segurança",
+      "eventos": [
+        {
+          "data": "2003-12-22",
+          "governo": "Lula 1",
+          "tipo": "criação",
+          "texto": "Estatuto do Desarmamento regula registro, posse, porte e comércio de armas e prevê referendo sobre a proibição do comércio.",
+          "norma": "Lei 10.826/2003",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.826.htm"
+        },
+        {
+          "data": "2004-07-01",
+          "governo": "Lula 1",
+          "tipo": "mudança",
+          "texto": "Decreto regulamenta o Estatuto.",
+          "norma": "Decreto 5.123/2004",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2004/decreto/d5123.htm"
+        },
+        {
+          "data": "2005-10-23",
+          "governo": "Lula 1",
+          "tipo": "mudança",
+          "texto": "Referendo rejeita a proibição do comércio de armas e munições (63,94% votaram \"não\").",
+          "norma": "Referendo de 2005 (Lei 10.826/2003, art. 35)",
+          "url": "https://www.tse.jus.br/eleicoes/plebiscitos-e-referendos/referendo-2005",
+          "autor": "Eleitorado (referendo)"
+        },
+        {
+          "data": "2019-01-15",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Decreto flexibiliza regras para a posse de armas.",
+          "norma": "Decreto 9.685/2019",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d9685.htm"
+        },
+        {
+          "data": "2019-05-07",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Decreto amplia regras de aquisição, posse e porte; depois substituído por outros decretos.",
+          "norma": "Decreto 9.785/2019",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d9785.htm"
+        },
+        {
+          "data": "2019-06-25",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Novos decretos regulamentam o Estatuto, incluindo regras para caçadores, atiradores e colecionadores (CACs).",
+          "norma": "Decretos 9.844 a 9.847/2019",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d9847.htm"
+        },
+        {
+          "data": "2021-02-12",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Decretos ampliam limites de aquisição de armas e munições.",
+          "norma": "Decretos 10.627 a 10.630/2021",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/decreto/d10627.htm"
+        },
+        {
+          "data": "2023-01-01",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Decreto suspende novos registros de armas de uso restrito e de CACs e revisa normas anteriores.",
+          "norma": "Decreto 11.366/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11366.htm"
+        },
+        {
+          "data": "2023-07-21",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Novo decreto regulamenta o Estatuto, com regras mais restritivas de aquisição, posse e porte.",
+          "norma": "Decreto 11.615/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11615.htm"
+        }
+      ]
+    },
+    {
+      "id": "marco-civil-internet",
+      "nome": "Marco Civil da Internet",
+      "area": "digital",
+      "eventos": [
+        {
+          "data": "2014-04-23",
+          "governo": "Dilma 1",
+          "tipo": "criação",
+          "texto": "Lei estabelece princípios, garantias, direitos e deveres para o uso da internet no Brasil.",
+          "norma": "Lei 12.965/2014",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm"
+        },
+        {
+          "data": "2016-05-11",
+          "governo": "Dilma 2",
+          "tipo": "mudança",
+          "texto": "Decreto regulamenta a lei (neutralidade de rede e guarda de dados).",
+          "norma": "Decreto 8.771/2016",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2016/decreto/d8771.htm"
+        },
+        {
+          "data": "2025-06-26",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "STF declara parcialmente inconstitucional o art. 19 e amplia a responsabilidade das plataformas por conteúdo de terceiros.",
+          "norma": "STF, RE 1.037.396 (Tema 987) e RE 1.057.258 (Tema 533)",
+          "url": "https://noticias.stf.jus.br/postsnoticias/stf-define-parametros-para-responsabilizacao-de-plataformas-por-conteudos-de-terceiros/",
+          "autor": "STF"
+        }
+      ]
+    },
+    {
+      "id": "lgpd",
+      "nome": "LGPD (Lei Geral de Proteção de Dados)",
+      "area": "digital",
+      "eventos": [
+        {
+          "data": "2018-08-14",
+          "governo": "Temer",
+          "tipo": "criação",
+          "texto": "Lei Geral de Proteção de Dados Pessoais é sancionada.",
+          "norma": "Lei 13.709/2018",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm"
+        },
+        {
+          "data": "2019-07-08",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Lei cria a Autoridade Nacional de Proteção de Dados (ANPD).",
+          "norma": "Lei 13.853/2019 (MP 869/2018)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13853.htm"
+        },
+        {
+          "data": "2022-02-10",
+          "governo": "Bolsonaro",
+          "tipo": "mudança",
+          "texto": "Emenda inclui a proteção de dados pessoais entre os direitos fundamentais.",
+          "norma": "Emenda Constitucional 115/2022",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc115.htm",
+          "autor": "Congresso Nacional"
+        }
+      ]
+    },
+    {
+      "id": "cotas",
+      "nome": "Cotas (universidades e concursos)",
+      "area": "educação",
+      "eventos": [
+        {
+          "data": "2012-08-29",
+          "governo": "Dilma 1",
+          "tipo": "criação",
+          "texto": "Lei de Cotas reserva vagas em universidades e institutos federais para alunos de escola pública, com subcotas de renda e para pretos, pardos e indígenas.",
+          "norma": "Lei 12.711/2012",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12711.htm"
+        },
+        {
+          "data": "2014-06-09",
+          "governo": "Dilma 1",
+          "tipo": "criação",
+          "texto": "Lei reserva 20% das vagas de concursos federais para pessoas negras, por 10 anos.",
+          "norma": "Lei 12.990/2014",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12990.htm"
+        },
+        {
+          "data": "2023-11-13",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Revisão da Lei de Cotas inclui quilombolas e muda critérios de renda e de concorrência.",
+          "norma": "Lei 14.723/2023",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14723.htm"
+        },
+        {
+          "data": "2025-06-03",
+          "governo": "Lula 3",
+          "tipo": "mudança",
+          "texto": "Nova lei de cotas em concursos reserva 30% das vagas para pretos, pardos, indígenas e quilombolas.",
+          "norma": "Lei 15.142/2025",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15142.htm"
+        }
+      ]
+    }
+  ]
+}
