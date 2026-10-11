@@ -596,7 +596,7 @@ button.duelo:hover .duelo__mais span { transform: translateX(4px); }
 .modos button { flex-shrink: 0; height: 44px; display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start; line-height: 1.15; gap: 1px; }
 .modos button small { margin-left: 0; font-size: 11px; }
 .modos button[aria-pressed="true"] { background: linear-gradient(100deg, color-mix(in srgb, var(--pl) 55%, #1a2130), color-mix(in srgb, var(--pt) 55%, #1a2130)); }
-#mercado-sec .mercado__titulo { display: none; }
+#mercado-sec .mercado .mercado__titulo { display: none; }
 #mercado-sec .mercado { margin-top: 4px; }
 
 .tema {

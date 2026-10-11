@@ -80,7 +80,7 @@ function htmlResultado(r, base) {
         <div class="rnum" style="--c:${l.cor}"><b>${pct(r.anualL)}</b><span>${esc(l.curtoGov)}</span><small>sua inflação por ano</small></div>
       </div>
       <p class="minha__frase">Os <b>${reais(r.hoje)}</b> que você gasta por mês hoje custavam <b>${reais(r.em2019)}</b> em ${esc(rotuloPeriodo(base.ini, 'mensal'))}.
-        Desse aumento, <b style="color:${b.cor}">${reais(sobeB)}</b> veio no governo Bolsonaro (${pct(r.acumB)} em ${base.meses[0]} meses) e
+        Desse aumento, <b style="color:${b.cor}">${reais(sobeB)}</b> vieram no governo Bolsonaro (${pct(r.acumB)} em ${base.meses[0]} meses) e
         <b style="color:${l.cor}">${reais(sobeL)}</b> no governo Lula (${pct(r.acumL)} em ${base.meses[1]} meses, até ${esc(rotuloPeriodo(base.fim, 'mensal'))}).</p>
       <div class="carrinho__barra" aria-hidden="true"><i style="width:${((r.em2019 / total) * 100).toFixed(1)}%;background:#4a5468"></i><i style="width:${((sobeB / total) * 100).toFixed(1)}%;background:${b.cor}"></i><i style="width:${((sobeL / total) * 100).toFixed(1)}%;background:${l.cor}"></i></div>
     </div>`;
