@@ -1,4 +1,5 @@
-// Leitor mínimo de XLSX sem dependências (só node:zlib), suficiente para as planilhas de dados abertos da ANP.
+// Leitor mínimo de XLSX (e de ODS, ver lerOds) sem dependências (só node:zlib), suficiente para as planilhas de
+// dados abertos da ANP, do Tesouro e do IBGE.
 // Um .xlsx é um ZIP: lemos o diretório central, descomprimimos as entradas (deflate "cru") e interpretamos
 // xl/workbook.xml, xl/_rels/workbook.xml.rels, xl/sharedStrings.xml e o XML de cada planilha com regex simples.
 // Não trata fórmulas, estilos nem ZIP64: devolve o valor gravado em cada célula (texto ou número).
@@ -99,6 +100,41 @@ function lerPlanilha(xml, compart) {
     linhas[idx] = linha;
   }
   return linhas;
+}
+
+// ---------------------------------------------------------------- ODS (OpenDocument)
+// Planilha .ods (tabelas da Síntese de Indicadores Sociais do IBGE): também é um ZIP, com tudo em content.xml.
+// Devolve [{ nome, linhas }] como lerXlsx. Células mescladas (<table:covered-table-cell>) ocupam a coluna
+// (ficam null) para que os cabeçalhos fiquem alinhados com os dados; células repetidas são expandidas, menos as
+// vazias do fim da linha. Linhas repetidas vazias viram uma só (não importam para a leitura por rótulo).
+export function lerOds(buf) {
+  const xml = lerZip(buf).get('content.xml')?.toString('utf8');
+  if (!xml) throw new Error('ODS sem content.xml');
+  const planilhas = [];
+  for (const mt of xml.matchAll(/<table:table\b([^>]*)>([\s\S]*?)<\/table:table>/g)) {
+    const nome = desescapar(atributo(mt[1], 'table:name') || '');
+    const linhas = [];
+    for (const mr of mt[2].matchAll(/<table:table-row\b[^>]*?(?:\/>|>([\s\S]*?)<\/table:table-row>)/g)) {
+      const linha = [];
+      for (const mc of (mr[1] || '').matchAll(/<table:(?:covered-)?table-cell\b([^>]*?)(?:\/>|>([\s\S]*?)<\/table:(?:covered-)?table-cell>)/g)) {
+        const attrs = ` ${mc[1]}`, corpo = mc[2] || '';
+        const rep = Number(atributo(attrs, 'table:number-columns-repeated') || 1);
+        const tipo = atributo(attrs, 'office:value-type');
+        let valor = null;
+        if (tipo === 'float' || tipo === 'percentage' || tipo === 'currency') valor = Number(atributo(attrs, 'office:value'));
+        else if (corpo) {
+          const txt = [...corpo.matchAll(/<text:p\b[^>]*>([\s\S]*?)<\/text:p>/g)]
+            .map((m) => desescapar(m[1].replace(/<text:s\b[^>]*\/>/g, ' ').replace(/<[^>]+>/g, ''))).join('\n');
+          if (txt) valor = txt;
+        }
+        for (let i = 0; i < Math.min(rep, valor == null ? 1024 : rep); i++) linha.push(valor);
+      }
+      while (linha.length && linha[linha.length - 1] == null) linha.pop();
+      linhas.push(linha);
+    }
+    planilhas.push({ nome, linhas });
+  }
+  return planilhas;
 }
 
 // Número de série do Excel (sistema 1900) → "AAAA-MM-DD".

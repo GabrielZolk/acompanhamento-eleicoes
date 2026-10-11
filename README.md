@@ -90,18 +90,26 @@ Séries históricas de indicadores oficiais (desde jan/2003, quando há série c
 | Resultado primário do setor público consolidado (12 meses, % PIB) | SGS 5793 (NFSP) com o sinal invertido: superávit positivo |
 | Juros nominais do setor público consolidado (12 meses, % PIB) | SGS 5760 |
 | Desmatamento na Amazônia Legal (km², anual) | INPE — PRODES, [TerraBrasilis](https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates) (soma dos nove estados; ano PRODES de agosto a julho, período "AAAA-07") |
+| Salário mínimo em litros de gasolina e em botijões de gás | SGS 1619 ÷ preço médio nominal de revenda da ANP (gasolina comum; GLP 13 kg) no mesmo mês — os dois nominais, sem deflação |
+| Taxa de informalidade | IBGE, PNAD Contínua — SIDRA 8513, variável 12466 (trimestre móvel); desde out–dez/2015, quando o IBGE começou a calculá-la |
+| Empregados com carteira no setor privado (milhões) | IBGE, PNAD Contínua — SIDRA 6320, variável 4090, categoria 31722 (exclusive domésticos; trimestre móvel); desde 2012 |
+| Taxa de investimento (FBCF, % PIB, 4 trimestres) | IBGE, Contas Nacionais — SIDRA 1846 (preços correntes): FBCF (93406) ÷ PIB (90707), somados os últimos 4 trimestres |
+| Reservas internacionais (US$ bi) | SGS 3546 (conceito liquidez, fim do mês) |
+| Exportações em 12 meses (US$ bi) | MDIC, [Comex Stat](https://comexstat.mdic.gov.br/pt/geral) — API `api-comexstat.mdic.gov.br/general` (bens, US$ FOB por mês; soma de 12 meses) |
+| Pobreza (US$ 6,85/dia) e extrema pobreza (US$ 2,15/dia), PPC 2017, anual | IBGE, Síntese de Indicadores Sociais — tabela "Pobr_Geo" (2.18 na edição de 2025), linha Brasil, do ZIP de planilhas .ods no [FTP do IBGE](https://ftp.ibge.gov.br/Indicadores_Sociais/Sintese_de_Indicadores_Sociais/) (edição mais recente); desde 2012. A tabela 5817 do SIDRA (ODS 1.1.1) usa outra linha e não serve |
+| Índice de Gini do rendimento domiciliar per capita (anual) | IBGE, PNAD Contínua — SIDRA 7435, variável 10681; desde 2012 |
 
 Cada indicador do índice tem um `tema` (custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas,
-economia, meio ambiente). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses terminado
-naquele mês (carga tributária: "AAAA-12"; desmatamento: "AAAA-07"). O saldo do Novo Caged ficou de fora: o Ministério
+economia, meio ambiente, social). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses
+terminado naquele mês (carga tributária, pobreza e Gini: "AAAA-12"; desmatamento: "AAAA-07"). O saldo do Novo Caged ficou de fora: o Ministério
 do Trabalho hoje só publica apresentações em PDF e microdados compactados em 7z, sem tabela legível por máquina.
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
 ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, alimentação fora do domicílio,
 refeição, lanche, aluguel residencial, condomínio, taxa de água e esgoto, plano de saúde, produtos farmacêuticos,
-acesso à internet, ônibus urbano, gás de botijão, energia elétrica e gasolina). As planilhas da ANP e do Tesouro são
-lidas sem dependências por `tools/xlsx.mjs` (ZIP + XML).
+acesso à internet, ônibus urbano, gás de botijão, energia elétrica e gasolina). As planilhas da ANP e do Tesouro (XLSX) e as da
+SIS do IBGE (ODS) são lidas sem dependências por `tools/xlsx.mjs` (ZIP + XML).
 
 Para regenerar: `npm run build:indicadores`. O workflow `.github/workflows/indicadores.yml` roda todo dia
 (09:30 UTC) e só faz commit quando algum dado muda: a saída não tem carimbo de hora (`atualizadoEm` é o período do
