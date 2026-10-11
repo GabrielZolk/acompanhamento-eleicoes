@@ -21,11 +21,19 @@
 //     Bruta do Governo Geral (XLSX anexo à edição mais recente da publicação anual).
 //   - INPE, PRODES (TerraBrasilis): taxa anual de desmatamento na Amazônia Legal, soma dos nove estados (JSON
 //     do painel; o nome do arquivo muda a cada ano e é lido do código do painel).
+//   - Mais séries de renda, emprego, economia e social: reservas internacionais (SGS 3546); PNAD Contínua, tabelas
+//     8513 (taxa de informalidade, trimestre móvel) e 6320 (empregados do setor privado com carteira); Contas
+//     Nacionais Trimestrais, tabela 1846 (FBCF e PIB a preços correntes → taxa de investimento em 4 trimestres);
+//     PNAD Contínua anual, tabela 7435 (Gini do rendimento domiciliar per capita); salário mínimo (SGS 1619) em
+//     litros de gasolina e botijões ao preço nominal da ANP no mesmo mês.
+//   - MDIC, Comex Stat (api-comexstat.mdic.gov.br): exportações de bens por mês, US$ FOB (soma de 12 meses).
+//   - IBGE, Síntese de Indicadores Sociais (ftp.ibge.gov.br, ZIP de planilhas .ods lidas por tools/xlsx.mjs):
+//     pobreza e extrema pobreza pelas linhas de US$ 6,85 e US$ 2,15 por dia (PPC 2017), Brasil, anual desde 2012.
 //
 // Formato:
 //   indice.json: { geradoEm, mandatos: [...], contexto: [...], indicadores: [{ id, titulo, ..., tema, arquivo, porUF }] }
 //                (`tema`: custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas, economia
-//                ou meio ambiente; `periodicidade` "anual": o período "AAAA-MM" é o ano de 12 meses terminado nele)
+//                meio ambiente ou social; `periodicidade` "anual": o período "AAAA-MM" é o ano de 12 meses terminado nele)
 //   {id}.json:   { id, atualizadoEm: "AAAA-MM", serie: [["AAAA-MM", valor], ...], nominal?: [...], porUF?: { sp: [...], ... } }
 //                (`nominal`: só nos combustíveis, preço da época sem correção; `serie` e `porUF` são valores reais)
 //   mercado.json: { atualizadoEm, fonte, fonteUrl, itens: [{ id, nome, grupo, serie }] } — variação mensal do IPCA
@@ -39,7 +47,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UFS } from '../public/js/ufs.js';
-import { lerXlsx, dataExcel } from './xlsx.mjs';
+import { lerXlsx, lerZip, lerOds, dataExcel } from './xlsx.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const outDir = path.join(root, 'public', 'data', 'indicadores');
@@ -350,6 +358,108 @@ async function taxasPRODES() {
     return serie.map(([p, v]) => [p, Math.round(v)]).sort((a, b) => (a[0] < b[0] ? -1 : 1));
   }
   throw new Error('PRODES: arquivo de taxas não encontrado');
+}
+
+// ---------------------------------------------------------------- MDIC (Comex Stat)
+// Exportações brasileiras de bens (US$ FOB) por mês, da API pública do Comex Stat. Uma consulta só traz todos os
+// meses desde 2002 (o período precisa ir de janeiro a dezembro). A API limita a frequência de chamadas (HTTP 429,
+// "tente novamente em 10 segundos"), por isso as novas tentativas aqui esperam mais que as do `baixar`.
+const COMEX_API = 'https://api-comexstat.mdic.gov.br/general?language=pt';
+const COMEX_PAGINA = 'https://comexstat.mdic.gov.br/pt/geral';
+
+async function exportacoesMensais() {
+  const corpo = JSON.stringify({
+    flow: 'export', monthDetail: true, period: { from: '2002-01', to: `${hoje.slice(0, 4)}-12` },
+    metrics: ['metricFOB'], filters: [], details: [],
+  });
+  for (let tentativa = 1; ; tentativa++) {
+    await pausa(300);
+    try {
+      const res = await fetch(COMEX_API, {
+        method: 'POST', body: corpo, signal: AbortSignal.timeout(120e3),
+        headers: { ...UA, 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} no Comex Stat: ${(await res.text()).slice(0, 160)}`);
+      const lista = JSON.parse(await res.text())?.data?.list;
+      if (!Array.isArray(lista) || !lista.length) throw new Error('Comex Stat: resposta sem dados');
+      const m = new Map();
+      for (const { year, monthNumber, metricFOB } of lista) {
+        const v = Number(metricFOB);
+        if (/^\d{4}$/.test(year) && /^\d{2}$/.test(monthNumber) && Number.isFinite(v)) m.set(`${year}-${monthNumber}`, v);
+      }
+      return m;
+    } catch (err) {
+      if (tentativa >= 4) throw err;
+      console.warn(`  tentativa ${tentativa} falhou (${err.message.slice(0, 120)}); repetindo...`);
+      await pausa(15000 * tentativa);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- IBGE (Síntese de Indicadores Sociais)
+// As taxas de pobreza pelas linhas do Banco Mundial (US$ 2,15 e US$ 6,85 por dia, PPC 2017) não estão no SIDRA
+// (lá, a tabela 5817 dos ODS usa outra linha): vêm das tabelas da SIS, publicadas no FTP do IBGE em ZIPs de
+// planilhas .ods. A tabela "Pobr_Geo" (2.18 na edição de 2025) tem uma aba por ano, desde 2012, com a linha
+// "Brasil". As edições são lidas da mais recente para trás; a primeira com as duas linhas vale.
+const SIS_FTP = 'https://ftp.ibge.gov.br/Indicadores_Sociais/Sintese_de_Indicadores_Sociais/';
+const SIS_PAGINA = 'https://www.ibge.gov.br/estatisticas/sociais/trabalho/9221-sintese-de-indicadores-sociais.html';
+
+const linksFTP = async (url) => [...(await baixarTexto(url)).matchAll(/href="([^"?#/][^"?#]*)"/g)].map((m) => m[1]).filter((h) => !/^[a-z]+:/i.test(h));
+
+let sisPobrezaDados = null;
+function sisPobreza() {
+  if (!sisPobrezaDados) {
+    sisPobrezaDados = (async () => {
+      const edicoes = (await linksFTP(SIS_FTP))
+        .map((h) => h.match(/^Sintese_de_Indicadores_Sociais_(\d{4})\/$/)?.[1]).filter(Boolean).map(Number).sort((a, b) => b - a);
+      if (!edicoes.length) throw new Error('SIS: nenhuma edição no FTP do IBGE');
+      for (const ed of edicoes.slice(0, 3)) {
+        try {
+          const dirOds = `${SIS_FTP}Sintese_de_Indicadores_Sociais_${ed}/Tabelas/ods/`;
+          const zipNome = (await linksFTP(dirOds)).find((h) => /Renda.*\.zip$/i.test(h));
+          if (!zipNome) throw new Error('sem ZIP de distribuição de renda em .ods');
+          const zip = lerZip(await baixarArquivo(dirOds + zipNome));
+          const candidatos = [...zip.keys()].filter((n) => /Pobr_Geo\)?\.ods$/i.test(n)).sort();
+          for (const nome of candidatos) {
+            const extrema = new Map(), pobreza = new Map();
+            for (const { nome: aba, linhas } of lerOds(zip.get(nome))) {
+              if (!/^\d{4}$/.test(aba.trim())) continue; // abas "2024 (CV)" são coeficientes de variação
+              const cab = linhas.find((l) => l.some((c) => typeof c === 'string' && /US\$\s*2,15\b/.test(c)));
+              const brasil = linhas.find((l) => typeof l[0] === 'string' && l[0].trim() === 'Brasil');
+              if (!cab || !brasil) continue;
+              const col = (re) => cab.findIndex((c) => typeof c === 'string' && re.test(c) && /PPC 2017/.test(c));
+              const c215 = col(/US\$\s*2,15\b/), c685 = col(/US\$\s*6,85\b/);
+              if (c215 < 0 || c685 < 0 || typeof brasil[c215] !== 'number' || typeof brasil[c685] !== 'number') continue;
+              extrema.set(`${aba.trim()}-12`, arred(brasil[c215], 2));
+              pobreza.set(`${aba.trim()}-12`, arred(brasil[c685], 2));
+            }
+            if (extrema.size >= 8) {
+              const ord = (m) => [...m].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+              return { extrema: ord(extrema), pobreza: ord(pobreza), edicao: ed, tabela: nome };
+            }
+          }
+          throw new Error('nenhuma tabela "Pobr_Geo" com as linhas de US$ 2,15 e US$ 6,85 (PPC 2017)');
+        } catch (err) {
+          console.warn(`  (SIS ${ed}: ${err.message.slice(0, 140)}; tentando a edição anterior)`);
+        }
+      }
+      throw new Error('SIS: nenhuma edição recente com a tabela de pobreza esperada');
+    })();
+    sisPobrezaDados.catch(() => { sisPobrezaDados = null; });
+  }
+  return sisPobrezaDados;
+}
+
+// ---------------------------------------------------------------- salário mínimo em combustível
+// Quantas unidades (litros de gasolina, botijões de GLP) o salário mínimo nominal do mês compra ao preço médio
+// nominal de revenda do mesmo mês no Brasil (ANP). Os dois lados estão em reais da época, então não há deflação.
+async function minimoEmProduto(produto, casas) {
+  const anp = await dadosANP();
+  const preco = new Map(anp.brasil.filter((l) => l.produto === produto && l.periodo >= INICIO).map((l) => [l.periodo, l.preco]));
+  if (!preco.size) throw new Error(`ANP sem dados de ${produto}`);
+  const serie = [];
+  for (const [p, sm] of mensal(await sgs(1619), 2)) if (preco.has(p)) serie.push([p, arred(sm / preco.get(p), casas)]);
+  return serie;
 }
 
 // ---------------------------------------------------------------- indicadores
@@ -776,6 +886,219 @@ const INDICADORES = [
       'preliminar do INPE, substituída pela taxa consolidada no ano seguinte.',
     async montar() {
       return { serie: (await taxasPRODES()).filter(([p]) => p >= INICIO) };
+    },
+  },
+  {
+    id: 'sm_gasolina',
+    titulo: 'Litros de gasolina que o salário mínimo compra',
+    curto: 'Mínimo em gasolina',
+    tema: 'renda e emprego',
+    unidade: 'litros',
+    casas: 0,
+    periodicidade: 'mensal',
+    descricao: 'Salário mínimo nacional do mês dividido pelo preço médio da gasolina comum nos postos no mesmo mês: ' +
+      'quantos litros um salário mínimo inteiro compra.',
+    fonte: 'Banco Central (SGS 1619, salário mínimo); ANP — Levantamento de Preços de Combustíveis (série histórica mensal)',
+    fonteUrl: ANP_PAGINA,
+    nota: 'Cálculo deste painel com valores nominais do mesmo mês (o salário e o preço da época), por isso não ' +
+      'precisa de correção pela inflação. Preço médio de revenda no Brasil; a ANP não fez pesquisa entre 18/8 e ' +
+      '17/10/2020, e o mês sem preço fica sem ponto.',
+    async montar() {
+      return { serie: await minimoEmProduto('GASOLINA COMUM', 1) };
+    },
+  },
+  {
+    id: 'sm_botijao',
+    titulo: 'Botijões de gás que o salário mínimo compra',
+    curto: 'Mínimo em botijões',
+    tema: 'renda e emprego',
+    unidade: 'botijões',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Salário mínimo nacional do mês dividido pelo preço médio do botijão de gás de cozinha (GLP, 13 kg) ' +
+      'no mesmo mês: quantos botijões um salário mínimo inteiro compra.',
+    fonte: 'Banco Central (SGS 1619, salário mínimo); ANP — Levantamento de Preços de Combustíveis (série histórica mensal)',
+    fonteUrl: ANP_PAGINA,
+    nota: 'Cálculo deste painel com valores nominais do mesmo mês (o salário e o preço da época), por isso não ' +
+      'precisa de correção pela inflação. Preço médio de revenda no Brasil; a ANP não fez pesquisa entre 18/8 e ' +
+      '17/10/2020, e o mês sem preço fica sem ponto.',
+    async montar() {
+      return { serie: await minimoEmProduto('GLP', 2) };
+    },
+  },
+  {
+    id: 'informalidade',
+    titulo: 'Taxa de informalidade',
+    curto: 'Informalidade',
+    tema: 'renda e emprego',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Percentual dos ocupados (14 anos ou mais) em trabalho informal: empregados e domésticos sem carteira, ' +
+      'empregadores e trabalhadores por conta própria sem CNPJ e trabalhadores familiares auxiliares. Trimestre ' +
+      'móvel (o ponto de cada mês é o trimestre encerrado nele).',
+    fonte: 'IBGE — PNAD Contínua (SIDRA, tabela 8513)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/8513',
+    nota: 'O IBGE só passou a calcular a taxa de informalidade a partir do trimestre out–dez de 2015 (quando a PNAD ' +
+      'Contínua começou a perguntar sobre CNPJ); não há série oficial comparável antes disso.',
+    async montar() {
+      return { serie: serieSidra(await sidra('t/8513/n1/all/v/12466/p/all'), 'D3C', periodoMovel, 1) };
+    },
+  },
+  {
+    id: 'carteira',
+    titulo: 'Empregados com carteira assinada no setor privado',
+    curto: 'Com carteira',
+    tema: 'renda e emprego',
+    unidade: 'milhões',
+    casas: 1,
+    periodicidade: 'mensal',
+    descricao: 'Número de empregados do setor privado com carteira de trabalho assinada (exclusive trabalhadores ' +
+      'domésticos), em milhões de pessoas, em trimestre móvel (o ponto de cada mês é o trimestre encerrado nele).',
+    fonte: 'IBGE — PNAD Contínua (SIDRA, tabela 6320)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/6320',
+    nota: 'Estimativa da pesquisa domiciliar do IBGE (não é o registro administrativo do Caged/RAIS). A PNAD ' +
+      'Contínua começa em 2012.',
+    async montar() {
+      const mil = serieSidra(await sidra('t/6320/n1/all/v/4090/p/all/c11913/31722'), 'D3C', periodoMovel, 0);
+      return { serie: mil.map(([p, v]) => [p, arred(v / 1000, 3)]) }; // mil pessoas → milhões
+    },
+  },
+  {
+    id: 'investimento',
+    titulo: 'Taxa de investimento (FBCF, % do PIB)',
+    curto: 'Investimento',
+    tema: 'economia',
+    unidade: '% do PIB',
+    casas: 1,
+    periodicidade: 'trimestral',
+    descricao: 'Formação bruta de capital fixo (máquinas, equipamentos, construções e outros investimentos em capital) ' +
+      'em proporção do PIB, somados os últimos quatro trimestres, a preços correntes.',
+    fonte: 'IBGE — Contas Nacionais Trimestrais (SIDRA, tabela 1846)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/1846',
+    nota: 'Cálculo deste painel: FBCF dos últimos 4 trimestres ÷ PIB dos mesmos 4 trimestres (valores correntes), ' +
+      'o que tira a sazonalidade. A taxa do trimestre isolado publicada pelo IBGE (tabela 6727) oscila mais; no 4º ' +
+      'trimestre, o valor daqui é a taxa do ano. Os últimos trimestres podem ser revistos.',
+    async montar() {
+      const linhas = await sidra('t/1846/n1/all/v/585/p/all/c11255/90707,93406');
+      const pib = new Map(), fbcf = new Map();
+      for (const l of linhas) {
+        const v = Number(l.V);
+        if (l.V === '' || !Number.isFinite(v)) continue;
+        (l.D4C === '90707' ? pib : l.D4C === '93406' ? fbcf : new Map()).set(periodoTrimestre(l.D3C), v);
+      }
+      const ps = [...pib.keys()].filter((p) => fbcf.has(p)).sort();
+      const serie = [];
+      for (let i = 3; i < ps.length; i++) {
+        const janela = ps.slice(i - 3, i + 1);
+        const [a, m] = [Number(ps[i].slice(0, 4)), Number(ps[i].slice(5))];
+        const esperado = `${m === 12 ? a : a - 1}-${pad2(m === 12 ? 3 : m + 3)}`; // 1º trimestre da janela
+        if (janela[0] !== esperado) continue; // trimestre faltando
+        const soma = (mapa) => janela.reduce((s, p) => s + mapa.get(p), 0);
+        if (ps[i] >= INICIO) serie.push([ps[i], arred((soma(fbcf) / soma(pib)) * 100, 2)]);
+      }
+      return { serie };
+    },
+  },
+  {
+    id: 'reservas',
+    titulo: 'Reservas internacionais',
+    curto: 'Reservas',
+    tema: 'economia',
+    unidade: 'US$ bi',
+    casas: 0,
+    periodicidade: 'mensal',
+    descricao: 'Reservas internacionais do Brasil (conceito liquidez) no fim de cada mês, em bilhões de dólares: ' +
+      'moeda estrangeira, ouro e outros ativos em poder do Banco Central.',
+    fonte: 'Banco Central (SGS 3546)',
+    fonteUrl: 'https://www.bcb.gov.br/estatisticas/reservasinternacionais',
+    nota: 'Valores em dólares correntes, sem correção pela inflação americana. O conceito liquidez inclui os ' +
+      'recursos emprestados em operações de linha com recompra.',
+    async montar() {
+      return { serie: (await sgs(3546)).map(({ data, valor }) => [data.slice(0, 7), arred(valor / 1000, 1)]) }; // US$ milhões → bilhões
+    },
+  },
+  {
+    id: 'exportacoes',
+    titulo: 'Exportações em 12 meses',
+    curto: 'Exportações',
+    tema: 'economia',
+    unidade: 'US$ bi',
+    casas: 0,
+    periodicidade: 'mensal',
+    descricao: 'Valor das exportações brasileiras de bens nos últimos 12 meses (US$ FOB), em bilhões de dólares.',
+    fonte: 'Ministério do Desenvolvimento, Indústria, Comércio e Serviços — Comex Stat (Secex)',
+    fonteUrl: COMEX_PAGINA,
+    nota: 'Cálculo deste painel: soma dos 12 meses terminados em cada mês. Dólares correntes, sem correção pela ' +
+      'inflação americana; só bens (não inclui serviços).',
+    async montar() {
+      const mensais = await exportacoesMensais();
+      const ultimo = [...mensais.keys()].sort().pop();
+      const serie = [];
+      for (const p of meses(INICIO, ultimo)) {
+        const janela = meses(`${Number(p.slice(0, 4)) - 1}${p.slice(4)}`, p).slice(1);
+        if (janela.some((q) => !mensais.has(q))) continue;
+        serie.push([p, arred(janela.reduce((s, q) => s + mensais.get(q), 0) / 1e9, 2)]); // US$ → bilhões
+      }
+      return { serie };
+    },
+  },
+  {
+    id: 'pobreza',
+    titulo: 'Pobreza (linha de US$ 6,85/dia PPC)',
+    curto: 'Pobreza',
+    tema: 'social',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'anual',
+    descricao: 'Percentual da população com rendimento domiciliar per capita abaixo de US$ 6,85 por dia (paridade de ' +
+      'poder de compra de 2017), a linha de pobreza do Banco Mundial para países de renda média-alta.',
+    fonte: 'IBGE — Síntese de Indicadores Sociais (PNAD Contínua anual, tabela de pobreza por Grandes Regiões e UFs)',
+    fonteUrl: SIS_PAGINA,
+    nota: 'Rendimento de todas as fontes, inclusive programas sociais, na 1ª visita da PNAD Contínua. Toda a série é ' +
+      'refeita a cada edição anual da Síntese (aqui, a mais recente com essa linha). Começa em 2012.',
+    async montar() {
+      const r = await sisPobreza();
+      console.log(`  (SIS ${r.edicao}, ${r.tabela})`);
+      return { serie: r.pobreza };
+    },
+  },
+  {
+    id: 'extrema_pobreza',
+    titulo: 'Extrema pobreza (US$ 2,15/dia PPC)',
+    curto: 'Extrema pobreza',
+    tema: 'social',
+    unidade: '%',
+    casas: 1,
+    periodicidade: 'anual',
+    descricao: 'Percentual da população com rendimento domiciliar per capita abaixo de US$ 2,15 por dia (paridade de ' +
+      'poder de compra de 2017), a linha internacional de extrema pobreza do Banco Mundial.',
+    fonte: 'IBGE — Síntese de Indicadores Sociais (PNAD Contínua anual, tabela de pobreza por Grandes Regiões e UFs)',
+    fonteUrl: SIS_PAGINA,
+    nota: 'Rendimento de todas as fontes, inclusive programas sociais, na 1ª visita da PNAD Contínua. Toda a série é ' +
+      'refeita a cada edição anual da Síntese (aqui, a mais recente com essa linha). Começa em 2012.',
+    async montar() {
+      const r = await sisPobreza();
+      console.log(`  (SIS ${r.edicao}, ${r.tabela})`);
+      return { serie: r.extrema };
+    },
+  },
+  {
+    id: 'gini',
+    titulo: 'Índice de Gini do rendimento domiciliar per capita',
+    curto: 'Desigualdade (Gini)',
+    tema: 'social',
+    unidade: 'índice',
+    casas: 3,
+    periodicidade: 'anual',
+    descricao: 'Mede a desigualdade da renda por pessoa dos domicílios, de 0 (todos têm a mesma renda) a 1 (uma só ' +
+      'pessoa tem toda a renda). Quanto menor, menos desigual.',
+    fonte: 'IBGE — PNAD Contínua, rendimento de todas as fontes (SIDRA, tabela 7435)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/7435',
+    nota: 'Rendimento de todas as fontes (trabalho, aposentadorias, programas sociais etc.), a preços médios do ano. ' +
+      'A PNAD Contínua começa em 2012.',
+    async montar() {
+      return { serie: serieSidra(await sidra('t/7435/n1/all/v/10681/p/all'), 'D3C', (c) => `${c}-12`, 3) };
     },
   },
 ];
