@@ -591,6 +591,12 @@ async function iniciar() {
     }),
   );
   await pedidoMercado;
+  // Aba de leis só aparece quando o levantamento existe.
+  modos.querySelector('[data-modo="leis"]').hidden = !estado.leis;
+  if (estado.modo === 'leis' && !estado.leis) {
+    estado.modo = 'duelo';
+    mostrarModo();
+  }
   renderDuelos();
   if (idPedido && !estado.atual) rotear(true);
 }
