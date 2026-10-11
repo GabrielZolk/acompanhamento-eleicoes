@@ -11,6 +11,7 @@ import { carregarGeo, htmlMapa } from './mapa.js';
 import { htmlMercado } from './mercado.js';
 import { htmlImpostos } from './impostos.js';
 import { htmlLeis } from './leis.js';
+import { montarMinhaInflacao } from './minha.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
@@ -603,6 +604,7 @@ async function iniciar() {
     }),
   );
   await pedidoMercado;
+  montarMinhaInflacao($('#minha-inflacao'), estado.mercado, estado.mandatos);
   // Aba de leis só aparece quando o levantamento existe.
   modos.querySelector('[data-modo="leis"]').hidden = !estado.leis;
   if (estado.modo === 'leis' && !estado.leis) {

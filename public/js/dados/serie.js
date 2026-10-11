@@ -55,9 +55,10 @@ const num = (v, casas) =>
 
 // Unidades em reais: "R$", "R$/US$", "R$/litro", "R$/13 kg" (o que vem depois da barra vira
 // "por …") e "R$ bi" (bilhões: "R$ 2.900 bi").
-const emReais = (ind) => (ind.unidade || '').startsWith('R$');
+const moeda = (ind) => ((ind.unidade || '').startsWith('US$') ? 'US$' : 'R$');
+const emReais = (ind) => (ind.unidade || '').startsWith('R$') || (ind.unidade || '').startsWith('US$');
 const porQue = (ind) => {
-  const resto = (ind.unidade || '').slice(2).trim();
+  const resto = (ind.unidade || '').slice(moeda(ind).length).trim();
   return resto.startsWith('/') ? `por ${resto.slice(1)}` : resto;
 };
 
@@ -66,7 +67,7 @@ export function fmtValor(v, ind, casas = ind.casas ?? 1) {
   if (v == null || !Number.isFinite(v)) return '—';
   const neg = v < 0 ? '−' : '';
   const a = Math.abs(v);
-  if (emReais(ind)) return `${neg}R$ ${num(a, casas)}${porQue(ind).startsWith('por') ? '' : porQue(ind) ? ` ${porQue(ind)}` : ''}`;
+  if (emReais(ind)) return `${neg}${moeda(ind)} ${num(a, casas)}${porQue(ind).startsWith('por') ? '' : porQue(ind) ? ` ${porQue(ind)}` : ''}`;
   switch (ind.unidade) {
     case '% do PIB':
       return `${neg}${num(a, casas)}% do PIB`;
@@ -81,7 +82,7 @@ export function fmtValor(v, ind, casas = ind.casas ?? 1) {
 export function partesValor(v, ind) {
   if (v == null || !Number.isFinite(v)) return { pre: '', num: '—', suf: '' };
   const n = (v < 0 ? '−' : '') + num(Math.abs(v), ind.casas ?? 1);
-  if (emReais(ind)) return { pre: 'R$', num: n, suf: porQue(ind) };
+  if (emReais(ind)) return { pre: moeda(ind), num: n, suf: porQue(ind) };
   if (ind.unidade === '% do PIB') return { pre: '', num: n, suf: '% do PIB' };
   if (ind.unidade === '%') return { pre: '', num: n, suf: '%' };
   return { pre: '', num: n, suf: ind.unidade || '' };

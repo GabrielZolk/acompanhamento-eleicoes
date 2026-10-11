@@ -42,10 +42,27 @@ export const REGRAS = {
   juros_divida: { melhor: 'menor', criterio: 'media', aviso: 'Quanto o setor público pagou de juros sobre a dívida, em proporção do PIB.' },
   desmatamento: { melhor: 'menor', criterio: 'media', aviso: 'Ano PRODES: agosto de um ano a julho do seguinte.' },
   caged: { melhor: 'maior', criterio: 'media', aviso: 'Empregos com carteira criados menos os fechados, em 12 meses.' },
+  sm_gasolina: { melhor: 'maior', criterio: 'media', aviso: 'Salário mínimo do mês dividido pelo preço médio da gasolina no mesmo mês (ANP).' },
+  sm_botijao: { melhor: 'maior', criterio: 'media', aviso: 'Salário mínimo do mês dividido pelo preço médio do botijão no mesmo mês (ANP).' },
+  informalidade: { melhor: 'menor', criterio: 'media', aviso: 'Trabalhadores sem carteira, por conta própria sem CNPJ e outros vínculos informais.' },
+  carteira: { melhor: 'maior', criterio: 'media' },
+  investimento: { melhor: 'maior', criterio: 'media', aviso: 'Quanto do PIB vai para máquinas, obras e construção.' },
+  reservas: { melhor: 'maior', criterio: 'media', aviso: 'Dólares guardados pelo Banco Central; protegem contra crises cambiais.' },
+  exportacoes: { melhor: 'maior', criterio: 'media', aviso: 'Em dólares correntes: preços de commodities pesam muito.' },
+  pobreza: { melhor: 'menor', criterio: 'media' },
+  extrema_pobreza: { melhor: 'menor', criterio: 'media' },
+  gini: { melhor: 'menor', criterio: 'media', aviso: 'De 0 a 1: quanto maior, mais desigual a renda.' },
+  bolsa_familia_familias: { melhor: null, criterio: 'media', aviso: 'Sem selo: mais famílias pode ser mais cobertura ou mais pobreza.' },
+  bolsa_familia_valor: { melhor: 'maior', criterio: 'media', aviso: 'Valor médio por família, corrigido pela inflação.' },
+  ideb_iniciais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
+  ideb_finais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
+  ideb_medio: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
+  homicidios: { melhor: 'menor', criterio: 'media' },
+  vacinacao: { melhor: 'maior', criterio: 'media' },
 };
 
 // Temas, na ordem em que aparecem na comparação.
-export const TEMAS = ['custo de vida', 'renda e emprego', 'crédito e dívidas', 'impostos e contas públicas', 'economia', 'meio ambiente'];
+export const TEMAS = ['custo de vida', 'renda e emprego', 'crédito e dívidas', 'impostos e contas públicas', 'economia', 'social', 'educação', 'saúde', 'segurança', 'meio ambiente'];
 const TEMA_PADRAO = { ipca: 'custo de vida', alimentos: 'custo de vida', gasolina: 'custo de vida', botijao: 'custo de vida', desemprego: 'renda e emprego', renda: 'renda e emprego', salario: 'renda e emprego', pib: 'economia', dolar: 'economia', selic: 'crédito e dívidas', divida: 'impostos e contas públicas' };
 export const temaDe = (ind) => ind.tema || TEMA_PADRAO[ind.id] || 'economia';
 const regra = (ind) => REGRAS[ind.id] || { melhor: 'menor', criterio: 'media' };
