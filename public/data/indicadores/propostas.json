@@ -1,0 +1,201 @@
+{
+  "atualizadoEm": "2026-10-11",
+  "fontes": {
+    "flavio": {
+      "titulo": "Para o Brasil Vencer o Atraso – Diretrizes do Plano de Governo 2027-2030 (Flávio Bolsonaro, PL)",
+      "url": "https://www.tse.jus.br/eleicoes/eleicoes-2026-content/arquivos/proposta-pl/@@display-file/file/proposta-pl.pdf",
+      "indiceTSE": "https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/flavio-bolsonaro",
+      "paginas": 76
+    },
+    "lula": {
+      "titulo": "Programa de Governo – Diretrizes para o Programa de Transformação do Brasil (Lula, PT – coligação Brasil Pronto pra Mais)",
+      "url": "https://www.tse.jus.br/eleicoes/eleicoes-2026-content/arquivos/proposta-pt/@@display-file/file/proposta-pt.pdf",
+      "indiceTSE": "https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/lula-propostas-de-governo",
+      "paginas": 84
+    }
+  },
+  "temas": [
+    {
+      "tema": "Economia e impostos",
+      "flavio": [
+        "Revisar e \"redimensionar\" a reforma tributária do consumo e os aumentos de tributos do atual governo, com IVA menor, não cumulatividade e menos exceções.",
+        "Reformular as regras fiscais com foco em estabilizar e depois reduzir a dívida pública, com superávits primários, limite ao crédito subsidiado pelo Tesouro e regra de controle de gastos discricionários dos três Poderes.",
+        "Cortar no mínimo 10 ministérios, reduzir cargos comissionados e combater supersalários; retomar o Programa Nacional de Desestatização, avaliado caso a caso.",
+        "Meta de crescimento de 4% ao ano na próxima década, com R$ 900 bilhões em infraestrutura em quatro anos via concessões, PPPs e BNDES."
+      ],
+      "lula": [
+        "Manter o novo arcabouço fiscal e criar condições para queda sustentada dos juros, com inflação controlada.",
+        "Obter resultado fiscal com crescimento, controle do gasto primário, \"justiça tributária\" e combate a privilégios e distorções.",
+        "Regulamentar pontos da reforma tributária: Fundo Nacional de Desenvolvimento Regional, Imposto Seletivo sobre produtos nocivos à saúde e tratamento tributário justo às pequenas empresas.",
+        "Ampliar a política industrial Nova Indústria Brasil e a segunda edição do Novo PAC, com foco em inovação, IA e minerais críticos."
+      ],
+      "paginas": { "flavio": "p. 30, 49–51, 69–72", "lula": "p. 47–59" }
+    },
+    {
+      "tema": "Emprego e renda",
+      "flavio": [
+        "Reduzir gradualmente o custo do trabalho formal, \"sem retirar direitos\".",
+        "Contrato com menor custo na folha para jovens de 18 a 24 anos no primeiro emprego e contrato mais atrativo para pessoas com 50 anos ou mais desempregadas há 12 meses.",
+        "Defende o \"negociado sobre o legislado\" e jornada flexível; banco nacional de vagas conectado ao RH das empresas.",
+        "Manter as oportunidades do trabalho por aplicativo com proteção social, sem dirigentes sindicais \"à frente do processo\"; programa Minha Primeira Empresa (Sistema S e CAIXA)."
+      ],
+      "lula": [
+        "Continuar a política de valorização real do salário mínimo.",
+        "Atuar no Senado pelo fim da escala 6x1 e pela jornada de 40 horas sem redução salarial, nos termos aprovados na Câmara.",
+        "Regular o trabalho por plataformas (remuneração, direitos, previdência, transparência algorítmica) e combater a \"pejotização espúria\".",
+        "Alterar regras trabalhistas consideradas precarizantes, retomar a assistência sindical nas rescisões e criar plataforma pública de empregabilidade com IA no SINE."
+      ],
+      "paginas": { "flavio": "p. 43–45", "lula": "p. 73–76" }
+    },
+    {
+      "tema": "Programas sociais (Bolsa Família etc.)",
+      "flavio": [
+        "Manter os programas sociais existentes, com melhora de gestão, correção de distorções e combate a fraudes; o texto não cita o Bolsa Família pelo nome.",
+        "Prioridade a beneficiários em programas de primeiro emprego, qualificação e intermediação de mão de obra, com uma \"trilha de qualificação\" própria.",
+        "Retorno imediato e sem fila ao benefício após o seguro-desemprego, mantidas as condições de elegibilidade.",
+        "Proibir o uso de recursos de programas sociais em apostas online."
+      ],
+      "lula": [
+        "\"Manter, aperfeiçoar e ampliar\" as políticas de proteção social; o Bolsa Família aparece no texto como realização do mandato, sem nova regra específica proposta.",
+        "Aprimorar o Pé-de-Meia e ampliar a assistência estudantil (alimentação e moradia) no ensino superior.",
+        "Fortalecer o SUAS e a Política Nacional de Cuidados (Cuidotecas, lavanderias públicas, cozinhas solidárias, restaurantes populares).",
+        "Ampliar o atendimento a idosos: Centros-Dia, vagas públicas em instituições de longa permanência e atenção domiciliar (PADI) em todo o país."
+      ],
+      "paginas": { "flavio": "p. 33, 42–43", "lula": "p. 18–26" }
+    },
+    {
+      "tema": "Saúde",
+      "flavio": [
+        "Prontuário eletrônico único vinculado ao CPF, interoperável entre redes pública e privada, e IA para agendar consultas e exames.",
+        "Correção da tabela SUS, ampliação da Estratégia Saúde da Família e criação de um Programa de Atendimento aos Idosos.",
+        "Contratar exames na rede privada em horários ociosos, ampliar telessaúde e entregar remédios em domicílio a idosos, pessoas com deficiência e doentes crônicos.",
+        "Ampliar exames preventivos, manter a imunização com incentivo à produção nacional de vacinas e modernizar hospitais universitários (Ebserh)."
+      ],
+      "lula": [
+        "Ampliar o Agora Tem Especialistas (terceiro turno, carretas, mutirões e parceria com hospitais privados em troca de créditos ou dívidas) e criar fila única digital por risco clínico.",
+        "Manter o Farmácia Popular 100% gratuito e incluir exames laboratoriais para doenças crônicas.",
+        "Mais Médicos com foco em fixação e formação em medicina de família; prontuário único via Rede Nacional de Dados em Saúde.",
+        "Ampliar vacinação (escolas, dengue, VSR) e a rede pública de tratamento do câncer."
+      ],
+      "paginas": { "flavio": "p. 21, 25–26, 37–39", "lula": "p. 34–40" }
+    },
+    {
+      "tema": "Educação",
+      "flavio": [
+        "Alfabetização pelo método fônico e Programa Acolher (alunos com bom desempenho remunerados para dar reforço).",
+        "Financiamento por resultados, escola \"livre de doutrinação político-partidária\" e ampliação das escolas cívico-militares.",
+        "Voucher-creche e voucher educacional onde faltar vaga pública; apoio à escola em tempo integral e ao ensino técnico com o setor produtivo.",
+        "Ensino superior passa ao Ministério da Ciência e Tecnologia; financiamento estudantil vira empréstimo com pagamento proporcional à renda."
+      ],
+      "lula": [
+        "Meta de 80% das crianças alfabetizadas na idade certa e prioridade à expansão da educação em tempo integral.",
+        "Continuar o Pé-de-Meia, manter o Piso do Magistério e os programas Pé-de-Meia Licenciatura e Bolsa Mais Professores.",
+        "Expandir os institutos federais e abrir novo ciclo de expansão do ensino superior público, concluindo o ITA no Ceará, a Universidade Indígena e a Universidade do Esporte.",
+        "Universalizar internet nas escolas e financiar creches pelo Novo PAC, seguindo as metas do PNE 2026–2036."
+      ],
+      "paginas": { "flavio": "p. 21, 34–37", "lula": "p. 30–34" }
+    },
+    {
+      "tema": "Segurança pública",
+      "flavio": [
+        "Declarar facções (PCC, CV, milícias) organizações \"narcoterroristas\" e criar um Sistema Nacional de Fronteira com Exército, Marinha e Aeronáutica.",
+        "Apoiar a redução da maioridade penal para 16 anos (e punição de maiores de 14 por crimes graves) e o fim da progressão de regime em crimes hediondos.",
+        "Cinco novos presídios federais de segurança máxima e meio milhão de vagas prisionais em 4 anos; castração química para condenados por estupro e abuso de crianças.",
+        "Dobrar o investimento federal em segurança e criar sistema nacional de reconhecimento facial com 1 milhão de câmeras; tornozeleira para agressores com medida protetiva."
+      ],
+      "lula": [
+        "Aprovar a PEC da Segurança Pública e, depois dela, criar o Ministério da Segurança Pública; fortalecer o SUSP e as Forças Integradas de Combate ao Crime Organizado.",
+        "Manter a asfixia financeira do crime organizado, aplicar a Lei Antifacção (2026) e o programa Brasil Contra o Crime Organizado (R$ 10 bilhões do FIIS).",
+        "Manter a política de controle de armas e munições, com rastreabilidade e mais fiscalização sobre CACs e segurança privada.",
+        "Ampliar o sistema penitenciário federal para isolar lideranças, estimular câmeras corporais e policiamento de proximidade, e expandir o Celular Seguro."
+      ],
+      "paginas": { "flavio": "p. 13–16", "lula": "p. 26–30" }
+    },
+    {
+      "tema": "Meio ambiente e agro",
+      "flavio": [
+        "Meta de zerar o desmatamento ilegal até 2029, com fiscalização por IA e satélite focada em grilagem e crime organizado.",
+        "Licenciamento com prazos definidos: se o órgão não decidir no prazo, a licença deve ser concedida; regras estáveis por até 20 anos em grandes projetos.",
+        "Ampliar seguro rural, armazenagem e irrigação; titulação de pequenos produtores e \"segurança jurídica sem relativizações\" do direito de propriedade.",
+        "Pagamento por serviços ambientais e mercado de carbono; eliminar sobreposições entre Ibama, Funai e ICMBio e exigir transparência de financiadores de ONGs."
+      ],
+      "lula": [
+        "Desmatamento líquido zero até 2030, Plano Nacional de Manejo Integrado do Fogo e cumprimento da nova meta climática (NDC).",
+        "Ampliar o Plano Safra (familiar e empresarial), o PAA, o Garantia-Safra e o seguro rural; programa nacional de resiliência climática no campo.",
+        "Continuar reforma agrária, regularização fundiária e titulação de territórios quilombolas.",
+        "Financiamento climático (Fundo Clima, Eco Invest, Fundo Florestas Tropicais para Sempre) e regulamentação do mercado de carbono (SBCE)."
+      ],
+      "paginas": { "flavio": "p. 27–28, 49–50, 53–55, 57–59", "lula": "p. 58–63, 69–73" }
+    },
+    {
+      "tema": "Combustíveis e energia",
+      "flavio": [
+        "Reduzir impostos sobre energia elétrica e combustíveis.",
+        "Simplificar a conta de luz, com redução gradual da CDE e de subsídios cruzados, mantida a tarifa social.",
+        "Programa Nacional de Segurança Energética: refino, escoamento de gás e permissão do gás não convencional (fracking) \"com responsabilidade ambiental\".",
+        "Biocombustíveis (Lei do Combustível do Futuro, RenovaBio ampliado), armazenamento de energia e polo de data centers."
+      ],
+      "lula": [
+        "Continuar atuando para reduzir o repasse da volatilidade internacional aos preços de diesel, gasolina e GLP (política de preços da Petrobras e subvenções).",
+        "Petrobras deve voltar à distribuição de combustíveis, ampliar o refino e investir em exploração; expandir a malha de gás natural.",
+        "Promover debate sobre barateamento da energia elétrica; o texto cita como já feitos o Gás do Povo e a ampliação da tarifa social (Luz do Povo).",
+        "Ampliar renováveis, baterias e biocombustíveis (mistura E32/B15 já adotada) rumo à transição energética."
+      ],
+      "paginas": { "flavio": "p. 31, 52–53", "lula": "p. 63–69" }
+    },
+    {
+      "tema": "Previdência e aposentados",
+      "flavio": [
+        "Reeditar um pacote antifraude na Previdência nos moldes da MP 871/2019.",
+        "Mudar a governança do consignado do INSS, com dupla checagem para impedir descontos não autorizados.",
+        "Digitalizar processos do INSS e profissionalizar a gestão para reduzir a fila.",
+        "O texto não detalha mudanças em idade mínima ou regras de cálculo de aposentadoria."
+      ],
+      "lula": [
+        "Concluir a modernização dos serviços do INSS e reduzir filas; busca retomar o aviso por carta quando o trabalhador cumpre os requisitos.",
+        "Reestruturar a base de financiamento da Previdência, diversificando as fontes de custeio.",
+        "Criar mecanismos contributivos mais flexíveis para trajetórias de trabalho descontínuas e incluir a previdência na regulação do trabalho por plataforma.",
+        "O texto não detalha mudanças em idade mínima ou regras de cálculo de aposentadoria."
+      ],
+      "paginas": { "flavio": "p. 26, 72–73", "lula": "p. 76–77" }
+    },
+    {
+      "tema": "Instituições, STF e democracia",
+      "flavio": [
+        "Fim do foro criminal originário no STF (parlamentares julgados por STJ ou TRFs), limite a decisões monocráticas e revisão do escopo das ADPFs e de quem pode propor ações constitucionais.",
+        "Quarentena de 1 ano para ministros de Estado serem indicados ao STF, impedimento de parentes de magistrados atuarem no mesmo tribunal e limite à atuação \"de natureza legislativa\" do CNJ e do CNMP.",
+        "Fim da reeleição para presidente e reforma política como prioridade.",
+        "\"Tesouraço na Censura\": extinguir estruturas estatais que classifiquem conteúdo como desinformação e revogar atos considerados de censura."
+      ],
+      "lula": [
+        "Reforma política e eleitoral e debate com a sociedade sobre o sistema de emendas parlamentares (R$ 50 bilhões em 2026).",
+        "Avançar na regulação das redes sociais e plataformas digitais contra desinformação e campanhas de ódio.",
+        "Diálogo permanente com o Judiciário, \"respeitada a autonomia dos Poderes\", para aperfeiçoar o sistema de Justiça.",
+        "Ampliar a participação social (conferências, PPA participativo) e criar uma Política Nacional de Letramento Digital e um Conselho Nacional pela Soberania Digital."
+      ],
+      "paginas": { "flavio": "p. 65–67", "lula": "p. 15–18" }
+    },
+    {
+      "tema": "Política externa",
+      "flavio": [
+        "Diplomacia \"profissional e pragmática, não ideológica\"; reverter tensões com Argentina, Estados Unidos e Israel e negociar com China, União Europeia, EUA e Ásia.",
+        "Retomar a adesão à OCDE, com fim gradual do IOF sobre câmbio, e preparar abertura comercial e integração a cadeias globais de valor.",
+        "Apoiar a internacionalização de pequenas e médias empresas via BNDES e Apex-Brasil e fortalecer multinacionais brasileiras.",
+        "Investimentos em defesa com foco em drones e inteligência artificial."
+      ],
+      "lula": [
+        "Política externa \"independente e ativa\", com integração sul-americana e Mercosul como prioridade e um mercado comum sul-americano de energia.",
+        "Aprofundar BRICS, G20, Sul Global e África; defender reformas da ONU (Conselho de Segurança), OMC, FMI e Banco Mundial.",
+        "Prioridades: Aliança Global contra a Fome e a Pobreza, Fundo Florestas Tropicais para Sempre e novos acordos comerciais.",
+        "Fortalecer a Base Industrial de Defesa e a defesa cibernética."
+      ],
+      "paginas": { "flavio": "p. 61–64", "lula": "p. 77–82" }
+    }
+  ],
+  "notas": [
+    "Resumo do site; o texto integral está nos PDFs registrados no TSE.",
+    "As páginas seguem a numeração impressa em cada documento, a mesma usada pelo índice por assunto do TSE.",
+    "Os resumos listam o que cada plano propõe para o próximo mandato; balanços de governo e críticas ao adversário presentes nos textos foram deixados de fora, salvo quando são a própria proposta.",
+    "Quando um plano não trata de um tema, o resumo diz isso de forma explícita."
+  ]
+}
