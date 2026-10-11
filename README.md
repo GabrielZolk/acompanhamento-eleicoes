@@ -81,11 +81,27 @@ Séries históricas de indicadores oficiais (desde jan/2003, quando há série c
 | Selic (meta) | SGS 432 (diária; valor em vigor no fim de cada mês) |
 | Dólar comercial | SGS 3698 (venda, média mensal; nominal) |
 | Dívida bruta do governo geral (% PIB) | SGS 13762; desde dez/2006 |
+| Juros do cartão de crédito rotativo (pessoa física, % a.a.) | SGS 22022; desde mar/2011 |
+| Juros do crédito livre a pessoas físicas (% a.a.) | SGS 20740; desde mar/2011 |
+| Endividamento das famílias (% da renda de 12 meses) | SGS 29037 (com crédito habitacional; sem ele, SGS 29038); desde 2005 |
+| Comprometimento da renda das famílias com dívidas | SGS 29034 (com ajuste sazonal); desde 2005 |
+| Carga tributária bruta do governo geral (% PIB, anual) | Tesouro Nacional — [Estimativa da Carga Tributária Bruta do Governo Geral](https://www.tesourotransparente.gov.br/publicacoes/carga-tributaria-do-governo-geral) (anexo XLSX da edição mais recente, Tabela 1); desde 2010 |
+| Arrecadação federal em 12 meses (R$ bi, corrigida pelo IPCA) | Tesouro Nacional — [Resultado do Tesouro Nacional, série histórica mensal](https://www.tesourotransparente.gov.br/ckan/dataset/resultado-do-tesouro-nacional) (XLSX localizado pela API CKAN): receita administrada pela Receita Federal + arrecadação líquida do RGPS, mês a mês corrigida pelo IPCA (SGS 433) e somada em 12 meses |
+| Resultado primário do setor público consolidado (12 meses, % PIB) | SGS 5793 (NFSP) com o sinal invertido: superávit positivo |
+| Juros nominais do setor público consolidado (12 meses, % PIB) | SGS 5760 |
+| Desmatamento na Amazônia Legal (km², anual) | INPE — PRODES, [TerraBrasilis](https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates) (soma dos nove estados; ano PRODES de agosto a julho, período "AAAA-07") |
+
+Cada indicador do índice tem um `tema` (custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas,
+economia, meio ambiente). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses terminado
+naquele mês (carga tributária: "AAAA-12"; desmatamento: "AAAA-07"). O saldo do Novo Caged ficou de fora: o Ministério
+do Trabalho hoje só publica apresentações em PDF e microdados compactados em 7z, sem tabela legível por máquina.
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
-ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, gás de botijão, energia
-elétrica e gasolina). As planilhas da ANP são lidas sem dependências por `tools/xlsx.mjs` (ZIP + XML).
+ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, alimentação fora do domicílio,
+refeição, lanche, aluguel residencial, condomínio, taxa de água e esgoto, plano de saúde, produtos farmacêuticos,
+acesso à internet, ônibus urbano, gás de botijão, energia elétrica e gasolina). As planilhas da ANP e do Tesouro são
+lidas sem dependências por `tools/xlsx.mjs` (ZIP + XML).
 
 Para regenerar: `npm run build:indicadores`. O workflow `.github/workflows/indicadores.yml` roda todo dia
 (09:30 UTC) e só faz commit quando algum dado muda: a saída não tem carimbo de hora (`atualizadoEm` é o período do
