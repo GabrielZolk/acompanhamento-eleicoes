@@ -29,23 +29,27 @@
     </header>
 
     <main id="conteudo">
-      <div class="modos" id="modos" role="group" aria-label="Período">
-        <button type="button" data-modo="duelo" aria-pressed="true">Bolsonaro × Lula <small>2019–hoje</small></button>
-        <button type="button" data-modo="historico" aria-pressed="false">Todos os mandatos <small>2003–hoje</small></button>
-      </div>
+      <nav class="modos" id="modos" aria-label="Seções">
+        <button type="button" data-modo="duelo" aria-pressed="true">⚖️ Comparação <small>Bolsonaro × Lula</small></button>
+        <button type="button" data-modo="mercado" aria-pressed="false">🛒 Mercado <small>item por item</small></button>
+        <button type="button" data-modo="impostos" aria-pressed="false">🧾 Impostos <small>subiu × caiu</small></button>
+        <button type="button" data-modo="leis" aria-pressed="false">📜 Leis e programas <small>o que cada um fez</small></button>
+        <button type="button" data-modo="historico" aria-pressed="false">📈 Todos os mandatos <small>2003–hoje</small></button>
+      </nav>
 
-      <section id="duelo-sec" aria-labelledby="duelo-titulo">
-        <div class="intro">
-          <h1 id="duelo-titulo" class="intro__titulo">Os dois últimos governos, lado a lado</h1>
-          <div id="placar"></div>
-          <div class="intro__acoes"><div id="seg-pand"></div><a class="ir-mercado" href="#mercado" id="ir-mercado" hidden>🛒 Preços no mercado, item por item ↓</a></div>
-          <p class="intro__txt">Cada cartão compara o mesmo indicador oficial nos dois mandatos, com a mesma regra para os dois, escrita no cartão. O selo mostra em qual governo o número foi melhor. Ele não diz por quê: cada indicador depende de muitos fatores, inclusive internacionais.</p>
-        </div>
-        <div class="duelos" id="duelos" aria-live="polite">
-          <p class="carregando">Carregando indicadores…</p>
-        </div>
-        <div id="mercado-wrap"></div>
+      <section id="cab-duelo" class="intro" aria-labelledby="duelo-titulo">
+        <h1 id="duelo-titulo" class="intro__titulo">Os dois últimos governos, lado a lado</h1>
+        <div id="placar"></div>
+        <div class="intro__acoes"><div id="seg-pand"></div></div>
+        <p class="intro__txt" id="duelo-txt">Cada cartão compara o mesmo indicador oficial nos dois mandatos, com a mesma regra para os dois, escrita no cartão. O selo mostra em qual governo o número foi melhor. Ele não diz por quê: cada indicador depende de muitos fatores, inclusive internacionais.</p>
       </section>
+
+      <section id="duelo-sec" aria-label="Indicadores lado a lado">
+        <div id="duelos" aria-live="polite"><p class="carregando">Carregando indicadores…</p></div>
+      </section>
+      <section id="mercado-sec" aria-label="Preços no mercado" hidden><div id="mercado-wrap"></div></section>
+      <section id="impostos-sec" aria-label="Impostos" hidden><div id="impostos-wrap"></div></section>
+      <section id="leis-sec" aria-label="Leis e programas" hidden><div id="leis-wrap"></div></section>
 
       <section id="grade-sec" aria-labelledby="grade-titulo" hidden>
         <div class="intro">

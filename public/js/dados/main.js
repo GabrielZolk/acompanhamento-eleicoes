@@ -9,7 +9,9 @@ import {
 import { sparkline, graficoCompleto } from './grafico.js';
 import { carregarGeo, htmlMapa } from './mapa.js';
 import { htmlMercado } from './mercado.js';
-import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases } from './comparar.js';
+import { htmlImpostos } from './impostos.js';
+import { htmlLeis } from './leis.js';
+import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
 const BASE = '/data/indicadores/';
 
@@ -18,9 +20,13 @@ const estado = {
   mandatos: [],
   dados: new Map(), // id -> { serie, porUF, atualizadoEm } | null (indisponível)
   mercado: null, // variação mensal dos itens do IPCA (data/indicadores/mercado.json)
+  impostos: null, // medidas que subiram ou baixaram impostos (data/indicadores/impostos.json)
+  leis: null, // leis e programas de cada governo (data/indicadores/leis.json)
+  filtroTx: 'todos',
+  areaLei: '',
   atual: null, // id do indicador aberto
   uf: '',
-  modo: 'duelo', // "duelo" (Bolsonaro × Lula) ou "historico" (todos os mandatos desde 2003)
+  modo: 'duelo', // aba: "duelo", "mercado", "impostos", "leis" ou "historico" (todos os mandatos)
   periodo: 'duelo', // período do gráfico no detalhe: "duelo" (2019–hoje) ou "tudo"
   semPandemia: false, // comparação sem os meses da pandemia (mar/2020–dez/2021)
   contexto: true,
@@ -36,6 +42,21 @@ const gradeSec = $('#grade-sec');
 const dueloSec = $('#duelo-sec');
 const duelos = $('#duelos');
 const modos = $('#modos');
+const cabDuelo = $('#cab-duelo');
+const ABAS = ['duelo', 'mercado', 'impostos', 'leis', 'historico'];
+const SECAO = { duelo: '#duelo-sec', mercado: '#mercado-sec', impostos: '#impostos-sec', leis: '#leis-sec', historico: '#grade-sec' };
+const TITULO = {
+  duelo: 'Os dois últimos governos, lado a lado',
+  mercado: 'Preços no mercado, item por item',
+  impostos: 'Impostos: o que subiu e o que caiu',
+  leis: 'Leis e programas de cada governo',
+};
+const TEXTO = {
+  duelo: 'Cada cartão compara o mesmo indicador oficial nos dois mandatos, com a mesma regra para os dois, escrita no cartão. O selo mostra em qual governo o número foi melhor. Ele não diz por quê: cada indicador depende de muitos fatores, inclusive internacionais.',
+  mercado: 'Quanto cada item subiu em cada governo, pelo IPCA do IBGE. Preço não volta ao nível anterior quando a inflação cai: o que subiu num governo continua no preço durante o seguinte.',
+  impostos: 'Medidas federais que criaram, subiram, baixaram ou zeraram tributos, com a norma e a fonte oficial de cada uma, e a carga de impostos e as contas do governo lado a lado.',
+  leis: 'Principais leis, emendas e programas federais de cada governo, aprovados, lançados ou encerrados, com a norma e a fonte oficial. Inclui o que passou no Congresso contra a vontade do governo.',
+};
 const reduzMov = matchMedia('(prefers-reduced-motion: reduce)');
 
 async function buscarJSON(url) {
@@ -102,24 +123,51 @@ grade.addEventListener('click', (ev) => {
 });
 
 // ------------------------------------------------------------------ comparação Bolsonaro × Lula
-function renderDuelos() {
-  const lista = estado.indice?.indicadores || [];
-  const html = lista.map((i) => {
+function cartoesDuelo(filtro) {
+  return (estado.indice?.indicadores || []).filter(filtro).map((i) => {
     const d = estado.dados.get(i.id);
     return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade, { semPandemia: estado.semPandemia }) : '';
-  }).filter(Boolean);
-  duelos.innerHTML = html.length ? html.join('') : '<p class="vazio">Dados indisponíveis no momento.</p>';
-  duelos.querySelectorAll('.duelo').forEach((c, i) => (c.style.animationDelay = `${i * 0.07}s`));
-  animarNumeros(duelos, (el) => indicador(el.closest('[data-id]')?.dataset.id), reduzMov.matches);
+  }).filter(Boolean).join('');
+}
+
+const indDoEl = (el) => indicador(el.closest('[data-id]')?.dataset.id);
+function prepararCartoes(raiz) {
+  raiz.querySelectorAll('.duelo').forEach((c, i) => (c.style.animationDelay = `${Math.min(i, 8) * 0.07}s`));
+  animarNumeros(raiz, indDoEl, reduzMov.matches);
+}
+
+function renderDuelos() {
+  const grupos = TEMAS.map((tema) => {
+    const html = cartoesDuelo((i) => temaDe(i) === tema);
+    return html ? `<h2 class="tema">${esc(tema[0].toUpperCase() + tema.slice(1))}</h2><div class="duelos">${html}</div>` : '';
+  }).join('');
+  duelos.innerHTML = grupos || '<p class="vazio">Dados indisponíveis no momento.</p>';
+  prepararCartoes(duelos);
+  renderImpostos();
+  renderLeis();
   // Último dado mensal do governo em curso, para o cabeçalho.
   const ref = estado.dados.get('ipca');
   const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
   $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia);
-  const mk = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia });
-  $('#mercado-wrap').innerHTML = mk;
-  $('#ir-mercado').hidden = !mk;
+  $('#mercado-wrap').innerHTML = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia }) || '<p class="vazio">Dados de preços indisponíveis no momento.</p>';
 }
+
+function renderImpostos() {
+  const el = $('#impostos-wrap');
+  el.innerHTML = htmlImpostos(estado.impostos, cartoesDuelo((i) => temaDe(i) === 'impostos e contas públicas'), estado.filtroTx);
+  prepararCartoes(el);
+}
+function renderLeis() {
+  $('#leis-wrap').innerHTML = htmlLeis(estado.leis, estado.areaLei);
+}
+
+document.addEventListener('click', (ev) => {
+  const tx = ev.target.closest('[data-tx]');
+  if (tx) { estado.filtroTx = tx.dataset.tx; renderImpostos(); return; }
+  const ar = ev.target.closest('[data-area]');
+  if (ar) { estado.areaLei = ar.dataset.area; renderLeis(); }
+});
 
 // "Mandato inteiro | Sem a pandemia": mesmo estado na grade e no detalhe.
 document.addEventListener('click', (ev) => {
@@ -139,7 +187,7 @@ document.addEventListener('click', (ev) => {
   renderDuelos();
 });
 
-duelos.addEventListener('click', (ev) => {
+$('#conteudo').addEventListener('click', (ev) => {
   const c = ev.target.closest('button.duelo');
   if (!c) return;
   estado.origem = c.dataset.id;
@@ -148,8 +196,13 @@ duelos.addEventListener('click', (ev) => {
 });
 
 function mostrarModo() {
-  dueloSec.hidden = estado.modo !== 'duelo';
-  gradeSec.hidden = estado.modo !== 'historico';
+  for (const aba of ABAS) $(SECAO[aba]).hidden = aba !== estado.modo;
+  cabDuelo.hidden = estado.modo === 'historico';
+  if (TITULO[estado.modo]) {
+    $('#duelo-titulo').textContent = TITULO[estado.modo];
+    $('#duelo-txt').textContent = TEXTO[estado.modo];
+  }
+  $('#seg-pand').hidden = estado.modo === 'leis';
   modos.querySelectorAll('[data-modo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === estado.modo)));
 }
 
@@ -157,9 +210,10 @@ modos.addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-modo]');
   if (!b || b.dataset.modo === estado.modo) return;
   estado.modo = b.dataset.modo;
-  estado.periodo = estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  estado.periodo = estado.modo === 'historico' ? 'tudo' : 'duelo';
   history.replaceState(history.state, '', urlDe('', ''));
   mostrarModo();
+  b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduzMov.matches ? 'auto' : 'smooth' });
 });
 
 // ------------------------------------------------------------------ detalhe
@@ -317,12 +371,12 @@ function urlDe(id, uf) {
   p.delete('uf');
   p.delete('ver');
   p.delete('p');
-  if (estado.modo === 'historico') p.set('ver', 'historico');
+  if (estado.modo !== 'duelo') p.set('ver', estado.modo);
   if (id) p.set('i', id);
   if (id && uf) p.set('uf', uf);
-  if (id && estado.periodo !== (estado.modo === 'duelo' ? 'duelo' : 'tudo')) p.set('p', estado.periodo);
+  if (id && estado.periodo !== (estado.modo === 'historico' ? 'tudo' : 'duelo')) p.set('p', estado.periodo);
   p.delete('sp');
-  if (estado.semPandemia && estado.modo === 'duelo') p.set('sp', '1');
+  if (estado.semPandemia && estado.modo !== 'historico') p.set('sp', '1');
   const q = p.toString();
   return location.pathname + (q ? '?' + q : '') + location.hash;
 }
@@ -341,8 +395,8 @@ function abrir(id, uf = '', empilhar = false) {
   detalhe.innerHTML = htmlDetalhe(ind);
   detalhe.hidden = false;
   detalhe.classList.toggle('det--sem-ctx', !estado.contexto);
-  gradeSec.hidden = true;
-  dueloSec.hidden = true;
+  for (const aba of ABAS) $(SECAO[aba]).hidden = true;
+  cabDuelo.hidden = true;
   modos.hidden = true;
   detalhe.classList.remove('entra');
   void detalhe.offsetWidth;
@@ -372,7 +426,7 @@ function fechar(voltarHistorico = true) {
   mostrarModo();
   document.title = 'Raio-X do Brasil — Indicadores oficiais por mandato presidencial';
   if (new URLSearchParams(location.search).has('i')) history.replaceState(null, '', urlDe('', ''));
-  const c = estado.origem && (estado.modo === 'duelo' ? duelos : grade).querySelector(`[data-id="${CSS.escape(estado.origem)}"]`);
+  const c = estado.origem && $(SECAO[estado.modo] || '#duelo-sec').querySelector(`[data-id="${CSS.escape(estado.origem)}"]`);
   if (c) c.focus({ preventScroll: false });
 }
 
@@ -494,8 +548,8 @@ async function compartilhar() {
 // ------------------------------------------------------------------ início
 function rotear(inicial) {
   const p = new URLSearchParams(location.search);
-  estado.modo = p.get('ver') === 'historico' ? 'historico' : 'duelo';
-  estado.periodo = ['duelo', 'tudo'].includes(p.get('p')) ? p.get('p') : estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  estado.modo = ABAS.includes(p.get('ver')) ? p.get('ver') : 'duelo';
+  estado.periodo = ['duelo', 'tudo'].includes(p.get('p')) ? p.get('p') : estado.modo === 'historico' ? 'tudo' : 'duelo';
   mostrarModo();
   const id = p.get('i');
   if (id && indicador(id) && estado.dados.get(id)) abrir(id, (p.get('uf') || '').toLowerCase(), false);
@@ -517,11 +571,15 @@ async function iniciar() {
 
   const qs = new URLSearchParams(location.search);
   const idPedido = qs.get('i');
-  const pedidoMercado = buscarJSON(BASE + 'mercado.json').then((j) => (estado.mercado = j?.itens?.length ? j : null));
-  estado.modo = qs.get('ver') === 'historico' ? 'historico' : 'duelo';
+  const pedidoMercado = Promise.all([
+    buscarJSON(BASE + 'mercado.json').then((j) => (estado.mercado = j?.itens?.length ? j : null)),
+    buscarJSON(BASE + 'impostos.json').then((j) => (estado.impostos = j?.medidas?.length ? j : null)),
+    buscarJSON(BASE + 'leis.json').then((j) => (estado.leis = j?.itens?.length ? j : null)),
+  ]);
+  estado.modo = ABAS.includes(qs.get('ver')) ? qs.get('ver') : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
   definirPandemia(indice.contexto || []);
-  estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'historico' ? 'tudo' : 'duelo';
   mostrarModo();
   await Promise.all(
     indice.indicadores.map(async (ind) => {

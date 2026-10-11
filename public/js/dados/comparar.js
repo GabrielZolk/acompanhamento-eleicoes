@@ -32,7 +32,22 @@ export const REGRAS = {
   selic: { melhor: 'menor', criterio: 'media', aviso: 'Juros menores barateiam o crédito. A Selic é definida pelo Banco Central, autônomo desde 2021.' },
   dolar: { melhor: 'menor', criterio: 'media', aviso: 'Dólar mais baixo barateia importados, combustível e viagens.' },
   divida: { melhor: 'menor', criterio: 'variacao', aviso: 'Dívida é estoque: compara-se quanto subiu ou caiu durante o mandato.' },
+  juros_cartao: { melhor: 'menor', criterio: 'media', aviso: 'Juro do rotativo: o que se paga quando a fatura não é quitada inteira.' },
+  juros_pf: { melhor: 'menor', criterio: 'media' },
+  endividamento: { melhor: 'menor', criterio: 'media', aviso: 'Dívidas das famílias com bancos em relação à renda de 12 meses.' },
+  comprometimento: { melhor: 'menor', criterio: 'media', aviso: 'Parte da renda mensal que vai para parcelas e juros de dívidas.' },
+  carga: { melhor: 'menor', criterio: 'media', aviso: 'Menor = menos imposto pago, em proporção do PIB. Impostos também financiam serviços públicos.' },
+  arrecadacao: { melhor: null, criterio: 'media', aviso: 'Sem selo: arrecadar mais pode vir de imposto maior ou de economia aquecida.' },
+  primario: { melhor: 'maior', criterio: 'media', aviso: 'Positivo = superávit (governo gastou menos do que arrecadou, sem contar juros).' },
+  juros_divida: { melhor: 'menor', criterio: 'media', aviso: 'Quanto o setor público pagou de juros sobre a dívida, em proporção do PIB.' },
+  desmatamento: { melhor: 'menor', criterio: 'media', aviso: 'Ano PRODES: agosto de um ano a julho do seguinte.' },
+  caged: { melhor: 'maior', criterio: 'media', aviso: 'Empregos com carteira criados menos os fechados, em 12 meses.' },
 };
+
+// Temas, na ordem em que aparecem na comparação.
+export const TEMAS = ['custo de vida', 'renda e emprego', 'crédito e dívidas', 'impostos e contas públicas', 'economia', 'meio ambiente'];
+const TEMA_PADRAO = { ipca: 'custo de vida', alimentos: 'custo de vida', gasolina: 'custo de vida', botijao: 'custo de vida', desemprego: 'renda e emprego', renda: 'renda e emprego', salario: 'renda e emprego', pib: 'economia', dolar: 'economia', selic: 'crédito e dívidas', divida: 'impostos e contas públicas' };
+export const temaDe = (ind) => ind.tema || TEMA_PADRAO[ind.id] || 'economia';
 const regra = (ind) => REGRAS[ind.id] || { melhor: 'menor', criterio: 'media' };
 
 // Diferença mínima para declarar um governo melhor: 3% do valor (média) ou 1 ponto (variação).
@@ -95,6 +110,7 @@ export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = 
       if (p.v > alto.v) alto = p;
       if (p.v < baixo.v) baixo = p;
     }
+    // Sem sentido definido (melhor: null), "melhor" e "pior" viram máxima e mínima.
     const [melhor, pior] = r.melhor === 'menor' ? [baixo, alto] : [alto, baixo];
     return { m, dentro, ini: dentro[0], fim: dentro[dentro.length - 1], media, valor, cheio, semPand, nPandemia, melhor, pior };
   });
@@ -102,7 +118,7 @@ export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = 
   const [a, b] = lados;
   const dif = r.melhor === 'menor' ? b.valor - a.valor : a.valor - b.valor; // > 0: Bolsonaro melhor
   const limite = r.criterio === 'variacao' ? EMPATE_ABS : EMPATE_REL * Math.max(Math.abs(a.valor), Math.abs(b.valor));
-  const vencedor = Math.abs(dif) < limite ? null : dif > 0 ? 0 : 1;
+  const vencedor = !r.melhor || Math.abs(dif) < limite ? null : dif > 0 ? 0 : 1;
   return { regra: r, lados, vencedor, semPandemia };
 }
 
@@ -118,11 +134,13 @@ const ICONE = {
 
 export const seloSentido = (ind) => {
   const r = regra(ind);
+  if (!r.melhor) return '<span class="sentido sentido--neutro">Sem melhor ou pior</span>';
   return `<span class="sentido sentido--${r.melhor}">${ICONE[r.melhor]}Quanto ${r.melhor}, melhor</span>`;
 };
 export const seloPandemia = (txt = 'Pandemia') => `<span class="pand">${ICONE.virus}${esc(txt)}</span>`;
 
 function seloVencedor(cmp) {
+  if (!cmp.regra.melhor) return '<span class="selo selo--igual">Sem selo neste indicador</span>';
   if (cmp.vencedor == null) return `<span class="selo selo--igual">${ICONE.igual}Praticamente igual</span>`;
   const m = cmp.lados[cmp.vencedor].m;
   return `<span class="selo" style="--c:${m.cor}">${ICONE.trofeu}Melhor no governo ${esc(m.curtoGov)}</span>`;
@@ -156,8 +174,8 @@ function htmlLado(l, i, cmp, ind, periodicidade) {
       ${alt}
       <div class="lado__ext">${esc(fmtValor(l.ini.v, ind))} <span aria-hidden="true">→</span> ${esc(fmtValor(l.fim.v, ind))}<small>${esc(rotuloPeriodo(l.ini.periodo, periodicidade))} a ${esc(rotuloPeriodo(l.fim.periodo, periodicidade))}</small></div>
       <div class="lado__ext2">
-        <span class="ext ext--bom" title="Melhor marca do governo">${ICONE.bom}<b>${esc(fmtValor(l.melhor.v, ind))}</b> ${esc(rotuloPeriodo(l.melhor.periodo, periodicidade))}</span>
-        <span class="ext ext--ruim" title="Pior marca do governo">${ICONE.ruim}<b>${esc(fmtValor(l.pior.v, ind))}</b> ${esc(rotuloPeriodo(l.pior.periodo, periodicidade))}</span>
+        <span class="ext ext--bom" title="Melhor marca do governo">${cmp.regra.melhor ? ICONE.bom : '<span class="ext__rot">máxima</span>'}<b>${esc(fmtValor(l.melhor.v, ind))}</b> ${esc(rotuloPeriodo(l.melhor.periodo, periodicidade))}</span>
+        <span class="ext ext--ruim" title="Pior marca do governo">${cmp.regra.melhor ? ICONE.ruim : '<span class="ext__rot">mínima</span>'}<b>${esc(fmtValor(l.pior.v, ind))}</b> ${esc(rotuloPeriodo(l.pior.periodo, periodicidade))}</span>
       </div>
     </div>`;
 }
@@ -202,7 +220,7 @@ export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true, 
   if (!cmp) return '';
   const r = cmp.regra;
   const venc = cmp.vencedor == null ? null : cmp.lados[cmp.vencedor].m;
-  const resumo = `${ind.titulo}${semPandemia ? ', sem os meses da pandemia' : ''}: ${cmp.lados.map((l) => `${l.m.curtoGov} ${fmtCrit(l.valor, ind, r)}`).join(', ')}. Quanto ${r.melhor}, melhor. ${venc ? `Melhor no governo ${venc.curtoGov}.` : 'Praticamente igual.'}`;
+  const resumo = `${ind.titulo}${semPandemia ? ', sem os meses da pandemia' : ''}: ${cmp.lados.map((l) => `${l.m.curtoGov} ${fmtCrit(l.valor, ind, r)}`).join(', ')}. ${r.melhor ? `Quanto ${r.melhor}, melhor.` : ''} ${venc ? `Melhor no governo ${venc.curtoGov}.` : 'Praticamente igual.'}`;
   const tag = compacto ? 'button' : 'div';
   return `<${tag} ${compacto ? 'type="button" ' : ''}class="duelo${compacto ? '' : ' duelo--det'}" data-id="${esc(ind.id)}"${venc ? ` style="--v:${venc.cor}"` : ''}${compacto ? ` aria-label="${esc(resumo)} Abrir detalhes"` : ''}>
       <div class="duelo__topo">
