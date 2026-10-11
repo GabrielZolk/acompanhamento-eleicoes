@@ -1,0 +1,152 @@
+{
+  "atualizadoEm": "2026-10-11",
+  "fonte": "Receita Federal — tabelas de incidência mensal do IRPF (gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas)",
+  "dependente": 189.59,
+  "tabelas": [
+    {
+      "inicio": "2015-01-01",
+      "fim": "2015-03-31",
+      "norma": "Lei 12.469/2011",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12469.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2015",
+      "dependente": 179.71,
+      "faixas": [
+        { "ate": 1787.77, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2679.29, "aliquota": 7.5, "deduzir": 134.08 },
+        { "ate": 3572.43, "aliquota": 15, "deduzir": 335.03 },
+        { "ate": 4463.81, "aliquota": 22.5, "deduzir": 602.96 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 826.15 }
+      ],
+      "descontoSimplificado": null,
+      "redutor": null
+    },
+    {
+      "inicio": "2015-04-01",
+      "fim": "2023-04-30",
+      "norma": "Lei 13.149/2015 (conversão da MP 670/2015)",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13149.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2016",
+      "dependente": 189.59,
+      "faixas": [
+        { "ate": 1903.98, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2826.65, "aliquota": 7.5, "deduzir": 142.80 },
+        { "ate": 3751.05, "aliquota": 15, "deduzir": 354.80 },
+        { "ate": 4664.68, "aliquota": 22.5, "deduzir": 636.13 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 869.36 }
+      ],
+      "descontoSimplificado": null,
+      "redutor": null
+    },
+    {
+      "inicio": "2023-05-01",
+      "fim": "2024-01-31",
+      "norma": "MP 1.171/2023, convertida na Lei 14.663/2023",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14663.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2023",
+      "dependente": 189.59,
+      "faixas": [
+        { "ate": 2112.00, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2826.65, "aliquota": 7.5, "deduzir": 158.40 },
+        { "ate": 3751.05, "aliquota": 15, "deduzir": 370.40 },
+        { "ate": 4664.68, "aliquota": 22.5, "deduzir": 651.73 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 884.96 }
+      ],
+      "descontoSimplificado": 528.00,
+      "redutor": null
+    },
+    {
+      "inicio": "2024-02-01",
+      "fim": "2025-04-30",
+      "norma": "MP 1.206/2024, convertida na Lei 14.848/2024",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/Lei/L14848.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/copy_of_2024",
+      "dependente": 189.59,
+      "faixas": [
+        { "ate": 2259.20, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2826.65, "aliquota": 7.5, "deduzir": 169.44 },
+        { "ate": 3751.05, "aliquota": 15, "deduzir": 381.44 },
+        { "ate": 4664.68, "aliquota": 22.5, "deduzir": 662.77 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 896.00 }
+      ],
+      "descontoSimplificado": 564.80,
+      "redutor": null
+    },
+    {
+      "inicio": "2025-05-01",
+      "fim": "2025-12-31",
+      "norma": "MP 1.294/2025, convertida na Lei 15.191/2025",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_Ato2023-2026/2025/Lei/L15191.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2025",
+      "dependente": 189.59,
+      "faixas": [
+        { "ate": 2428.80, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2826.65, "aliquota": 7.5, "deduzir": 182.16 },
+        { "ate": 3751.05, "aliquota": 15, "deduzir": 394.16 },
+        { "ate": 4664.68, "aliquota": 22.5, "deduzir": 675.49 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 908.73 }
+      ],
+      "descontoSimplificado": 607.20,
+      "redutor": null
+    },
+    {
+      "inicio": "2026-01-01",
+      "fim": null,
+      "norma": "Tabela: Lei 15.191/2025; redução: Lei 15.270/2025 (art. 3º-A da Lei 9.250/1995)",
+      "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15270.htm",
+      "fonteUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/2026",
+      "dependente": 189.59,
+      "faixas": [
+        { "ate": 2428.80, "aliquota": 0, "deduzir": 0 },
+        { "ate": 2826.65, "aliquota": 7.5, "deduzir": 182.16 },
+        { "ate": 3751.05, "aliquota": 15, "deduzir": 394.16 },
+        { "ate": 4664.68, "aliquota": 22.5, "deduzir": 675.49 },
+        { "ate": null, "aliquota": 27.5, "deduzir": 908.73 }
+      ],
+      "descontoSimplificado": 607.20,
+      "redutor": {
+        "isentoAte": 5000.00,
+        "reducaoMaxima": 312.89,
+        "ate": 7350.00,
+        "a": 978.62,
+        "b": 0.133145,
+        "baseDaReducao": "rendimentos tributáveis sujeitos à incidência mensal (rendimento bruto, antes das deduções ou do desconto simplificado)",
+        "formula": "Até R$ 5.000,00: redução de até R$ 312,89 (de modo que o imposto devido seja zero). De R$ 5.000,01 até R$ 7.350,00: R$ 978,62 − (0,133145 × rendimentos tributáveis sujeitos à incidência mensal) (de modo que a redução do imposto seja decrescente linearmente até zerar para rendimentos a partir de R$ 7.350,00). § 1º O valor da redução fica limitado ao valor do imposto determinado de acordo com a tabela progressiva mensal.",
+        "fonteUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15270.htm"
+      },
+      "exemplosUrl": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tabelas/exemplos-de-aplicacao-da-lei-15-270-2025",
+      "exemplos": [
+        { "renda": 3036.00, "deducoes": "desconto simplificado", "base": 2428.80, "impostoTabela": 0, "reducao": 0, "imposto": 0 },
+        { "renda": 4000.00, "deducoes": "desconto simplificado", "base": 3392.80, "impostoTabela": 114.76, "reducao": 114.76, "imposto": 0 },
+        { "renda": 5000.00, "deducoes": "desconto simplificado", "base": 4392.80, "impostoTabela": 312.89, "reducao": 312.89, "imposto": 0 },
+        { "renda": 6000.00, "deducoes": 649.60, "base": 5350.40, "impostoTabela": 562.63, "reducao": 179.75, "imposto": 382.88 },
+        { "renda": 7607.20, "deducoes": "desconto simplificado", "base": 7000.00, "impostoTabela": 1016.27, "reducao": 0, "imposto": 1016.27 }
+      ]
+    }
+  ],
+  "salarioMinimo": [
+    { "inicio": "2015-01-01", "valor": 788.00, "norma": "Decreto 8.381/2014" },
+    { "inicio": "2016-01-01", "valor": 880.00, "norma": "Decreto 8.618/2015" },
+    { "inicio": "2017-01-01", "valor": 937.00, "norma": "Decreto 8.948/2016 (regra da Lei 13.152/2015)" },
+    { "inicio": "2018-01-01", "valor": 954.00, "norma": "Decreto 9.255/2017" },
+    { "inicio": "2019-01-01", "valor": 998.00, "norma": "Decreto 9.661/2019" },
+    { "inicio": "2020-01-01", "valor": 1039.00, "norma": "MP 916/2019 (Lei 14.013/2020)" },
+    { "inicio": "2020-02-01", "valor": 1045.00, "norma": "MP 919/2020 (Lei 14.013/2020)" },
+    { "inicio": "2021-01-01", "valor": 1100.00, "norma": "MP 1.021/2020 (Lei 14.158/2021)" },
+    { "inicio": "2022-01-01", "valor": 1212.00, "norma": "MP 1.091/2021 (Lei 14.358/2022)" },
+    { "inicio": "2023-01-01", "valor": 1302.00, "norma": "MP 1.143/2022" },
+    { "inicio": "2023-05-01", "valor": 1320.00, "norma": "MP 1.172/2023 (Lei 14.663/2023)" },
+    { "inicio": "2024-01-01", "valor": 1412.00, "norma": "Decreto 11.864/2023" },
+    { "inicio": "2025-01-01", "valor": 1518.00, "norma": "Decreto 12.342/2024" },
+    { "inicio": "2026-01-01", "valor": 1621.00, "norma": "Decreto 12.797/2025", "normaUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/decreto/d12797.htm" }
+  ],
+  "notas": [
+    "Cálculo mensal: base = rendimento tributável − maior valor entre as deduções legais (INSS, dependentes × valor por dependente, pensão alimentícia etc.) e o desconto simplificado; imposto = base × alíquota − parcela a deduzir da faixa (nunca negativo).",
+    "O desconto simplificado mensal (desde maio/2023) equivale a 25% do limite da faixa isenta e substitui todas as deduções legais; a fonte pagadora usa a opção mais vantajosa ao contribuinte.",
+    "A partir de jan/2026 aplica-se a redução do art. 3º-A da Lei 9.250/1995 (incluído pela Lei 15.270/2025) sobre o imposto calculado pela tabela. A faixa da redução é definida pelo rendimento tributável bruto (não pela base de cálculo), e a redução fica limitada ao imposto apurado (imposto final ≥ 0). A tabela progressiva de 2026 é a mesma de maio/2025.",
+    "Exemplos oficiais da Receita: no exemplo de R$ 3.036,00 o texto informa base de 'R$ 2.428,00', mas 3.036,00 − 607,20 = 2.428,80; registrado aqui o valor aritmético (o imposto é zero nos dois casos).",
+    "A página da Receita para 2016 descreve a tabela como vigente 'de 2016 a abril de 2022'; a página de 2023 confirma que a mesma tabela (Lei 13.149/2015) vigorou até abril de 2023, sem alteração entre 2016 e 2022.",
+    "A tabela da Lei 13.149/2015 vale a partir de abril de 2015; de janeiro a março de 2015 vigorou a tabela da Lei 12.469/2011 (dependente R$ 179,71).",
+    "Dedução mensal por dependente: R$ 189,59 desde abril/2015, sem alteração até 2026.",
+    "Mudanças de tabela por medida provisória: maio/2023 (MP 1.171/2023, convertida na Lei 14.663/2023), fevereiro/2024 (MP 1.206/2024, convertida na Lei 14.848/2024) e maio/2025 (MP 1.294/2025, convertida na Lei 15.191/2025)."
+  ]
+}
