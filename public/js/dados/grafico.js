@@ -82,6 +82,7 @@ export function graficoCompleto(el, { pts, mandatos, contexto, ind, periodicidad
 
   let svg = `<svg class="graf__svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(resumoAria(pts, ind, periodicidade, nomeSerie))}">
     <defs><pattern id="hach-${id}" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" class="hachura"/></pattern>
+    <pattern id="hachp-${id}" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" class="hachura hachura--pand"/></pattern>
     <linearGradient id="area-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d86ff" stop-opacity=".22"/><stop offset="1" stop-color="#6d86ff" stop-opacity="0"/></linearGradient></defs>`;
 
   // Faixas por mandato, com o nome curto no alto. Todo mandato recebe rótulo: se algum não
@@ -121,19 +122,29 @@ export function graficoCompleto(el, { pts, mandatos, contexto, ind, periodicidad
   }
 
   // Períodos de contexto (crises, pandemia): hachurados, com rótulo na base.
+  // A pandemia fica sempre à vista (âmbar, com selo no alto); os demais períodos seguem o "Mostrar contexto".
+  let pandemia = '';
   svg += `<g class="ctx">`;
   for (const c of contexto || []) {
     const a = Math.max(dataParaT(c.inicio), t0);
     const b = Math.min(c.fim ? dataFimParaT(c.fim) : t1, t1);
     if (b <= a) continue;
     const xa = x(a), xb = x(b);
+    if (/pandemia/i.test(c.rotulo)) {
+      const w = 92, cx = Math.max(xa + w / 2, Math.min(xb - w / 2, (xa + xb) / 2));
+      pandemia += `<g class="pand-graf"><rect class="pand-graf__area" x="${xa.toFixed(1)}" y="${yTopo}" width="${(xb - xa).toFixed(1)}" height="${yBase - yTopo}" fill="url(#hachp-${id})"><title>${esc(c.rotulo)}</title></rect>` +
+        `<line class="pand-graf__borda" x1="${xa.toFixed(1)}" x2="${xa.toFixed(1)}" y1="${yTopo}" y2="${yBase}"/><line class="pand-graf__borda" x1="${xb.toFixed(1)}" x2="${xb.toFixed(1)}" y1="${yTopo}" y2="${yBase}"/>` +
+        (xb - xa >= 40 ? `<rect class="pand-graf__selo" x="${(cx - w / 2).toFixed(1)}" y="${yTopo + 6}" width="${w}" height="20" rx="10"/><text class="pand-graf__txt" x="${cx.toFixed(1)}" y="${yTopo + 20}" text-anchor="middle">PANDEMIA</text>` : '') +
+        `</g>`;
+      continue;
+    }
     svg += `<rect class="ctx__area" x="${xa.toFixed(1)}" y="${yTopo}" width="${(xb - xa).toFixed(1)}" height="${yBase - yTopo}" fill="url(#hach-${id})"><title>${esc(c.rotulo)}</title></rect>`;
     // Rótulo só quando cabe; a lista completa fica abaixo do gráfico.
     if (c.rotulo.length * 5.6 + 8 <= xb - xa) {
       svg += `<text class="ctx__rot" x="${((xa + xb) / 2).toFixed(1)}" y="${yBase - 8}" text-anchor="middle">${esc(c.rotulo)}</text>`;
     }
   }
-  svg += `</g>`;
+  svg += `</g>${pandemia}`;
 
   // Linha e área.
   const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(p.v).toFixed(1)}`).join('');

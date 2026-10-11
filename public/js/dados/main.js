@@ -8,7 +8,7 @@ import {
 } from './serie.js';
 import { sparkline, graficoCompleto } from './grafico.js';
 import { carregarGeo, htmlMapa } from './mapa.js';
-import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros } from './comparar.js';
+import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases } from './comparar.js';
 
 const BASE = '/data/indicadores/';
 
@@ -20,6 +20,7 @@ const estado = {
   uf: '',
   modo: 'duelo', // "duelo" (Bolsonaro × Lula) ou "historico" (todos os mandatos desde 2003)
   periodo: 'duelo', // período do gráfico no detalhe: "duelo" (2019–hoje) ou "tudo"
+  semPandemia: false, // comparação sem os meses da pandemia (mar/2020–dez/2021)
   contexto: true,
   grafico: null,
   observador: null,
@@ -103,7 +104,7 @@ function renderDuelos() {
   const lista = estado.indice?.indicadores || [];
   const html = lista.map((i) => {
     const d = estado.dados.get(i.id);
-    return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade) : '';
+    return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade, { semPandemia: estado.semPandemia }) : '';
   }).filter(Boolean);
   duelos.innerHTML = html.length ? html.join('') : '<p class="vazio">Dados indisponíveis no momento.</p>';
   duelos.querySelectorAll('.duelo').forEach((c, i) => (c.style.animationDelay = `${i * 0.07}s`));
@@ -112,7 +113,26 @@ function renderDuelos() {
   const ref = estado.dados.get('ipca');
   const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
+  $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia);
 }
+
+// "Mandato inteiro | Sem a pandemia": mesmo estado na grade e no detalhe.
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-pand]');
+  if (!b) return;
+  const sem = b.dataset.pand === '1';
+  if (sem === estado.semPandemia) return;
+  estado.semPandemia = sem;
+  history.replaceState(history.state, '', urlDe(estado.atual || '', estado.uf));
+  if (estado.atual) {
+    const ind = indicador(estado.atual);
+    const { pts, periodicidade } = serieAtual(ind);
+    $('#det-seg-pand').innerHTML = htmlSegPandemia(sem);
+    $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: sem });
+    animarNumeros($('#det-duelo'), ind, reduzMov.matches);
+  }
+  renderDuelos();
+});
 
 duelos.addEventListener('click', (ev) => {
   const c = ev.target.closest('button.duelo');
@@ -208,7 +228,8 @@ function htmlDetalhe(ind) {
     ? `<option value="">Brasil</option>` + UFS.filter((u) => d.porUF[u.uf]).map((u) => `<option value="${u.uf}"${u.uf === estado.uf ? ' selected' : ''}>${esc(u.nome)}</option>`).join('')
     : '';
   const atualizado = d?.atualizadoEm ? rotuloPeriodo(d.atualizadoEm, 'mensal') : '';
-  const duelo = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false });
+  const duelo = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia });
+  const fases = htmlFases(ind, pts, estado.mandatos, periodicidade);
 
   return `<div class="det__barra">
       <button type="button" class="btn btn--voltar" data-acao="fechar"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2M6 3 2 7l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Todos os indicadores</button>
@@ -224,7 +245,9 @@ function htmlDetalhe(ind) {
         <div class="ind__per">${esc(nome)} · ${esc(rotuloPeriodo(ult.periodo, periodicidade))}</div>
       </div>` : ''}
     </div>
+    <div id="det-seg-pand">${htmlSegPandemia(estado.semPandemia)}</div>
     <div id="det-duelo">${duelo}</div>
+    <div id="det-fases">${fases}</div>
     <div class="det__ctrl">
       <div class="seg" role="group" aria-label="Período do gráfico">
         <button type="button" data-periodo="duelo" aria-pressed="${estado.periodo === 'duelo'}">2019–hoje</button>
@@ -293,6 +316,8 @@ function urlDe(id, uf) {
   if (id) p.set('i', id);
   if (id && uf) p.set('uf', uf);
   if (id && estado.periodo !== (estado.modo === 'duelo' ? 'duelo' : 'tudo')) p.set('p', estado.periodo);
+  p.delete('sp');
+  if (estado.semPandemia && estado.modo === 'duelo') p.set('sp', '1');
   const q = p.toString();
   return location.pathname + (q ? '?' + q : '') + location.hash;
 }
@@ -363,8 +388,10 @@ function trocarUF(uf) {
   }
   $('#tab-titulo').textContent = `Por mandato${estado.uf ? ` — ${nome}` : ''}`;
   $('#tabela').innerHTML = htmlTabela(ind, pts, periodicidade);
-  $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false });
+  $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia });
+  $('#det-fases').innerHTML = htmlFases(ind, pts, estado.mandatos, periodicidade);
   animarNumeros($('#det-duelo'), ind, reduzMov.matches);
+  animarNumeros($('#det-fases'), ind, reduzMov.matches);
   desenharGrafico(true);
   desenharMapa();
 }
@@ -486,6 +513,8 @@ async function iniciar() {
   const qs = new URLSearchParams(location.search);
   const idPedido = qs.get('i');
   estado.modo = qs.get('ver') === 'historico' ? 'historico' : 'duelo';
+  estado.semPandemia = qs.get('sp') === '1';
+  definirPandemia(indice.contexto || []);
   estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'duelo' ? 'duelo' : 'tudo';
   mostrarModo();
   await Promise.all(

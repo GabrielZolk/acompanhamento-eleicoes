@@ -1,9 +1,14 @@
 // Comparação direta entre os dois últimos governos (Bolsonaro 2019–2022 × Lula 2023–hoje):
 // cartões lado a lado, com o sentido de cada indicador ("quanto menor, melhor") e o selo de
 // qual governo teve o melhor resultado. A regra de cada indicador é fixa e aparece no cartão.
+//
+// Pandemia: o governo Bolsonaro teve 22 meses de pandemia (mar/2020–dez/2021). O modo "sem a
+// pandemia" tira esses meses da conta (dos dois governos; só o de Bolsonaro tem meses nela) e o
+// detalhe mostra o governo Bolsonaro por fase: antes, durante e depois. Não há projeção do que
+// "teria acontecido": a tendência de 2019 levada adiante dá valores sem sentido (Selic negativa).
 import { esc } from '../format.js';
 import { CORES_PARTIDO } from '../colors.js';
-import { fmtValor, fmtVariacao, rotuloPeriodo, mandatoDoPonto } from './serie.js';
+import { fmtValor, fmtVariacao, rotuloPeriodo, mandatoDoPonto, dataParaT, dataFimParaT } from './serie.js';
 
 // Os dois governos comparados (ids de indice.json → mandatos), com as cores dos partidos no painel.
 export const DUELO = [
@@ -16,10 +21,10 @@ export const DUELO = [
 // estoque, como a dívida, em que o nível médio esconde se ela subiu ou caiu).
 // aviso: ressalva curta que aparece no cartão.
 export const REGRAS = {
-  ipca: { melhor: 'menor', criterio: 'media' },
+  ipca: { melhor: 'menor', criterio: 'media', aviso: 'A inflação de 2021–22 subiu no mundo todo (pós-pandemia e guerra na Ucrânia).' },
   desemprego: { melhor: 'menor', criterio: 'media' },
   renda: { melhor: 'maior', criterio: 'media' },
-  pib: { melhor: 'maior', criterio: 'media', aviso: 'Bolsonaro inclui 2020, ano da pandemia.' },
+  pib: { melhor: 'maior', criterio: 'media' },
   salario: { melhor: 'maior', criterio: 'media' },
   selic: { melhor: 'menor', criterio: 'media', aviso: 'Juros menores barateiam o crédito. A Selic é definida pelo Banco Central, autônomo desde 2021.' },
   dolar: { melhor: 'menor', criterio: 'media', aviso: 'Dólar mais baixo barateia importados, combustível e viagens.' },
@@ -30,6 +35,18 @@ const regra = (ind) => REGRAS[ind.id] || { melhor: 'menor', criterio: 'media' };
 // Diferença mínima para declarar um governo melhor: 3% do valor (média) ou 1 ponto (variação).
 const EMPATE_REL = 0.03, EMPATE_ABS = 1;
 
+// Período da pandemia (vem do "contexto" de indice.json; este é o valor padrão).
+const PANDEMIA = { inicio: '2020-03-01', fim: '2021-12-31', t0: 0, t1: 0 };
+export function definirPandemia(contexto = []) {
+  const c = contexto.find((x) => /pandemia/i.test(x.rotulo || ''));
+  if (c?.inicio && c?.fim) Object.assign(PANDEMIA, { inicio: c.inicio, fim: c.fim });
+  PANDEMIA.t0 = dataParaT(PANDEMIA.inicio);
+  PANDEMIA.t1 = dataFimParaT(PANDEMIA.fim);
+}
+definirPandemia();
+export const naPandemia = (p) => p.t >= PANDEMIA.t0 && p.t < PANDEMIA.t1;
+export const rotuloPandemia = () => `${rotuloPeriodo(PANDEMIA.inicio.slice(0, 7), 'mensal')} a ${rotuloPeriodo(PANDEMIA.fim.slice(0, 7), 'mensal')}`;
+
 export function mandatosDuelo(mandatos) {
   return DUELO.map((g) => {
     const m = mandatos.find((x) => x.id === g.id);
@@ -37,25 +54,46 @@ export function mandatosDuelo(mandatos) {
   }).filter(Boolean);
 }
 
-// Valor de cada governo segundo o critério do indicador e o vencedor (índice 0/1 ou null = empate).
-export function compararIndicador(ind, pts, mandatos) {
+// Valor de um conjunto de pontos pelo critério. Na variação, pontos não contíguos (a pandemia
+// retirada no meio) somam a variação de cada trecho: o que subiu ou caiu fora da pandemia.
+function valorDe(ps, todos, criterio) {
+  if (!ps.length) return null;
+  if (criterio !== 'variacao') return ps.reduce((s, p) => s + p.v, 0) / ps.length;
+  let soma = 0, ini = ps[0];
+  for (let k = 1; k <= ps.length; k++) {
+    const quebra = k === ps.length || todos.indexOf(ps[k]) !== todos.indexOf(ps[k - 1]) + 1;
+    if (quebra) {
+      soma += ps[k - 1].v - ini.v;
+      ini = ps[k];
+    }
+  }
+  return soma;
+}
+
+// Valor de cada governo segundo o critério e o vencedor (índice 0/1 ou null = empate).
+// semPandemia: tira da conta os meses da pandemia.
+export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = {}) {
   const gov = mandatosDuelo(mandatos);
   if (gov.length < 2) return null;
   const r = regra(ind);
   const lados = gov.map((m) => {
     const dentro = pts.filter((p) => mandatoDoPonto(p, mandatos)?.id === m.id);
     if (!dentro.length) return null;
-    const ini = dentro[0], fim = dentro[dentro.length - 1];
-    const media = dentro.reduce((s, p) => s + p.v, 0) / dentro.length;
-    const valor = r.criterio === 'variacao' ? fim.v - ini.v : media;
-    return { m, dentro, ini, fim, media, valor };
+    const fora = dentro.filter((p) => !naPandemia(p));
+    const nPandemia = dentro.length - fora.length;
+    const cheio = valorDe(dentro, pts, r.criterio);
+    const semPand = valorDe(fora, pts, r.criterio);
+    const valor = semPandemia && semPand != null ? semPand : cheio;
+    const usados = semPandemia ? fora : dentro;
+    const media = usados.reduce((s, p) => s + p.v, 0) / usados.length;
+    return { m, dentro, ini: dentro[0], fim: dentro[dentro.length - 1], media, valor, cheio, semPand, nPandemia };
   });
   if (lados.some((l) => !l)) return null;
   const [a, b] = lados;
   const dif = r.melhor === 'menor' ? b.valor - a.valor : a.valor - b.valor; // > 0: Bolsonaro melhor
   const limite = r.criterio === 'variacao' ? EMPATE_ABS : EMPATE_REL * Math.max(Math.abs(a.valor), Math.abs(b.valor));
   const vencedor = Math.abs(dif) < limite ? null : dif > 0 ? 0 : 1;
-  return { regra: r, lados, vencedor };
+  return { regra: r, lados, vencedor, semPandemia };
 }
 
 const ICONE = {
@@ -63,12 +101,14 @@ const ICONE = {
   maior: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   trofeu: '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" fill="currentColor"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3M8.5 20h7M10 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   igual: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5h8M3 9h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  virus: '<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.5" fill="currentColor"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M5.3 18.7l2.8-2.8M15.9 8.1l2.8-2.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
 };
 
 export const seloSentido = (ind) => {
   const r = regra(ind);
   return `<span class="sentido sentido--${r.melhor}">${ICONE[r.melhor]}Quanto ${r.melhor}, melhor</span>`;
 };
+export const seloPandemia = (txt = 'Pandemia') => `<span class="pand">${ICONE.virus}${esc(txt)}</span>`;
 
 function seloVencedor(cmp) {
   if (cmp.vencedor == null) return `<span class="selo selo--igual">${ICONE.igual}Praticamente igual</span>`;
@@ -76,31 +116,39 @@ function seloVencedor(cmp) {
   return `<span class="selo" style="--c:${m.cor}">${ICONE.trofeu}Melhor no governo ${esc(m.curtoGov)}</span>`;
 }
 
-// Número que conta até o valor quando o cartão aparece (ver animarNumeros).
+// Número que conta até o valor quando aparece (ver animarNumeros).
 function numero(v, ind, sinal) {
   const txt = sinal ? fmtVariacao(0, v, ind) : fmtValor(v, ind);
   return `<span class="conta" data-v="${v}"${sinal ? ' data-sinal="1"' : ''}>${esc(txt)}</span>`;
 }
+const fmtCrit = (v, ind, r) => (r.criterio === 'variacao' ? fmtVariacao(0, v, ind) : fmtValor(v, ind));
 
-function anos(m, lado) {
+function anos(m) {
   const a = m.inicio.slice(0, 4);
   return m.fim ? `${a}–${m.fim.slice(0, 4)}` : `${a}–hoje`;
 }
 
 function htmlLado(l, i, cmp, ind, periodicidade) {
-  const variacao = cmp.regra.criterio === 'variacao';
+  const r = cmp.regra;
   const vence = cmp.vencedor === i;
-  const rot = variacao ? 'variação no mandato' : 'média no mandato';
+  const base = r.criterio === 'variacao' ? 'variação' : 'média';
+  const rot = l.nPandemia && cmp.semPandemia ? `${base} sem a pandemia` : `${base} no mandato`;
+  // O outro modo, sempre à vista: quem olha o mandato inteiro vê também o número sem a pandemia.
+  const alt = l.nPandemia && l.semPand != null
+    ? `<div class="lado__alt">${seloPandemia(cmp.semPandemia ? `com a pandemia: ${fmtCrit(l.cheio, ind, r)}` : `sem a pandemia: ${fmtCrit(l.semPand, ind, r)}`)}</div>`
+    : '';
   return `<div class="lado${vence ? ' lado--vence' : ''}" style="--c:${l.m.cor}">
       <div class="lado__nome"><i></i>${esc(l.m.curtoGov)} <small>${anos(l.m)}</small></div>
-      <div class="lado__valor">${numero(l.valor, ind, variacao)}</div>
+      <div class="lado__valor">${numero(l.valor, ind, r.criterio === 'variacao')}</div>
       <div class="lado__rot">${rot}</div>
+      ${alt}
       <div class="lado__ext">${esc(fmtValor(l.ini.v, ind))} <span aria-hidden="true">→</span> ${esc(fmtValor(l.fim.v, ind))}<small>${esc(rotuloPeriodo(l.ini.periodo, periodicidade))} a ${esc(rotuloPeriodo(l.fim.periodo, periodicidade))}</small></div>
     </div>`;
 }
 
-// Minigráfico dos dois mandatos na mesma escala, cada um na cor do seu governo, com a média tracejada.
-function graficoDuelo(cmp, ind) {
+// Minigráfico dos dois mandatos na mesma escala, cada um na cor do seu governo, com a média
+// tracejada e a faixa da pandemia (HTML por cima: o SVG é esticado e deformaria o texto).
+function graficoDuelo(cmp) {
   const W = 320, H = 86, pt = 8, pb = 6;
   const todos = cmp.lados.flatMap((l) => l.dentro);
   const t0 = todos[0].ini, t1 = todos[todos.length - 1].fim;
@@ -124,16 +172,21 @@ function graficoDuelo(cmp, ind) {
     }
     svg += `<path class="duelo__linha" style="--d:${0.15 + i * 0.55}s" d="${d}" stroke="${l.m.cor}" pathLength="1" vector-effect="non-scaling-stroke"/>`;
   });
-  return svg + '</svg>';
+  svg += '</svg>';
+  const pa = Math.max(PANDEMIA.t0, t0), pb2 = Math.min(PANDEMIA.t1, t1);
+  const faixa = pb2 > pa
+    ? `<div class="duelo__pand${cmp.semPandemia ? ' duelo__pand--fora' : ''}" style="left:${((x(pa) / W) * 100).toFixed(2)}%;width:${(((x(pb2) - x(pa)) / W) * 100).toFixed(2)}%">${seloPandemia(cmp.semPandemia ? 'Fora da conta' : 'Pandemia')}</div>`
+    : '';
+  return svg + faixa;
 }
 
 // Cartão de um indicador. compacto = grade (abre o detalhe ao clicar); senão, bloco do detalhe.
-export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true } = {}) {
-  const cmp = compararIndicador(ind, pts, mandatos);
+export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true, semPandemia = false } = {}) {
+  const cmp = compararIndicador(ind, pts, mandatos, { semPandemia });
   if (!cmp) return '';
   const r = cmp.regra;
   const venc = cmp.vencedor == null ? null : cmp.lados[cmp.vencedor].m;
-  const resumo = `${ind.titulo}: ${cmp.lados.map((l) => `${l.m.curtoGov} ${r.criterio === 'variacao' ? fmtVariacao(0, l.valor, ind) : fmtValor(l.valor, ind)}`).join(', ')}. Quanto ${r.melhor}, melhor. ${venc ? `Melhor no governo ${venc.curtoGov}.` : 'Praticamente igual.'}`;
+  const resumo = `${ind.titulo}${semPandemia ? ', sem os meses da pandemia' : ''}: ${cmp.lados.map((l) => `${l.m.curtoGov} ${fmtCrit(l.valor, ind, r)}`).join(', ')}. Quanto ${r.melhor}, melhor. ${venc ? `Melhor no governo ${venc.curtoGov}.` : 'Praticamente igual.'}`;
   const tag = compacto ? 'button' : 'div';
   return `<${tag} ${compacto ? 'type="button" ' : ''}class="duelo${compacto ? '' : ' duelo--det'}" data-id="${esc(ind.id)}"${venc ? ` style="--v:${venc.cor}"` : ''}${compacto ? ` aria-label="${esc(resumo)} Abrir detalhes"` : ''}>
       <div class="duelo__topo">
@@ -145,13 +198,46 @@ export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true }
         <span class="duelo__vs" aria-hidden="true">vs</span>
         ${htmlLado(cmp.lados[1], 1, cmp, ind, periodicidade)}
       </div>
-      <div class="duelo__graf">${graficoDuelo(cmp, ind)}</div>
+      <div class="duelo__graf">${graficoDuelo(cmp)}</div>
       <div class="duelo__pe">
         ${seloVencedor(cmp)}
         ${compacto ? '<span class="duelo__mais">Ver detalhes <span aria-hidden="true">→</span></span>' : ''}
       </div>
       ${r.aviso ? `<p class="duelo__aviso">${esc(r.aviso)}</p>` : ''}
     </${tag}>`;
+}
+
+// Governo Bolsonaro por fase (antes, durante e depois da pandemia), com o governo Lula ao lado.
+// Só dados medidos, pela mesma regra do cartão.
+export function htmlFases(ind, pts, mandatos, periodicidade) {
+  const gov = mandatosDuelo(mandatos);
+  if (gov.length < 2) return '';
+  const r = regra(ind);
+  const [b, l] = gov;
+  const doGov = (m) => pts.filter((p) => mandatoDoPonto(p, mandatos)?.id === m.id);
+  const pb = doGov(b), pl = doGov(l);
+  const fases = [
+    { nome: 'Antes da pandemia', ps: pb.filter((p) => p.t < PANDEMIA.t0), cor: b.cor },
+    { nome: 'Pandemia', ps: pb.filter(naPandemia), cor: b.cor, pand: true },
+    { nome: 'Depois da pandemia', ps: pb.filter((p) => p.t >= PANDEMIA.t1), cor: b.cor },
+    { nome: 'Governo Lula', ps: pl, cor: l.cor },
+  ].filter((f) => f.ps.length);
+  if (fases.length < 3) return '';
+  const base = r.criterio === 'variacao' ? 'variação no período' : 'média no período';
+  const blocos = fases.map((f, i) => {
+    const v = valorDe(f.ps, pts, r.criterio);
+    const per = `${rotuloPeriodo(f.ps[0].periodo, periodicidade)} a ${rotuloPeriodo(f.ps[f.ps.length - 1].periodo, periodicidade)}`;
+    return `<div class="fase${f.pand ? ' fase--pand' : ''}${i === fases.length - 1 ? ' fase--lula' : ''}" style="--c:${f.cor};animation-delay:${(0.1 + i * 0.12).toFixed(2)}s">
+        <div class="fase__nome">${f.pand ? seloPandemia() : esc(f.nome)}</div>
+        <div class="fase__valor">${numero(v, ind, r.criterio === 'variacao')}</div>
+        <div class="fase__per">${esc(per)} · ${base}</div>
+      </div>`;
+  }).join('');
+  return `<section class="painel fases" aria-labelledby="fases-titulo">
+      <h2 class="painel__titulo" id="fases-titulo">Governo Bolsonaro por fase</h2>
+      <div class="fases__grade">${blocos}</div>
+      <p class="tab__nota">Dados medidos, sem projeção. Uma projeção do que "teria acontecido" sem a pandemia depende do método escolhido: a tendência de 2019 levada adiante dá até juros negativos em 2022. Indicadores acumulados em 12 meses ou 4 trimestres (inflação, PIB) ainda carregam meses anteriores no começo de cada fase.</p>
+    </section>`;
 }
 
 // Cabeçalho da comparação: os dois governos frente a frente.
@@ -166,6 +252,14 @@ export function htmlPlacar(mandatos, ultimoDado) {
       ${cab(a, '')}
       <span class="placar__vs">VS</span>
       ${cab(b, ultimoDado ? ` · dados até ${esc(ultimoDado)}` : '')}
+    </div>`;
+}
+
+// Botões "Mandato inteiro | Sem a pandemia" (o mesmo estado na grade e no detalhe).
+export function htmlSegPandemia(semPandemia) {
+  return `<div class="seg seg--pand" role="group" aria-label="Meses considerados">
+      <button type="button" data-pand="0" aria-pressed="${!semPandemia}">Mandato inteiro</button>
+      <button type="button" data-pand="1" aria-pressed="${semPandemia}">${ICONE.virus}Sem a pandemia <small>${esc(rotuloPandemia())}</small></button>
     </div>`;
 }
 
