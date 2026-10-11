@@ -29,7 +29,23 @@
     </header>
 
     <main id="conteudo">
-      <section id="grade-sec" aria-labelledby="grade-titulo">
+      <div class="modos" id="modos" role="group" aria-label="Período">
+        <button type="button" data-modo="duelo" aria-pressed="true">Bolsonaro × Lula <small>2019–hoje</small></button>
+        <button type="button" data-modo="historico" aria-pressed="false">Todos os mandatos <small>2003–hoje</small></button>
+      </div>
+
+      <section id="duelo-sec" aria-labelledby="duelo-titulo">
+        <div class="intro">
+          <h1 id="duelo-titulo" class="intro__titulo">Os dois últimos governos, lado a lado</h1>
+          <div id="placar"></div>
+          <p class="intro__txt">Cada cartão compara o mesmo indicador oficial nos dois mandatos, com a mesma regra para os dois, escrita no cartão. O selo mostra em qual governo o número foi melhor. Ele não diz por quê: cada indicador depende de muitos fatores, inclusive internacionais.</p>
+        </div>
+        <div class="duelos" id="duelos" aria-live="polite">
+          <p class="carregando">Carregando indicadores…</p>
+        </div>
+      </section>
+
+      <section id="grade-sec" aria-labelledby="grade-titulo" hidden>
         <div class="intro">
           <h1 id="grade-titulo" class="intro__titulo">Os números do país, mandato a mandato</h1>
           <p class="intro__txt">Dados oficiais do IBGE e do Banco Central, com atualização diária automática. As faixas ao fundo dos gráficos marcam cada mandato presidencial. O site não atribui causa: cada indicador depende de muitos fatores, inclusive internacionais e de decisões tomadas em outros períodos.</p>

@@ -279,3 +279,156 @@ button.ind:hover .ind__abrir { color: #fff; transform: translateX(2px); }
   .tab td::before { content: attr(data-rot); display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
   .tab tbody tr:hover > * { background: none; }
 }
+
+/* ------------------------------------------------------------------ comparação Bolsonaro × Lula */
+:root { --pl: #3d7bf5; --pt: #ef4b55; }
+.modos { display: inline-flex; gap: 4px; padding: 4px; margin: 2px 0 18px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.modos button, .seg button {
+  height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: none;
+  color: var(--muted); font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.modos button small { margin-left: 4px; font-weight: 500; opacity: 0.75; }
+.modos button:hover, .seg button:hover { color: #fff; }
+.modos button[aria-pressed="true"], .seg button[aria-pressed="true"] {
+  color: #fff;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--pl) 55%, #1a2130), color-mix(in srgb, var(--pt) 55%, #1a2130));
+  box-shadow: 0 4px 18px -6px rgba(0, 0, 0, 0.6);
+}
+.modos button[data-modo="historico"][aria-pressed="true"], .seg button[data-periodo="tudo"][aria-pressed="true"] { background: linear-gradient(180deg, #4255e6, #3443c9); }
+.seg { display: inline-flex; gap: 2px; padding: 3px; background: var(--card); border: 1px solid var(--line-2); border-radius: 10px; }
+.seg button { height: 30px; padding: 0 12px; font-size: 13px; }
+
+.placar { display: flex; align-items: center; gap: 18px; margin: 14px 0; flex-wrap: wrap; }
+.frente { display: flex; align-items: center; gap: 12px; animation: entra 0.6s var(--ease-out) both; }
+.frente:last-child { animation-delay: 0.15s; }
+.frente__ini {
+  width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 20px; font-weight: 800; color: #fff;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c) 70%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 60%, #000));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent), 0 0 26px -2px var(--c);
+}
+.frente__txt { display: flex; flex-direction: column; line-height: 1.2; }
+.frente__txt b { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; color: color-mix(in srgb, var(--c) 45%, #fff); }
+.frente__txt small { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.placar__vs {
+  font-size: 15px; font-weight: 900; letter-spacing: 1px; padding: 6px 10px; border-radius: 9px;
+  background: linear-gradient(100deg, var(--pl), var(--pt)); color: #fff;
+  box-shadow: 0 0 24px -4px rgba(239, 75, 85, 0.55), 0 0 24px -4px rgba(61, 123, 245, 0.55);
+  animation: vs-pulsa 2.6s ease-in-out infinite;
+}
+@keyframes vs-pulsa { 50% { transform: scale(1.08); filter: brightness(1.15); } }
+
+.duelos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.duelo {
+  --v: #5f687b;
+  position: relative; display: flex; flex-direction: column; gap: 12px; min-width: 0;
+  padding: 18px 18px 14px; text-align: left;
+  background:
+    radial-gradient(420px 180px at 50% -30%, color-mix(in srgb, var(--v) 16%, transparent), transparent 70%),
+    var(--card);
+  border: 1px solid color-mix(in srgb, var(--v) 28%, var(--line));
+  border-radius: 16px;
+  overflow: hidden;
+  animation: duelo-entra 0.7s var(--ease-out) both;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), border-color 0.3s;
+}
+button.duelo:hover, button.duelo:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--v) 60%, var(--line));
+  box-shadow: 0 22px 50px -24px var(--v);
+}
+@keyframes duelo-entra { from { opacity: 0; transform: translateY(18px) scale(0.98); } }
+.duelo__topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.duelo__titulo { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+.sentido {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px; white-space: nowrap;
+}
+.sentido--menor { color: #7dd3fc; background: rgba(125, 211, 252, 0.1); border: 1px solid rgba(125, 211, 252, 0.28); }
+.sentido--maior { color: #c4b5fd; background: rgba(196, 181, 253, 0.1); border: 1px solid rgba(196, 181, 253, 0.28); }
+
+.duelo__lados { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 10px; }
+.duelo__vs { align-self: center; font-size: 12px; font-weight: 800; color: var(--muted-2); text-transform: uppercase; }
+.lado {
+  position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  padding: 12px 12px 10px; border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 18%, transparent);
+}
+.lado--vence {
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent), 0 0 28px -8px var(--c);
+  animation: brilha 3.2s ease-in-out 1s infinite;
+}
+@keyframes brilha { 50% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent), 0 0 38px -4px var(--c); } }
+.lado__nome { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--c) 40%, #fff); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lado__nome i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); flex-shrink: 0; }
+.lado__nome small { font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.lado__valor { font-size: 30px; font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; margin-top: 4px; white-space: nowrap; }
+.lado--vence .lado__valor { color: #fff; text-shadow: 0 0 22px color-mix(in srgb, var(--c) 70%, transparent); }
+.lado__rot { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.lado__ext { margin-top: 6px; font-size: 12.5px; color: var(--text-2); }
+.lado__ext small { display: block; color: var(--muted-2); font-size: 11px; }
+
+.duelo__graf { height: 86px; border-radius: 10px; overflow: hidden; background: rgba(255, 255, 255, 0.015); }
+.duelo__svg { display: block; width: 100%; height: 100%; }
+.duelo__linha { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: desenha 1.2s var(--ease-out) var(--d, 0s) forwards; }
+.duelo__media { stroke-width: 1.2; stroke-dasharray: 4 4; opacity: 0.85; }
+
+.duelo__pe { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.selo {
+  --c: #5f687b;
+  position: relative; display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 99px;
+  font-size: 13px; font-weight: 800; color: #fff; overflow: hidden;
+  background: linear-gradient(100deg, var(--c), color-mix(in srgb, var(--c) 65%, #000));
+  box-shadow: 0 6px 22px -6px var(--c);
+  animation: selo-entra 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s both;
+}
+.selo::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: selo-brilho 3.5s ease-in-out 1.6s infinite;
+}
+.selo--igual { background: #252d3d; box-shadow: none; color: var(--text-2); }
+.selo--igual::after { display: none; }
+@keyframes selo-entra { from { opacity: 0; transform: scale(0.5); } }
+@keyframes selo-brilho { 0% { transform: translateX(-120%); } 40%, 100% { transform: translateX(120%); } }
+.duelo__mais { font-size: 13px; font-weight: 600; color: var(--muted); transition: color 0.2s; }
+.duelo__mais span { display: inline-block; transition: transform 0.25s var(--ease-out); }
+button.duelo:hover .duelo__mais { color: #fff; }
+button.duelo:hover .duelo__mais span { transform: translateX(4px); }
+.duelo__aviso { margin: -2px 0 0; font-size: 12px; color: var(--muted); }
+
+.duelo--det { margin: 4px 0 18px; animation-delay: 0.05s; }
+.duelo--det .lado__valor { font-size: 38px; }
+.duelo--det .duelo__graf { height: 110px; }
+.duelo--det .duelo__titulo { font-size: 14px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .duelo__linha { stroke-dashoffset: 0; }
+}
+@media (max-width: 1100px) {
+  .duelos { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .modos { display: flex; width: 100%; }
+  .modos button { flex: 1; height: 46px; padding: 0 8px; font-size: 13px; line-height: 1.15; }
+  .modos button small { display: block; margin: 0; font-size: 11px; }
+  .placar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; }
+  .frente { flex-direction: column; text-align: center; gap: 6px; }
+  .frente__txt { align-items: center; }
+  .frente__ini { width: 42px; height: 42px; font-size: 17px; }
+  .frente__txt b { font-size: 16px; }
+  .frente__txt small { font-size: 11.5px; }
+  .lado__nome small { display: none; }
+  .duelo { padding: 14px 12px 12px; border-radius: 14px; }
+  .duelo__lados { gap: 6px; }
+  .duelo__vs { font-size: 10px; }
+  .lado { padding: 10px 9px 8px; }
+  .lado__valor, .duelo--det .lado__valor { font-size: 22px; letter-spacing: -0.5px; }
+  .lado__ext { font-size: 11.5px; }
+  .selo { font-size: 12px; padding: 6px 11px; }
+}

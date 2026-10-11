@@ -88,7 +88,9 @@ export function graficoCompleto(el, { pts, mandatos, contexto, ind, periodicidad
   // cabe na própria faixa, todos passam a alternar entre duas linhas (mesma regra para todos).
   fx.forEach((f, i) => {
     const xa = x(f.a), xb = x(f.b);
-    svg += `<rect class="faixa faixa--${i % 2 ? 'b' : 'a'}" x="${xa.toFixed(1)}" y="${yTopo - topoFaixa}" width="${(xb - xa).toFixed(1)}" height="${yBase - yTopo + topoFaixa}"/>`;
+    // Na comparação entre dois governos, cada faixa leva a cor do governo (f.m.cor).
+    const cor = f.m.cor ? ` style="fill:${f.m.cor};fill-opacity:.09"` : '';
+    svg += `<rect class="faixa faixa--${i % 2 ? 'b' : 'a'}"${cor} x="${xa.toFixed(1)}" y="${yTopo - topoFaixa}" width="${(xb - xa).toFixed(1)}" height="${yBase - yTopo + topoFaixa}"/>`;
     if (i > 0) svg += `<line class="faixa__div" x1="${xa.toFixed(1)}" x2="${xa.toFixed(1)}" y1="${yTopo - topoFaixa}" y2="${yBase}"/>`;
   });
   fx.forEach((f, i) => {
@@ -96,7 +98,7 @@ export function graficoCompleto(el, { pts, mandatos, contexto, ind, periodicidad
     const w = larg(rot);
     const cx = Math.max(pad.l + w / 2, Math.min(W - pad.r - w / 2, (x(f.a) + x(f.b)) / 2));
     const ly = duasLinhas ? (i % 2 ? yTopo - 6 : yTopo - 20) : yTopo - 8;
-    svg += `<text class="faixa__rot${estreito ? ' faixa__rot--p' : ''}" x="${cx.toFixed(1)}" y="${ly}" text-anchor="middle">${esc(rot)}</text>`;
+    svg += `<text class="faixa__rot${estreito ? ' faixa__rot--p' : ''}"${f.m.cor ? ` style="fill:${f.m.cor}"` : ''} x="${cx.toFixed(1)}" y="${ly}" text-anchor="middle">${esc(rot)}</text>`;
   });
 
   // Grade e eixo Y.
@@ -137,7 +139,19 @@ export function graficoCompleto(el, { pts, mandatos, contexto, ind, periodicidad
   const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(p.v).toFixed(1)}`).join('');
   const base = y(lo > 0 ? lo : hi < 0 ? hi : 0);
   svg += `<path class="graf__area" d="${d}L${x(ultimoPt.t).toFixed(1)} ${base.toFixed(1)}L${x(pts[0].t).toFixed(1)} ${base.toFixed(1)}Z" fill="url(#area-${id})"/>`;
-  svg += `<path class="graf__linha${animar ? ' graf__linha--anima' : ''}" d="${d}" pathLength="1"/>`;
+  if (fx.length && fx.every((f) => f.m.cor)) {
+    // Um trecho por governo, na cor dele (cada trecho começa no último ponto do anterior).
+    let ant = null;
+    fx.forEach((f, i) => {
+      const ps = pts.filter((p) => mandatoDoPonto(p, mandatos) === f.m);
+      if (!ps.length) return;
+      const seg = (ant ? [ant, ...ps] : ps).map((p, k) => `${k ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(p.v).toFixed(1)}`).join('');
+      svg += `<path class="graf__linha${animar ? ' graf__linha--anima' : ''}" style="stroke:${f.m.cor};animation-delay:${(i * 0.5).toFixed(1)}s;filter:drop-shadow(0 0 6px ${f.m.cor}88)" d="${seg}" pathLength="1"/>`;
+      ant = ps[ps.length - 1];
+    });
+  } else {
+    svg += `<path class="graf__linha${animar ? ' graf__linha--anima' : ''}" d="${d}" pathLength="1"/>`;
+  }
   svg += `<circle class="graf__ultimo" cx="${x(ultimoPt.t).toFixed(1)}" cy="${y(ultimoPt.v).toFixed(1)}" r="4"/>`;
 
   // Mira (crosshair) do cursor.

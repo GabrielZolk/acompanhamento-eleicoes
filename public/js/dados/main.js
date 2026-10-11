@@ -8,6 +8,7 @@ import {
 } from './serie.js';
 import { sparkline, graficoCompleto } from './grafico.js';
 import { carregarGeo, htmlMapa } from './mapa.js';
+import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros } from './comparar.js';
 
 const BASE = '/data/indicadores/';
 
@@ -17,6 +18,8 @@ const estado = {
   dados: new Map(), // id -> { serie, porUF, atualizadoEm } | null (indisponível)
   atual: null, // id do indicador aberto
   uf: '',
+  modo: 'duelo', // "duelo" (Bolsonaro × Lula) ou "historico" (todos os mandatos desde 2003)
+  periodo: 'duelo', // período do gráfico no detalhe: "duelo" (2019–hoje) ou "tudo"
   contexto: true,
   grafico: null,
   observador: null,
@@ -27,6 +30,9 @@ const $ = (s, r = document) => r.querySelector(s);
 const grade = $('#grade');
 const detalhe = $('#detalhe');
 const gradeSec = $('#grade-sec');
+const dueloSec = $('#duelo-sec');
+const duelos = $('#duelos');
+const modos = $('#modos');
 const reduzMov = matchMedia('(prefers-reduced-motion: reduce)');
 
 async function buscarJSON(url) {
@@ -92,7 +98,53 @@ grade.addEventListener('click', (ev) => {
   abrir(c.dataset.id, '', true);
 });
 
+// ------------------------------------------------------------------ comparação Bolsonaro × Lula
+function renderDuelos() {
+  const lista = estado.indice?.indicadores || [];
+  const html = lista.map((i) => {
+    const d = estado.dados.get(i.id);
+    return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade) : '';
+  }).filter(Boolean);
+  duelos.innerHTML = html.length ? html.join('') : '<p class="vazio">Dados indisponíveis no momento.</p>';
+  duelos.querySelectorAll('.duelo').forEach((c, i) => (c.style.animationDelay = `${i * 0.07}s`));
+  animarNumeros(duelos, (el) => indicador(el.closest('[data-id]')?.dataset.id), reduzMov.matches);
+  // Último dado mensal do governo em curso, para o cabeçalho.
+  const ref = estado.dados.get('ipca');
+  const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
+  $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
+}
+
+duelos.addEventListener('click', (ev) => {
+  const c = ev.target.closest('button.duelo');
+  if (!c) return;
+  estado.origem = c.dataset.id;
+  estado.periodo = 'duelo';
+  abrir(c.dataset.id, '', true);
+});
+
+function mostrarModo() {
+  dueloSec.hidden = estado.modo !== 'duelo';
+  gradeSec.hidden = estado.modo !== 'historico';
+  modos.querySelectorAll('[data-modo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === estado.modo)));
+}
+
+modos.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-modo]');
+  if (!b || b.dataset.modo === estado.modo) return;
+  estado.modo = b.dataset.modo;
+  estado.periodo = estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  history.replaceState(history.state, '', urlDe('', ''));
+  mostrarModo();
+});
+
 // ------------------------------------------------------------------ detalhe
+// No período "duelo", o gráfico e a tabela mostram só 2019–hoje, com os dois governos coloridos.
+function recorte(pts) {
+  const gov = mandatosDuelo(estado.mandatos);
+  if (estado.periodo !== 'duelo' || gov.length < 2) return { pts, mandatos: estado.mandatos };
+  return { pts: pts.filter((p) => p.t >= gov[0].t0), mandatos: gov };
+}
+
 function serieAtual(ind) {
   const d = estado.dados.get(ind.id);
   if (!d) return { pts: [], periodicidade: ind.periodicidade, nome: 'Brasil' };
@@ -104,8 +156,9 @@ function serieAtual(ind) {
   return { pts: prepararSerie(d.serie, ind.periodicidade), periodicidade: ind.periodicidade, nome: 'Brasil' };
 }
 
-function htmlTabela(ind, pts, periodicidade) {
-  const linhas = estatisticasPorMandato(pts, estado.mandatos, ind, periodicidade);
+function htmlTabela(ind, ptsTodos, periodicidade) {
+  const { pts, mandatos } = recorte(ptsTodos);
+  const linhas = estatisticasPorMandato(pts, mandatos, ind, periodicidade);
   if (!linhas.length) return `<p class="vazio">Sem dados dentro dos mandatos.</p>`;
   const notas = [];
   const corpo = linhas.map((l) => {
@@ -155,6 +208,7 @@ function htmlDetalhe(ind) {
     ? `<option value="">Brasil</option>` + UFS.filter((u) => d.porUF[u.uf]).map((u) => `<option value="${u.uf}"${u.uf === estado.uf ? ' selected' : ''}>${esc(u.nome)}</option>`).join('')
     : '';
   const atualizado = d?.atualizadoEm ? rotuloPeriodo(d.atualizadoEm, 'mensal') : '';
+  const duelo = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false });
 
   return `<div class="det__barra">
       <button type="button" class="btn btn--voltar" data-acao="fechar"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2M6 3 2 7l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Todos os indicadores</button>
@@ -170,7 +224,12 @@ function htmlDetalhe(ind) {
         <div class="ind__per">${esc(nome)} · ${esc(rotuloPeriodo(ult.periodo, periodicidade))}</div>
       </div>` : ''}
     </div>
+    <div id="det-duelo">${duelo}</div>
     <div class="det__ctrl">
+      <div class="seg" role="group" aria-label="Período do gráfico">
+        <button type="button" data-periodo="duelo" aria-pressed="${estado.periodo === 'duelo'}">2019–hoje</button>
+        <button type="button" data-periodo="tudo" aria-pressed="${estado.periodo === 'tudo'}">2003–hoje</button>
+      </div>
       ${temUF ? `<label class="campo"><span>Local</span><select id="sel-uf" aria-label="Escolher Brasil ou uma UF">${opcoes}</select></label>` : ''}
       <label class="chk"><input type="checkbox" id="chk-ctx"${estado.contexto ? ' checked' : ''} /> Mostrar contexto</label>
       <span class="det__leg"><span><i class="leg leg--faixa"></i>Faixas: mandatos presidenciais</span><span><i class="leg leg--ctx"></i>Hachurado: períodos de contexto</span></span>
@@ -200,10 +259,11 @@ function desenharGrafico(animar) {
   const el = $('#graf');
   if (!ind || !el) return;
   estado.grafico?.destruir();
-  const { pts, periodicidade, nome } = serieAtual(ind);
+  const { pts: todos, periodicidade, nome } = serieAtual(ind);
+  const { pts, mandatos } = recorte(todos);
   estado.grafico = graficoCompleto(el, {
     pts,
-    mandatos: estado.mandatos,
+    mandatos,
     contexto: estado.indice?.contexto || [],
     ind,
     periodicidade,
@@ -227,8 +287,12 @@ function urlDe(id, uf) {
   const p = new URLSearchParams(location.search);
   p.delete('i');
   p.delete('uf');
+  p.delete('ver');
+  p.delete('p');
+  if (estado.modo === 'historico') p.set('ver', 'historico');
   if (id) p.set('i', id);
   if (id && uf) p.set('uf', uf);
+  if (id && estado.periodo !== (estado.modo === 'duelo' ? 'duelo' : 'tudo')) p.set('p', estado.periodo);
   const q = p.toString();
   return location.pathname + (q ? '?' + q : '') + location.hash;
 }
@@ -248,6 +312,8 @@ function abrir(id, uf = '', empilhar = false) {
   detalhe.hidden = false;
   detalhe.classList.toggle('det--sem-ctx', !estado.contexto);
   gradeSec.hidden = true;
+  dueloSec.hidden = true;
+  modos.hidden = true;
   detalhe.classList.remove('entra');
   void detalhe.offsetWidth;
   detalhe.classList.add('entra');
@@ -256,6 +322,7 @@ function abrir(id, uf = '', empilhar = false) {
   desenharGrafico(true);
   desenharMapa();
   observarLargura();
+  animarNumeros(detalhe, ind, reduzMov.matches);
   $('#det-titulo')?.focus({ preventScroll: true });
 }
 
@@ -271,10 +338,11 @@ function fechar(voltarHistorico = true) {
   estado.uf = '';
   detalhe.hidden = true;
   detalhe.innerHTML = '';
-  gradeSec.hidden = false;
+  modos.hidden = false;
+  mostrarModo();
   document.title = 'Raio-X do Brasil — Indicadores oficiais por mandato presidencial';
   if (new URLSearchParams(location.search).has('i')) history.replaceState(null, '', urlDe('', ''));
-  const c = estado.origem && grade.querySelector(`[data-id="${CSS.escape(estado.origem)}"]`);
+  const c = estado.origem && (estado.modo === 'duelo' ? duelos : grade).querySelector(`[data-id="${CSS.escape(estado.origem)}"]`);
   if (c) c.focus({ preventScroll: false });
 }
 
@@ -295,6 +363,8 @@ function trocarUF(uf) {
   }
   $('#tab-titulo').textContent = `Por mandato${estado.uf ? ` — ${nome}` : ''}`;
   $('#tabela').innerHTML = htmlTabela(ind, pts, periodicidade);
+  $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false });
+  animarNumeros($('#det-duelo'), ind, reduzMov.matches);
   desenharGrafico(true);
   desenharMapa();
 }
@@ -315,6 +385,17 @@ function observarLargura() {
 }
 
 detalhe.addEventListener('click', (ev) => {
+  const per = ev.target.closest('[data-periodo]');
+  if (per && per.dataset.periodo !== estado.periodo) {
+    estado.periodo = per.dataset.periodo;
+    detalhe.querySelectorAll('[data-periodo]').forEach((x) => x.setAttribute('aria-pressed', String(x === per)));
+    const ind = indicador(estado.atual);
+    history.replaceState(history.state, '', urlDe(ind.id, estado.uf));
+    const { pts, periodicidade } = serieAtual(ind);
+    $('#tabela').innerHTML = htmlTabela(ind, pts, periodicidade);
+    desenharGrafico(true);
+    return;
+  }
   const b = ev.target.closest('[data-acao]');
   if (b?.dataset.acao === 'fechar') fechar();
   else if (b?.dataset.acao === 'compartilhar') compartilhar();
@@ -359,7 +440,7 @@ function toast(msg) {
 async function compartilhar() {
   const ind = indicador(estado.atual);
   if (!ind) return;
-  const url = `${location.origin}/dados?i=${encodeURIComponent(ind.id)}${estado.uf ? `&uf=${estado.uf}` : ''}`;
+  const url = location.origin + urlDe(ind.id, estado.uf);
   const titulo = `${ind.titulo}${estado.uf ? ` — ${UF_BY_CODE[estado.uf]?.nome || ''}` : ''} | Raio-X do Brasil`;
   // A folha de compartilhamento nativa só no toque (no desktop, copiar é mais direto).
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
@@ -381,6 +462,9 @@ async function compartilhar() {
 // ------------------------------------------------------------------ início
 function rotear(inicial) {
   const p = new URLSearchParams(location.search);
+  estado.modo = p.get('ver') === 'historico' ? 'historico' : 'duelo';
+  estado.periodo = ['duelo', 'tudo'].includes(p.get('p')) ? p.get('p') : estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  mostrarModo();
   const id = p.get('i');
   if (id && indicador(id) && estado.dados.get(id)) abrir(id, (p.get('uf') || '').toLowerCase(), false);
   else if (estado.atual || inicial) fechar(false);
@@ -399,7 +483,11 @@ async function iniciar() {
   grade.innerHTML = indice.indicadores.map(cartaoCarregando).join('');
   grade.querySelectorAll('.ind').forEach((c, i) => (c.style.animationDelay = `${Math.min(i, 12) * 0.05}s`));
 
-  const idPedido = new URLSearchParams(location.search).get('i');
+  const qs = new URLSearchParams(location.search);
+  const idPedido = qs.get('i');
+  estado.modo = qs.get('ver') === 'historico' ? 'historico' : 'duelo';
+  estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'duelo' ? 'duelo' : 'tudo';
+  mostrarModo();
   await Promise.all(
     indice.indicadores.map(async (ind) => {
       const j = ind.arquivo ? await buscarJSON(BASE + ind.arquivo) : null;
@@ -409,6 +497,7 @@ async function iniciar() {
       if (ind.id === idPedido && !estado.atual) rotear(false);
     }),
   );
+  renderDuelos();
   if (idPedido && !estado.atual) rotear(true);
 }
 
