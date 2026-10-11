@@ -105,6 +105,10 @@ terminado naquele mês (carga tributária, pobreza e Gini: "AAAA-12"; desmatamen
 | Famílias no Bolsa Família / Auxílio Brasil (milhões) e benefício médio por família (R$, corrigido pelo IPCA) | MDS — [VIS DATA / MI Social](https://aplicacoes.mds.gov.br/sagi/vis/data3/data-explorer.php) (base Solr `aplicacoes.mds.gov.br/sagi/servicos/misocial`, soma dos municípios por mês com `stats.facet`); desde jan/2004. Auxílio Brasil (nov/2021–fev/2023) pelos campos `pab_*`, com o benefício extraordinário somado ao valor. Benefício médio = valor repassado ÷ famílias, deflacionado pelo IPCA (SGS 433); sem pontos em abr–dez/2020 e abr–out/2021 (Auxílio Emergencial no lugar do benefício) |
 | Ideb anos iniciais, anos finais e ensino médio (rede pública) | INEP — [resultados do Ideb](https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados) (`divulgacao_brasil_ideb_{edição}.zip`, planilha XLSX dentro do ZIP; edição mais recente achada automaticamente); bienal desde 2005, período "AAAA-12" |
 | Homicídios por 100 mil habitantes (anual) | Ministério da Saúde — SIM via [DATASUS/TabNet](http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sim/cnv/ext10uf.def) (óbitos por agressão, CID-10 X85–Y09, por residência; só anos com dados finais) ÷ IBGE, [Projeções da População, revisão 2024](https://ftp.ibge.gov.br/Projecao_da_Populacao/Projecao_da_Populacao_2024/) (população em 1º de julho) |
+| Juro real ex-ante (% a.a.) | (1 + meta Selic, SGS 432, fim do mês) ÷ (1 + mediana da expectativa de IPCA para 12 meses, pesquisa Focus — API Olinda `Expectativas/ExpectativasMercadoInflacao12Meses`, IPCA, suavizada, `baseCalculo` 0, último dado do mês) − 1 |
+| Dívida líquida do setor público (% PIB) | SGS 4513 (setor público consolidado) |
+| Resultado primário das estatais federais (12 meses, R$ bi, corrigido pelo IPCA) | SGS 4646 (NFSP, fluxo mensal em R$ milhões) com o sinal invertido (superávit positivo), mês a mês corrigido pelo IPCA (SGS 433) e somado em 12 meses; sem Petrobras, Eletrobras e bancos públicos |
+| Área queimada no Brasil (km², anual) | INPE — Programa Queimadas, produto AQ1km ([`dataserver-coids.inpe.br/.../area_queimada`](https://dataserver-coids.inpe.br/queimadas/queimadas/area_queimada/), CSV `aq1km_biomas_vN.csv` da coleção mais recente): soma dos meses e biomas, só anos completos, período "AAAA-12" |
 
 Cada indicador do índice tem um `tema` (custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas,
 economia, meio ambiente, social, educação, segurança). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses terminado
@@ -112,7 +116,8 @@ naquele mês (carga tributária: "AAAA-12"; desmatamento: "AAAA-07"). O saldo do
 do Trabalho hoje só publica apresentações em PDF e microdados compactados em 7z, sem tabela legível por máquina.
 A cobertura vacinal também ficou de fora: o TabNet do SI-PNI só vai até 2022 e os dados desde 2023 estão só no painel
 do Ministério da Saúde, sem tabela legível por máquina. Os indicadores sociais (Bolsa Família, Ideb, homicídios) ficam
-em `tools/indicadores-sociais.mjs`.
+em `tools/indicadores-sociais.mjs`; juro real, dívida líquida, estatais federais e área queimada, em
+`tools/indicadores-extra.mjs`.
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
