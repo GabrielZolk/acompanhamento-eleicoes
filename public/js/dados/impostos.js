@@ -20,16 +20,15 @@ function placar(medidas) {
     const sobe = ms.filter((m) => SOBE.has(m.tipo));
     const desce = ms.filter((m) => DESCE.has(m.tipo));
     const misto = ms.filter((m) => m.tipo === 'misto');
-    const soma = (lista) => lista.reduce((s, m) => s + (Number.isFinite(m.impactoBiAno) ? m.impactoBiAno : 0), 0);
     const comImpacto = ms.filter((m) => Number.isFinite(m.impactoBiAno)).length;
     return `<div class="tx-placar__gov" style="--c:${g.cor}">
         <div class="tx-placar__nome"><i></i>${esc(g.curto)}</div>
         <div class="tx-placar__nums">
-          <div class="tx-num tx-num--sobe"><b>${sobe.length}</b><span>subiram ou criaram imposto</span>${sobe.length && soma(sobe) ? `<small>+${bi(soma(sobe))}/ano estimados</small>` : ''}</div>
-          <div class="tx-num tx-num--desce"><b>${desce.length}</b><span>baixaram ou zeraram imposto</span>${desce.length && soma(desce) ? `<small>−${bi(soma(desce))}/ano estimados</small>` : ''}</div>
+          <div class="tx-num tx-num--sobe"><b>${sobe.length}</b><span>subiram ou criaram imposto</span></div>
+          <div class="tx-num tx-num--desce"><b>${desce.length}</b><span>baixaram ou zeraram imposto</span></div>
           ${misto.length ? `<div class="tx-num"><b>${misto.length}</b><span>mistas (sobe para uns, cai para outros)</span></div>` : ''}
         </div>
-        <p class="tx-placar__nota">${ms.length} medidas no levantamento; estimativa oficial de impacto disponível para ${comImpacto}.</p>
+        <p class="tx-placar__nota">${ms.length} medidas no levantamento; estimativa de impacto disponível para ${comImpacto} (os valores não são somados: cada um tem método e ano próprios).</p>
       </div>`;
   }).join('<span class="placar__vs">VS</span>');
 }
