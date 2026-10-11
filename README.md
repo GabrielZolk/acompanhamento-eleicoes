@@ -109,6 +109,8 @@ terminado naquele mês (carga tributária, pobreza e Gini: "AAAA-12"; desmatamen
 | Dívida líquida do setor público (% PIB) | SGS 4513 (setor público consolidado) |
 | Resultado primário das estatais federais (12 meses, R$ bi, corrigido pelo IPCA) | SGS 4646 (NFSP, fluxo mensal em R$ milhões) com o sinal invertido (superávit positivo), mês a mês corrigido pelo IPCA (SGS 433) e somado em 12 meses; sem Petrobras, Eletrobras e bancos públicos |
 | Área queimada no Brasil (km², anual) | INPE — Programa Queimadas, produto AQ1km ([`dataserver-coids.inpe.br/.../area_queimada`](https://dataserver-coids.inpe.br/queimadas/queimadas/area_queimada/), CSV `aq1km_biomas_vN.csv` da coleção mais recente): soma dos meses e biomas, só anos completos, período "AAAA-12" |
+| Feminicídios, latrocínios, estupros (inclui estupro de vulnerável), roubos de veículos, mortes por intervenção de agentes do Estado e agentes de segurança mortos (soma de 12 meses) | Ministério da Justiça e Segurança Pública — Sinesp VDE, [Dados Nacionais de Segurança Pública](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) (`bancovde-AAAA.xlsx`, uma planilha por ano desde 2015, por UF, município e mês; ~25 MB cada, lidas em blocos); só meses informados pelas 27 UFs (roubos de veículos desde 2021) |
+| Novos registros de armas de fogo (Polícia Federal/SINARM, soma de 12 meses) | Polícia Federal — [SINARM, arquivos CSV](https://servicos.dpf.gov.br/dadosabertos/SINARM_CSV/REGISTROS/) (`REGISTROS_com_categoria_*.csv`, pessoas físicas, por ano e mês de emissão); desde 2012, depois do recadastramento de 2008–2011 |
 
 Cada indicador do índice tem um `tema` (custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas,
 economia, meio ambiente, social, educação, segurança). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses terminado
@@ -118,6 +120,9 @@ A cobertura vacinal também ficou de fora: o TabNet do SI-PNI só vai até 2022 
 do Ministério da Saúde, sem tabela legível por máquina. Os indicadores sociais (Bolsa Família, Ideb, homicídios) ficam
 em `tools/indicadores-sociais.mjs`; juro real, dívida líquida, estatais federais e área queimada, em
 `tools/indicadores-extra.mjs`.
+em `tools/indicadores-sociais.mjs`; os de segurança pública (Sinesp e SINARM), em `tools/indicadores-seguranca.mjs`.
+Os registros de armas de CAC (colecionadores, atiradores e caçadores) ficaram de fora: o SIGMA do Exército não tem
+dados abertos e a Polícia Federal, responsável desde jul/2025, só publica um painel de BI (o CSV do SINARM-CAC está vazio).
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
