@@ -47,21 +47,21 @@ export function htmlChecagens(dados) {
   }).join('');
   const resumo = `<section class="resumo" aria-label="Resumo das checagens">
       <div class="resumo__placar">
-        <div class="resumo__rot">Boatos checados contra cada candidato</div>
+        <div class="resumo__rot">Boatos checados que prejudicam cada candidato</div>
         <div class="resumo__nums">
           ${CANDIDATOS.map((c) => `<div class="rnum" style="--c:${c.cor}"><b>${contra(c.id).length}</b><span>${esc(c.curto)}</span><small>alvo</small></div>`).join('<span class="rvs">×</span>')}
           ${processo.length ? `<div class="rnum rnum--neutro"><b>${processo.length}</b><span>sobre urna e votação</span></div>` : ''}
         </div>
       </div>
       <ul class="resumo__topicos">
-        ${CANDIDATOS.map((c) => `<li><b style="color:${c.cor}">Contra ${esc(c.nome)}:</b> ${contagem(contra(c.id)) || 'nenhum no levantamento'}</li>`).join('')}
+        ${CANDIDATOS.map((c) => `<li><b style="color:${c.cor}">Prejudicam ${esc(c.nome)}:</b> ${contagem(contra(c.id)) || 'nenhum no levantamento'}</li>`).join('')}
         ${processo.length ? `<li><b>Sobre urna e votação:</b> ${contagem(processo)}</li>` : ''}
-        <li>Separados por <b>quem o boato atinge</b>, não por quem espalhou (a origem aparece quando a checagem a identifica).</li>
+        <li>Separados por <b>quem o boato prejudica</b>: ataques ao candidato e também vantagens falsas para o adversário (apoio inventado, pesquisa falsa). Não é contagem de quem espalha mais: a origem aparece só quando a checagem a identifica.</li>
       </ul>
       <p class="resumo__nota">${esc(dados.criterio || '')} ${esc(dados.metodo || '')}</p>
     </section>`;
   const coluna = (c) => `<div class="tx-col" style="--c:${c.cor}">
-      <h3 class="tx-col__titulo"><i></i>Contra ${esc(c.nome)} <small>${contra(c.id).length} itens</small></h3>
+      <h3 class="tx-col__titulo"><i></i>Prejudicam ${esc(c.nome)} <small>${contra(c.id).length} itens</small></h3>
       ${contra(c.id).map(cartaoChecagem).join('') || '<p class="vazio">Nenhum item no levantamento.</p>'}
     </div>`;
   return `${resumo}
