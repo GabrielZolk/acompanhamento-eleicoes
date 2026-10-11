@@ -173,7 +173,7 @@ function renderResumos() {
   const base = { indicadores: estado.indice?.indicadores || [], dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia };
   $('#resumo-duelo').innerHTML = resumoComparacao(base);
   $('#resumo-mercado').innerHTML = resumoMercado({ ...base, mercado: estado.mercado });
-  $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos });
+  $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos, ir: estado.ir, mercado: estado.mercado });
   $('#resumo-leis').innerHTML = resumoLeis({ leis: estado.leis, mandatos: estado.mandatos });
   $('#resumo-historico').innerHTML = resumoHistorico(base);
   $('#poder').innerHTML = htmlPoder(estado.dados, estado.mandatos);

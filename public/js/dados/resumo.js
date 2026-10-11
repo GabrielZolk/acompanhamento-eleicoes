@@ -3,6 +3,8 @@
 import { esc } from '../format.js';
 import { compararIndicador, mandatosDuelo, REGRAS } from './comparar.js';
 import { calcularMercado, contaCarrinho } from './mercado.js';
+import { exemplosMinhaInflacao } from './minha.js';
+import { exemplosIR } from './ir.js';
 import { prepararSerie, estatisticasPorMandato, fmtValor, fmtVariacao, rotuloPeriodo } from './serie.js';
 
 const pct = (v) => `${v > 0.05 ? '+' : v < -0.05 ? '−' : ''}${Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
@@ -91,6 +93,10 @@ export function resumoMercado({ mercado, mandatos, semPandemia }) {
   if (c) topicos.push(`<b>Carrinho:</b> R$ 100 de compras em ${esc(rotuloPeriodo(c.b.ini.periodo, 'mensal'))} custam <b>${reais(c.hoje)}</b> hoje. Subiram <b style="color:${c.gov[0].cor}">${reais(c.fimB - 100)}</b> no governo Bolsonaro e <b style="color:${c.gov[1].cor}">${reais(c.hoje - c.fimB)}</b> no governo Lula.`);
   const geral = linhas.find((l) => l.it.id === 'geral');
   if (geral) topicos.push(`<b>Inflação geral:</b> ${pct(geral.lados[0].anual)} ao ano com Bolsonaro × ${pct(geral.lados[1].anual)} com Lula.`);
+  const ex = exemplosMinhaInflacao(mercado, mandatos);
+  if (ex.length) {
+    topicos.push(`<b>🧮 Minha inflação</b> (exemplos): ${ex.map((e) => `${esc(e.nome.toLowerCase())}: <b style="color:${e.gov[0].cor}">${pct(e.r.anualB)}</b> × <b style="color:${e.gov[1].cor}">${pct(e.r.anualL)}</b> ao ano`).join('; ')}. <a href="#minha-inflacao" class="resumo__link">Calcule a sua ↓</a>`);
+  }
   gov.forEach((g, i) => {
     const d = dest(i);
     if (d.length) topicos.push(`<b style="color:${g.cor}">Subiu menos com ${esc(g.curtoGov)}:</b> ${d.join('; ')}.`);
@@ -104,7 +110,7 @@ export function resumoMercado({ mercado, mandatos, semPandemia }) {
 }
 
 // ------------------------------------------------------------------ Impostos
-export function resumoImpostos({ impostos, indicadores, dados, mandatos, semPandemia }) {
+export function resumoImpostos({ impostos, indicadores, dados, mandatos, semPandemia, ir, mercado }) {
   const gov = mandatosDuelo(mandatos);
   if (gov.length < 2) return '';
   const medidas = impostos?.medidas || [];
@@ -120,6 +126,11 @@ export function resumoImpostos({ impostos, indicadores, dados, mandatos, semPand
   if (carga && indCarga) {
     const cmp = compararIndicador(indCarga, prepararSerie(carga.serie, indCarga.periodicidade), mandatos, { semPandemia });
     if (cmp) topicos.push(`<b>Carga tributária média:</b> ${cmp.lados.map((l) => `${esc(l.m.curtoGov)} ${esc(fmtValor(l.valor, indCarga))}`).join(' × ')}. Máxima: ${cmp.lados.map((l) => `${esc(fmtValor(l.pior.v, indCarga))} em ${esc(rotuloPeriodo(l.pior.periodo, 'anual'))}`).join(' × ')}.`);
+  }
+  const exIR = exemplosIR(ir, mercado);
+  if (exIR.length) {
+    const r2 = (v) => `R$ ${Math.round(v).toLocaleString('pt-BR')}`;
+    topicos.unshift(`<b>🧮 IR por mês, mesma renda real</b> (jan/2019 → dez/2022 → hoje): ${exIR.map((e) => `${r2(e.renda)}: ${r2(e.inicio)} → ${r2(e.fimB)} → <b>${r2(e.hoje)}</b>`).join('; ')}. <a href="#calc-ir" class="resumo__link">Calcule o seu ↓</a>`);
   }
   // Maiores medidas de cada lado (pelo impacto estimado; sem estimativa, as primeiras do período).
   const maior = (ms) => ms.slice().sort((a, b) => Math.abs(b.impactoBiAno || 0) - Math.abs(a.impactoBiAno || 0)).slice(0, 3)

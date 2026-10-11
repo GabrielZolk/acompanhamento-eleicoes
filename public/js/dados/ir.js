@@ -108,3 +108,16 @@ export function montarCalcIR(el, ir, mercado) {
     atualizar();
   });
 }
+
+// Imposto mensal (em reais de hoje) de algumas rendas no começo do governo Bolsonaro, no fim dele
+// e hoje, para o resumo do topo da aba.
+export function exemplosIR(ir, mercado, rendas = [5000, 7000, 10000]) {
+  const def = deflator(mercado);
+  if (!ir?.tabelas?.length || !def) return [];
+  const em = (renda, m) => {
+    const t = tabelaEm(ir, m);
+    const f = def.fator[m] ?? 1;
+    return t ? impostoMensal(t, renda / f, 0, 0) * f : 0;
+  };
+  return rendas.map((renda) => ({ renda, inicio: em(renda, '2019-01'), fimB: em(renda, '2022-12'), hoje: em(renda, def.ultimo) }));
+}

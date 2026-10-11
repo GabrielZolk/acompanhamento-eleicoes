@@ -850,3 +850,4 @@ details.resumo__nota p { margin: 8px 0 0; }
 .pc__nome { font-size: 14.5px; color: var(--text); }
 .pc__dano { margin: 6px 0; font-size: 13px; color: var(--text-2); }
 @media (max-width: 1100px) { .tx-cols--3 { grid-template-columns: minmax(0, 1fr); } }
+.resumo__link { color: #8fb2ff; font-weight: 700; text-decoration: none; white-space: nowrap; } .resumo__link:hover { text-decoration: underline; } #minha-inflacao, #calc-ir { scroll-margin-top: 12px; }

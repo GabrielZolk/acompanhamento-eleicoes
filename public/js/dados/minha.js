@@ -128,3 +128,10 @@ export function montarMinhaInflacao(el, mercado, mandatos) {
     atualizar();
   });
 }
+
+// Resultado dos perfis de exemplo, para o resumo do topo da aba.
+export function exemplosMinhaInflacao(mercado, mandatos) {
+  const base = fatores(mercado, mandatos);
+  if (base.gov.length < 2) return [];
+  return Object.values(PERFIS).map((p) => ({ nome: p.nome, r: calcular({ ...p.v }, base), gov: base.gov })).filter((e) => e.r);
+}
