@@ -22,6 +22,9 @@ export const DUELO = [
 // aviso: ressalva curta que aparece no cartão.
 export const REGRAS = {
   ipca: { melhor: 'menor', criterio: 'media', aviso: 'A inflação de 2021–22 subiu no mundo todo (pós-pandemia e guerra na Ucrânia).' },
+  alimentos: { melhor: 'menor', criterio: 'media', aviso: 'Inflação dos alimentos comprados para casa: quanto os preços subiram em 12 meses, em média.' },
+  gasolina: { melhor: 'menor', criterio: 'media', aviso: 'Preço corrigido pela inflação. Em 2022, impostos federais foram zerados e o ICMS limitado; os federais voltaram em 2023.' },
+  botijao: { melhor: 'menor', criterio: 'media', aviso: 'Preço corrigido pela inflação (reais de hoje).' },
   desemprego: { melhor: 'menor', criterio: 'media' },
   renda: { melhor: 'maior', criterio: 'media' },
   pib: { melhor: 'maior', criterio: 'media' },

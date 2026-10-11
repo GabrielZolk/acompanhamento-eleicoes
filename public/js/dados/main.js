@@ -8,6 +8,7 @@ import {
 } from './serie.js';
 import { sparkline, graficoCompleto } from './grafico.js';
 import { carregarGeo, htmlMapa } from './mapa.js';
+import { htmlMercado } from './mercado.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases } from './comparar.js';
 
 const BASE = '/data/indicadores/';
@@ -16,6 +17,7 @@ const estado = {
   indice: null,
   mandatos: [],
   dados: new Map(), // id -> { serie, porUF, atualizadoEm } | null (indisponível)
+  mercado: null, // variação mensal dos itens do IPCA (data/indicadores/mercado.json)
   atual: null, // id do indicador aberto
   uf: '',
   modo: 'duelo', // "duelo" (Bolsonaro × Lula) ou "historico" (todos os mandatos desde 2003)
@@ -114,6 +116,9 @@ function renderDuelos() {
   const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
   $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia);
+  const mk = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia });
+  $('#mercado-wrap').innerHTML = mk;
+  $('#ir-mercado').hidden = !mk;
 }
 
 // "Mandato inteiro | Sem a pandemia": mesmo estado na grade e no detalhe.
@@ -512,6 +517,7 @@ async function iniciar() {
 
   const qs = new URLSearchParams(location.search);
   const idPedido = qs.get('i');
+  const pedidoMercado = buscarJSON(BASE + 'mercado.json').then((j) => (estado.mercado = j?.itens?.length ? j : null));
   estado.modo = qs.get('ver') === 'historico' ? 'historico' : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
   definirPandemia(indice.contexto || []);
@@ -526,6 +532,7 @@ async function iniciar() {
       if (ind.id === idPedido && !estado.atual) rotear(false);
     }),
   );
+  await pedidoMercado;
   renderDuelos();
   if (idPedido && !estado.atual) rotear(true);
 }

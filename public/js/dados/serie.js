@@ -50,15 +50,17 @@ export function dataBR(s) {
 const num = (v, casas) =>
   v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
 
+// Unidades em reais: "R$", "R$/US$", "R$/litro", "R$/13 kg" (o que vem depois da barra vira "por …").
+const emReais = (ind) => (ind.unidade || '').startsWith('R$');
+const porQue = (ind) => (ind.unidade || '').split('/')[1] || '';
+
 // Valor com unidade: "4,58%", "82,9% do PIB", "R$ 3.660", "R$ 5,14".
 export function fmtValor(v, ind, casas = ind.casas ?? 1) {
   if (v == null || !Number.isFinite(v)) return '—';
   const neg = v < 0 ? '−' : '';
   const a = Math.abs(v);
+  if (emReais(ind)) return `${neg}R$ ${num(a, casas)}`;
   switch (ind.unidade) {
-    case 'R$':
-    case 'R$/US$':
-      return `${neg}R$ ${num(a, casas)}`;
     case '% do PIB':
       return `${neg}${num(a, casas)}% do PIB`;
     case '%':
@@ -72,7 +74,7 @@ export function fmtValor(v, ind, casas = ind.casas ?? 1) {
 export function partesValor(v, ind) {
   if (v == null || !Number.isFinite(v)) return { pre: '', num: '—', suf: '' };
   const n = (v < 0 ? '−' : '') + num(Math.abs(v), ind.casas ?? 1);
-  if (ind.unidade === 'R$' || ind.unidade === 'R$/US$') return { pre: 'R$', num: n, suf: ind.unidade === 'R$/US$' ? 'por US$' : '' };
+  if (emReais(ind)) return { pre: 'R$', num: n, suf: porQue(ind) ? `por ${porQue(ind)}` : '' };
   if (ind.unidade === '% do PIB') return { pre: '', num: n, suf: '% do PIB' };
   if (ind.unidade === '%') return { pre: '', num: n, suf: '%' };
   return { pre: '', num: n, suf: ind.unidade || '' };
@@ -187,7 +189,7 @@ export function fmtEixo(v, ind, casas) {
   const neg = v < 0 ? '−' : '';
   const a = Math.abs(v);
   const n = a >= 10000 ? `${num(a / 1000, a % 1000 ? 1 : 0)} mil` : num(a, casas);
-  if (ind.unidade === 'R$' || ind.unidade === 'R$/US$') return `${neg}${n}`;
+  if (emReais(ind)) return `${neg}${n}`;
   if (ind.unidade === '%' || ind.unidade === '% do PIB') return `${neg}${n}%`;
   return `${neg}${n}`;
 }
