@@ -801,3 +801,39 @@ button.duelo:hover .duelo__mais span { transform: translateX(4px); }
   .pd__val b { font-size: 19px; }
   .pd__val small::before { content: attr(data-rot); }
 }
+
+/* ------------------------------------------------------------------ checagens, propostas, quem criou */
+.ck { padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--v); animation: duelo-entra 0.5s var(--ease-out) both; }
+.ck__topo { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11.5px; }
+.ck__ver { padding: 2px 9px; border-radius: 99px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: #fff; background: var(--v); box-shadow: 0 0 14px -4px var(--v); }
+.ck__alegacao { margin: 0 0 6px; font-size: 14.5px; font-weight: 600; color: var(--text); font-style: italic; }
+.ck__exp { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.ck__origem { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.ck__n { display: inline-block; margin: 0 6px 2px 0; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 700; color: var(--v); background: color-mix(in srgb, var(--v) 12%, transparent); border: 1px solid color-mix(in srgb, var(--v) 35%, transparent); }
+.ck-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+
+.pp { margin-bottom: 12px; padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); animation: duelo-entra 0.5s var(--ease-out) both; }
+.pp__tema { margin: 0 0 10px; font-size: 16px; font-weight: 800; }
+.pp__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pp__col { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--c) 7%, transparent); border: 1px solid color-mix(in srgb, var(--c) 22%, transparent); }
+.pp__nome { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; font-weight: 800; color: color-mix(in srgb, var(--c) 40%, #fff); }
+.pp__nome i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+.pp__nome small { margin-left: auto; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.pp__col ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; line-height: 1.45; color: var(--text-2); }
+
+.og { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.og__prog { border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+.og__prog summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; cursor: pointer; list-style: none; }
+.og__prog summary::-webkit-details-marker { display: none; }
+.og__prog summary b { font-size: 14.5px; min-width: 180px; }
+.og__chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.og__chips i { font-style: normal; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 700; color: color-mix(in srgb, var(--c) 35%, #fff); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+.og__ev { margin: 0; padding: 0 14px 12px 32px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-2); line-height: 1.45; }
+.og__ev li::marker { color: var(--c); }
+.og__quando { display: block; font-size: 11.5px; font-weight: 700; color: color-mix(in srgb, var(--c) 40%, #fff); }
+.og__norma { color: var(--muted); font-size: 12px; }
+.og__norma a { color: #8fb2ff; }
+@media (max-width: 760px) {
+  .pp__cols { grid-template-columns: minmax(0, 1fr); }
+  .ck-grade { grid-template-columns: minmax(0, 1fr); }
+}
