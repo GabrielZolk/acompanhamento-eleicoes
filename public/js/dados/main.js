@@ -15,6 +15,7 @@ import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
 import { htmlPoder } from './poder.js';
 import { htmlChecagens, htmlPropostas, htmlOrigens } from './eleicao2026.js';
+import { htmlProcessos } from './processos.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
@@ -48,10 +49,10 @@ const dueloSec = $('#duelo-sec');
 const duelos = $('#duelos');
 const modos = $('#modos');
 const cabDuelo = $('#cab-duelo');
-const ABAS = ['duelo', 'mercado', 'impostos', 'leis', 'propostas', 'checagens', 'historico'];
-const SECAO = { duelo: '#duelo-sec', mercado: '#mercado-sec', impostos: '#impostos-sec', leis: '#leis-sec', propostas: '#propostas-sec', checagens: '#checagens-sec', historico: '#grade-sec' };
+const ABAS = ['duelo', 'mercado', 'impostos', 'leis', 'propostas', 'checagens', 'processos', 'historico'];
+const SECAO = { duelo: '#duelo-sec', mercado: '#mercado-sec', impostos: '#impostos-sec', leis: '#leis-sec', propostas: '#propostas-sec', checagens: '#checagens-sec', processos: '#processos-sec', historico: '#grade-sec' };
 // Abas sobre a disputa de 2026 (candidatos, não governos): sem o placar Bolsonaro × Lula do topo.
-const ABAS_2026 = new Set(['propostas', 'checagens']);
+const ABAS_2026 = new Set(['propostas', 'checagens', 'processos']);
 const TITULO = {
   duelo: 'Os dois últimos governos, lado a lado',
   mercado: 'Preços no mercado, item por item',
@@ -59,12 +60,14 @@ const TITULO = {
   leis: 'Leis e programas de cada governo',
   propostas: 'Propostas de Flávio Bolsonaro e Lula, tema a tema',
   checagens: 'Boatos checados, dos dois lados',
+  processos: 'Processos e investigações: a situação oficial',
 };
 const TEXTO = {
   duelo: 'Cada cartão compara o mesmo indicador oficial nos dois mandatos, com a mesma regra para os dois, escrita no cartão. O selo mostra em qual governo o número foi melhor. Ele não diz por quê: cada indicador depende de muitos fatores, inclusive internacionais.',
   mercado: 'Quanto cada item subiu em cada governo, pelo IPCA do IBGE. Preço não volta ao nível anterior quando a inflação cai: o que subiu num governo continua no preço durante o seguinte.',
   impostos: 'Medidas federais que criaram, subiram, baixaram ou zeraram tributos, com a norma e a fonte oficial de cada uma, e a carga de impostos e as contas do governo lado a lado.',
   propostas: 'O que cada plano de governo registrado no TSE diz sobre cada tema, lado a lado, com a página do documento original.',
+  processos: 'Todo processo ou investigação formal envolvendo os dois candidatos e o ex-presidente Jair Bolsonaro, e os grandes casos de corrupção e fraude desde 2003. A regra foi fixada antes de olhar quem sai bem ou mal.',
   checagens: 'Boatos sobre a disputa de 2026 verificados por agências de checagem ou derrubados pelo TSE, com a mesma regra para os dois candidatos e o link de cada checagem.',
   leis: 'Principais leis, emendas e programas federais de cada governo, aprovados, lançados ou encerrados, com a norma e a fonte oficial. Inclui o que passou no Congresso contra a vontade do governo.',
 };
@@ -185,6 +188,7 @@ function renderLeis() {
   $('#origens-wrap').innerHTML = htmlOrigens(estado.origens);
   $('#propostas-wrap').innerHTML = htmlPropostas(estado.propostas);
   $('#checagens-wrap').innerHTML = htmlChecagens(estado.checagens);
+  $('#processos-wrap').innerHTML = htmlProcessos(estado.processos);
   $('#leis-wrap').innerHTML = htmlLeis(estado.leis, estado.areaLei);
 }
 
@@ -606,6 +610,7 @@ async function iniciar() {
     buscarJSON(BASE + 'checagens.json').then((j) => (estado.checagens = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'propostas.json').then((j) => (estado.propostas = j?.temas?.length ? j : null)),
     buscarJSON(BASE + 'origens.json').then((j) => (estado.origens = j?.programas?.length ? j : null)),
+    buscarJSON(BASE + 'processos.json').then((j) => (estado.processos = j?.pessoas?.length || j?.casos?.length ? j : null)),
   ]);
   estado.modo = ABAS.includes(qs.get('ver')) ? qs.get('ver') : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
@@ -628,7 +633,8 @@ async function iniciar() {
   modos.querySelector('[data-modo="leis"]').hidden = !estado.leis;
   modos.querySelector('[data-modo="propostas"]').hidden = !estado.propostas;
   modos.querySelector('[data-modo="checagens"]').hidden = !estado.checagens;
-  const semDados = { leis: !estado.leis, propostas: !estado.propostas, checagens: !estado.checagens };
+  modos.querySelector('[data-modo="processos"]').hidden = !estado.processos;
+  const semDados = { leis: !estado.leis, propostas: !estado.propostas, checagens: !estado.checagens, processos: !estado.processos };
   if (semDados[estado.modo]) {
     estado.modo = 'duelo';
     mostrarModo();
