@@ -24,20 +24,37 @@ function acumulado(pts, m, mandatos, semPandemia) {
   return { meses: ps.length, acum: (fator - 1) * 100, anual: (fator ** (12 / ps.length) - 1) * 100, fator, ini: ps[0], fim: ps[ps.length - 1] };
 }
 
-export function htmlMercado(mercado, mandatos, { semPandemia = false } = {}) {
+// Alta por ano de cada item em cada governo; menor = índice do governo em que subiu menos (null = parecido).
+export function calcularMercado(mercado, mandatos, semPandemia = false) {
   const gov = mandatosDuelo(mandatos);
-  if (!mercado?.itens?.length || gov.length < 2) return '';
   const linhas = [];
-  let lo = 0, hi = 0;
+  if (!mercado?.itens?.length || gov.length < 2) return { gov, linhas };
   for (const it of mercado.itens) {
     const pts = prepararSerie(it.serie, 'mensal');
     const lados = gov.map((m) => acumulado(pts, m, mandatos, semPandemia));
     if (lados.some((l) => !l)) continue;
-    for (const l of lados) { lo = Math.min(lo, l.anual); hi = Math.max(hi, l.anual); }
     const d = lados[0].anual - lados[1].anual;
     linhas.push({ it, lados, menor: Math.abs(d) < EMPATE_PP ? null : d < 0 ? 0 : 1, pts });
   }
+  return { gov, linhas };
+}
+
+// Conta do carrinho: R$ 100 de compras no começo do governo Bolsonaro, até hoje (sempre com todos
+// os meses: é o preço que de fato se paga).
+export function contaCarrinho(mercado, mandatos) {
+  const { gov, linhas } = calcularMercado(mercado, mandatos, false);
+  const alim = linhas.find((l) => l.it.id === 'alimentos');
+  if (!alim) return null;
+  const [b, l] = alim.lados;
+  const fimB = 100 * b.fator, hoje = fimB * l.fator;
+  return { gov, b, l, fimB, hoje };
+}
+
+export function htmlMercado(mercado, mandatos, { semPandemia = false } = {}) {
+  const { gov, linhas } = calcularMercado(mercado, mandatos, semPandemia);
   if (!linhas.length) return '';
+  let lo = 0, hi = 0;
+  for (const ln of linhas) for (const l of ln.lados) { lo = Math.min(lo, l.anual); hi = Math.max(hi, l.anual); }
   const span = hi - lo || 1;
   const z = (-lo / span) * 100; // posição do zero na barra (%)
   const barra = (l, m, i) => {

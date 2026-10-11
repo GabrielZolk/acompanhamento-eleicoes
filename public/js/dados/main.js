@@ -11,6 +11,7 @@ import { carregarGeo, htmlMapa } from './mapa.js';
 import { htmlMercado } from './mercado.js';
 import { htmlImpostos } from './impostos.js';
 import { htmlLeis } from './leis.js';
+import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
 const BASE = '/data/indicadores/';
@@ -142,6 +143,7 @@ function renderDuelos() {
     return html ? `<h2 class="tema">${esc(tema[0].toUpperCase() + tema.slice(1))}</h2><div class="duelos">${html}</div>` : '';
   }).join('');
   duelos.innerHTML = grupos || '<p class="vazio">Dados indisponíveis no momento.</p>';
+  renderResumos();
   prepararCartoes(duelos);
   renderImpostos();
   renderLeis();
@@ -151,6 +153,16 @@ function renderDuelos() {
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
   $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia);
   $('#mercado-wrap').innerHTML = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia }) || '<p class="vazio">Dados de preços indisponíveis no momento.</p>';
+}
+
+// Placar e tópicos no topo de cada aba (recalculados com o botão "Sem a pandemia").
+function renderResumos() {
+  const base = { indicadores: estado.indice?.indicadores || [], dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia };
+  $('#resumo-duelo').innerHTML = resumoComparacao(base);
+  $('#resumo-mercado').innerHTML = resumoMercado({ ...base, mercado: estado.mercado });
+  $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos });
+  $('#resumo-leis').innerHTML = resumoLeis({ leis: estado.leis, mandatos: estado.mandatos });
+  $('#resumo-historico').innerHTML = resumoHistorico(base);
 }
 
 function renderImpostos() {

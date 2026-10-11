@@ -68,8 +68,8 @@ export function htmlImpostos(dados, cartoesIndicadores, filtro = 'todos') {
       </div>`;
   }).join('');
   const filtroBtn = (v, txt) => `<button type="button" data-tx="${v}" aria-pressed="${filtro === v}">${txt}</button>`;
-  return `${medidas.length ? `<section class="tx-placar" aria-label="Placar de medidas sobre impostos">${placar(medidas)}</section>` : ''}
-    ${cartoesIndicadores ? `<h2 class="tema">Carga de impostos e contas do governo</h2><div class="duelos">${cartoesIndicadores}</div>` : ''}
+  // O placar das medidas fica no resumo do topo da aba (resumo.js).
+  return `${cartoesIndicadores ? `<h2 class="tema">Carga de impostos e contas do governo</h2><div class="duelos">${cartoesIndicadores}</div>` : ''}
     ${medidas.length ? `<h2 class="tema">Medida por medida</h2>
       <div class="tx-ctrl"><div class="seg" role="group" aria-label="Filtrar medidas">${filtroBtn('todos', 'Todas')}${filtroBtn('sobe', '▲ Subiram imposto')}${filtroBtn('desce', '▼ Baixaram imposto')}</div></div>
       <div class="tx-cols">${colunas}</div>
