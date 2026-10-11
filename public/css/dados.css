@@ -837,3 +837,5 @@ button.duelo:hover .duelo__mais span { transform: translateX(4px); }
   .pp__cols { grid-template-columns: minmax(0, 1fr); }
   .ck-grade { grid-template-columns: minmax(0, 1fr); }
 }
+details.resumo__nota summary { cursor: pointer; color: var(--text-2); font-weight: 600; }
+details.resumo__nota p { margin: 8px 0 0; }

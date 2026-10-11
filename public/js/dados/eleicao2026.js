@@ -43,13 +43,13 @@ export function htmlChecagens(dados) {
   const processo = itens.filter((i) => i.alvo === 'processo eleitoral');
   const contagem = (lista) => Object.entries(VEREDITO).map(([k, [rot, cor]]) => {
     const n = lista.filter((i) => i.veredito === k).length;
-    return n ? `<span class="ck__n" style="--v:${cor}">${n} ${esc(rot.toLowerCase())}</span>` : '';
+    return n ? `<span class="ck__n" style="--v:${cor}">${n} ${esc(k === 'removido pelo TSE' ? rot.replace('Removido', 'removido') : rot.toLowerCase())}</span>` : '';
   }).join('');
   const resumo = `<section class="resumo" aria-label="Resumo das checagens">
       <div class="resumo__placar">
         <div class="resumo__rot">Boatos checados que prejudicam cada candidato</div>
         <div class="resumo__nums">
-          ${CANDIDATOS.map((c) => `<div class="rnum" style="--c:${c.cor}"><b>${contra(c.id).length}</b><span>${esc(c.curto)}</span><small>alvo</small></div>`).join('<span class="rvs">×</span>')}
+          ${CANDIDATOS.map((c) => `<div class="rnum" style="--c:${c.cor}"><b>${contra(c.id).length}</b><span>${esc(c.curto)}</span><small>prejudicado</small></div>`).join('<span class="rvs">×</span>')}
           ${processo.length ? `<div class="rnum rnum--neutro"><b>${processo.length}</b><span>sobre urna e votação</span></div>` : ''}
         </div>
       </div>
@@ -58,7 +58,7 @@ export function htmlChecagens(dados) {
         ${processo.length ? `<li><b>Sobre urna e votação:</b> ${contagem(processo)}</li>` : ''}
         <li>Separados por <b>quem o boato prejudica</b>: ataques ao candidato e também vantagens falsas para o adversário (apoio inventado, pesquisa falsa). Não é contagem de quem espalha mais: a origem aparece só quando a checagem a identifica.</li>
       </ul>
-      <p class="resumo__nota">${esc(dados.criterio || '')} ${esc(dados.metodo || '')}</p>
+      <details class="resumo__nota"><summary>Ver o critério e o método completos</summary><p>${esc(dados.criterio || '')}</p><p>${esc(dados.metodo || '')}</p></details>
     </section>`;
   const coluna = (c) => `<div class="tx-col" style="--c:${c.cor}">
       <h3 class="tx-col__titulo"><i></i>Prejudicam ${esc(c.nome)} <small>${contra(c.id).length} itens</small></h3>
