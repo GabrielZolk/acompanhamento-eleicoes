@@ -43,7 +43,8 @@ export function htmlProcessos(dados) {
   const conta = (itens) => {
     const c = {};
     for (const it of itens) { const [, rot] = tomSituacao(it.situacao); c[rot] = (c[rot] || 0) + 1; }
-    return Object.entries(c).map(([rot, n]) => `${n} ${rot}`).join(' · ');
+    const plural = { absolvido: 'absolvido(s)', 'encerrado sem condenação válida': 'encerrado(s) sem condenação válida', 'condenação': 'condenação(ões)', 'em andamento': 'em andamento' };
+    return Object.entries(c).map(([rot, n]) => `${n} ${n > 1 ? plural[rot].replace('(s)', 's').replace('(ões)', 'ões') : plural[rot].replace('(s)', '').replace('(ões)', '')}`).join(' · ');
   };
   const resumo = `<section class="resumo" aria-label="Resumo dos processos">
       <div class="resumo__placar">
