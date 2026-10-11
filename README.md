@@ -72,13 +72,20 @@ Séries históricas de indicadores oficiais (desde jan/2003, quando há série c
 | Indicador | Fonte |
 | --- | --- |
 | Inflação (IPCA 12 meses) | Banco Central, SGS 13522 (IBGE) |
+| Inflação dos alimentos (alimentação no domicílio, 12 meses) | IBGE, IPCA — SIDRA 1419 e 7060 (variável 2265, desde 2012); antes, 12 meses encadeados das variações mensais das tabelas 655 e 2938 (classificação 315, código 7171) |
 | Desemprego | IBGE, PNAD Contínua — SIDRA 6381 (Brasil, trimestre móvel) e 4099 (UFs, trimestral); desde 2012 |
 | Renda média real do trabalho | IBGE, PNAD Contínua — SIDRA 6390, variável 5933; desde 2012 |
 | PIB (acumulado em 4 trimestres) | IBGE, Contas Nacionais — SIDRA 5932, variável 6562 |
 | Salário mínimo real | SGS 1619 (nominal) deflacionado pelo IPCA mensal (SGS 433) até o último mês divulgado |
+| Preço da gasolina comum e do botijão de gás (13 kg) | ANP, Levantamento de Preços de Combustíveis — [série histórica mensal](https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/serie-historica-do-levantamento-de-precos) (planilhas XLSX Brasil e estados, 2001–2012 e desde 2013; preço médio de revenda). `serie`/`porUF` em valores reais (IPCA, SGS 433, até o último mês da série; o último ponto é igual ao nominal) e `nominal` com o preço da época. Sem dado em set/2020 (ANP não pesquisou de 18/8 a 17/10/2020) |
 | Selic (meta) | SGS 432 (diária; valor em vigor no fim de cada mês) |
 | Dólar comercial | SGS 3698 (venda, média mensal; nominal) |
 | Dívida bruta do governo geral (% PIB) | SGS 13762; desde dez/2006 |
+
+Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
+geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
+ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, gás de botijão, energia
+elétrica e gasolina). As planilhas da ANP são lidas sem dependências por `tools/xlsx.mjs` (ZIP + XML).
 
 Para regenerar: `npm run build:indicadores`. O workflow `.github/workflows/indicadores.yml` roda todo dia
 (09:30 UTC) e só faz commit quando algum dado muda: a saída não tem carimbo de hora (`atualizadoEm` é o período do

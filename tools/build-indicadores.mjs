@@ -9,11 +9,17 @@
 //     (na prática o servidor recusa janelas de 10 anos exatos), então tudo é pedido em blocos de 5 anos.
 //   - IBGE, SIDRA (apisidra.ibge.gov.br/values/...): PNAD Contínua, tabelas 6381 (desocupação, trimestre
 //     móvel, Brasil), 4099 (desocupação trimestral por UF) e 6390 (rendimento médio real habitual, trimestre
-//     móvel); Contas Nacionais Trimestrais, tabela 5932 (PIB, taxa acumulada em 4 trimestres).
+//     móvel); Contas Nacionais Trimestrais, tabela 5932 (PIB, taxa acumulada em 4 trimestres); IPCA por grupo e
+//     subitem, tabelas 655, 2938, 1419 e 7060 (alimentação no domicílio e itens do mercado.json).
+//   - ANP, Levantamento de Preços de Combustíveis (gov.br/anp, séries históricas mensais em XLSX, Brasil e
+//     estados): gasolina comum e GLP (botijão de 13 kg). O XLSX é lido sem dependências por tools/xlsx.mjs.
 //
 // Formato:
 //   indice.json: { geradoEm, mandatos: [...], contexto: [...], indicadores: [{ id, titulo, ..., arquivo, porUF }] }
-//   {id}.json:   { id, atualizadoEm: "AAAA-MM", serie: [["AAAA-MM", valor], ...], porUF?: { sp: [...], ... } }
+//   {id}.json:   { id, atualizadoEm: "AAAA-MM", serie: [["AAAA-MM", valor], ...], nominal?: [...], porUF?: { sp: [...], ... } }
+//                (`nominal`: só nos combustíveis, preço da época sem correção; `serie` e `porUF` são valores reais)
+//   mercado.json: { atualizadoEm, fonte, fonteUrl, itens: [{ id, nome, grupo, serie }] } — variação mensal do IPCA
+//                de itens do dia a dia desde 2012; não entra em indice.json.
 // Período trimestral = último mês do trimestre (2025T3 → "2025-09"; trimestre móvel jul–set → "2025-09").
 //
 // Saída determinística: nenhum carimbo de hora da execução. `atualizadoEm` é o período do último ponto da série
@@ -23,6 +29,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UFS } from '../public/js/ufs.js';
+import { lerXlsx, dataExcel } from './xlsx.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const outDir = path.join(root, 'public', 'data', 'indicadores');
@@ -39,16 +46,14 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
 const mesPorExtenso = (p) => `${MESES[Number(p.slice(5, 7)) - 1]} de ${p.slice(0, 4)}`;
 
 // Uma requisição por vez, com pausa entre elas; 3 tentativas com espera crescente para falhas transitórias.
-async function baixarJSON(url) {
+// `ler(res)` interpreta a resposta (e lança erro se ela não servir, o que também conta como tentativa falha).
+async function baixar(url, ler, headers = UA) {
   for (let tentativa = 1; ; tentativa++) {
     await pausa(300);
     try {
-      const res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(90e3) });
-      const texto = await res.text();
-      if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}: ${texto.slice(0, 160)}`);
-      const json = JSON.parse(texto); // o BCB às vezes devolve HTML de erro com status 200
-      if (json && !Array.isArray(json) && json.error) throw new Error(`${json.error} (${url})`);
-      return json;
+      const res = await fetch(url, { headers, signal: AbortSignal.timeout(90e3) });
+      if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}: ${(await res.text()).slice(0, 160)}`);
+      return await ler(res);
     } catch (err) {
       if (tentativa >= 3) throw err;
       console.warn(`  tentativa ${tentativa} falhou (${err.message.slice(0, 120)}); repetindo...`);
@@ -56,6 +61,19 @@ async function baixarJSON(url) {
     }
   }
 }
+
+const baixarJSON = (url) => baixar(url, async (res) => {
+  const json = JSON.parse(await res.text()); // o BCB às vezes devolve HTML de erro com status 200
+  if (json && !Array.isArray(json) && json.error) throw new Error(`${json.error} (${url})`);
+  return json;
+});
+
+// Arquivo binário (planilhas da ANP); confere a assinatura de ZIP para não aceitar uma página de erro em HTML.
+const baixarArquivo = (url) => baixar(url, async (res) => {
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (buf.length < 4 || buf.readUInt32LE(0) !== 0x04034b50) throw new Error(`resposta não é XLSX em ${url}`);
+  return buf;
+}, { ...UA, Accept: '*/*' });
 
 // ---------------------------------------------------------------- Banco Central (SGS)
 // Devolve [{ data: "AAAA-MM-DD", valor }] em ordem, sem repetidos, só até hoje (a série 432 e a 1619 trazem
@@ -104,6 +122,122 @@ function serieSidra(linhas, campoPeriodo, conv, casas) {
   return [...m].sort((a, b) => (a[0] < b[0] ? -1 : 1));
 }
 
+// IPCA por subitem: a série mensal está repartida em tabelas do SIDRA por período (mudanças de estrutura da POF).
+// A classificação 315 usa os mesmos códigos nas quatro tabelas para os itens usados aqui.
+const IPCA_TABELAS = [
+  { tabela: 655, ate: '2006-06' },  // ago/1999 – jun/2006
+  { tabela: 2938, ate: '2011-12' }, // jul/2006 – dez/2011
+  { tabela: 1419, ate: '2019-12' }, // jan/2012 – dez/2019
+  { tabela: 7060, ate: null },      // jan/2020 em diante
+];
+
+// Variação mensal (variável 63) de vários códigos da classificação 315 → Map(código → Map("AAAA-MM" → valor)).
+async function ipcaSubitens(codigos, desde) {
+  const out = new Map(codigos.map((c) => [String(c), new Map()]));
+  for (const { tabela, ate } of IPCA_TABELAS) {
+    if (ate && ate < desde) continue; // tabela toda antes do período pedido
+    const linhas = await sidra(`t/${tabela}/n1/all/v/63/p/all/c315/${codigos.join(',')}`);
+    for (const l of linhas) {
+      const v = Number(l.V), p = periodoMovel(l.D3C);
+      if (l.V === '' || !Number.isFinite(v) || p < desde) continue; // "...", "-": sem dado
+      out.get(l.D4C)?.set(p, v);
+    }
+  }
+  return out;
+}
+
+// Meses consecutivos de `ini` a `fim` (inclusive), "AAAA-MM".
+function meses(ini, fim) {
+  const r = [];
+  for (let [a, m] = [Number(ini.slice(0, 4)), Number(ini.slice(5))]; `${a}-${pad2(m)}` <= fim; m === 12 ? (a++, m = 1) : m++) r.push(`${a}-${pad2(m)}`);
+  return r;
+}
+
+// Índice de preços (IPCA, base arbitrária) encadeado a partir das variações mensais do SGS 433; memorizado
+// porque é usado pelo salário mínimo e pelos combustíveis.
+let ipcaIndice = null;
+async function indiceIPCA() {
+  if (!ipcaIndice) {
+    ipcaIndice = (async () => {
+      const ipca = mensal(await sgs(433), 2);
+      const indice = new Map();
+      let nivel = 1;
+      for (const [p, v] of ipca) indice.set(p, (nivel *= 1 + v / 100));
+      return { indice, ultimo: ipca[ipca.length - 1][0] };
+    })();
+    ipcaIndice.catch(() => { ipcaIndice = null; });
+  }
+  return ipcaIndice;
+}
+
+// ---------------------------------------------------------------- ANP (Levantamento de Preços de Combustíveis)
+// Séries históricas mensais de preço médio de revenda, por estado e Brasil, em duas planilhas cada (até 2012 e
+// desde 2013). As planilhas são baixadas e lidas uma vez só (gasolina e botijão saem dos mesmos arquivos).
+const ANP_SHLP = 'https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/shlp';
+const ANP_ARQUIVOS = {
+  brasil: [`${ANP_SHLP}/2001-2012/mensal-brasil-2001-a-2012.xlsx`, `${ANP_SHLP}/mensal/mensal-brasil-desde-jan2013.xlsx`],
+  estados: [`${ANP_SHLP}/2001-2012/mensal-estados-2001-a-2012.xlsx`, `${ANP_SHLP}/mensal/mensal-estados-desde-jan2013.xlsx`],
+};
+const ANP_PAGINA = 'https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/serie-historica-do-levantamento-de-precos';
+const semAcento = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().trim();
+const UF_POR_NOME = new Map(UFS.map((u) => [semAcento(u.nome), u.uf]));
+
+// Linhas de uma planilha da ANP → [{ periodo, produto, estado?, preco }]. O cabeçalho é a linha que começa
+// com "MÊS"; as colunas são achadas pelo nome (o texto acima do cabeçalho muda a cada versão do arquivo).
+function linhasANP(buf, arquivo) {
+  const [planilha] = lerXlsx(buf);
+  if (!planilha) throw new Error(`planilha vazia: ${arquivo}`);
+  const iCab = planilha.linhas.findIndex((l) => l && semAcento(l[0]) === 'MES');
+  if (iCab < 0) throw new Error(`cabeçalho não encontrado: ${arquivo}`);
+  const cab = planilha.linhas[iCab].map((c) => semAcento(c ?? ''));
+  const col = (nome) => cab.indexOf(nome);
+  const cMes = col('MES'), cProd = col('PRODUTO'), cEst = col('ESTADO'), cPreco = col('PRECO MEDIO REVENDA');
+  if (cProd < 0 || cPreco < 0) throw new Error(`colunas esperadas ausentes: ${arquivo}`);
+  const out = [];
+  for (const l of planilha.linhas.slice(iCab + 1)) {
+    if (!l || typeof l[cMes] !== 'number' || typeof l[cPreco] !== 'number') continue; // "-" = sem coleta
+    out.push({ periodo: dataExcel(l[cMes]).slice(0, 7), produto: semAcento(l[cProd]), estado: cEst >= 0 ? semAcento(l[cEst]) : null, preco: l[cPreco] });
+  }
+  return out;
+}
+
+let anpDados = null;
+function dadosANP() {
+  if (!anpDados) {
+    anpDados = (async () => {
+      const r = {};
+      for (const [tipo, urls] of Object.entries(ANP_ARQUIVOS)) {
+        r[tipo] = [];
+        for (const url of urls) r[tipo].push(...linhasANP(await baixarArquivo(url), url.split('/').pop()));
+      }
+      return r;
+    })();
+    anpDados.catch(() => { anpDados = null; });
+  }
+  return anpDados;
+}
+
+// Monta { serie (real), nominal, porUF (real), meta } de um produto da ANP. Valores reais: preço nominal
+// multiplicado pelo IPCA acumulado entre o mês e o último mês da série de preços; se o IPCA desse(s) último(s)
+// mês(es) ainda não saiu, eles não são corrigidos (o último ponto real é sempre igual ao nominal).
+async function combustivel(produto, desde = INICIO) {
+  const anp = await dadosANP();
+  const { indice, ultimo: ultimoIPCA } = await indiceIPCA();
+  const mapa = (linhas) => new Map(linhas.filter((l) => l.produto === produto && l.periodo >= desde).map((l) => [l.periodo, l.preco]));
+  const nominalBR = [...mapa(anp.brasil)].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  if (!nominalBR.length) throw new Error(`ANP sem dados de ${produto}`);
+  const base = nominalBR[nominalBR.length - 1][0];
+  const nivel = (p) => indice.get(p > ultimoIPCA ? ultimoIPCA : p);
+  const real = (pontos) => pontos.filter(([p]) => nivel(p)).map(([p, v]) => [p, arred((v * nivel(base)) / nivel(p), 2)]);
+  const porUF = {};
+  for (const u of UFS) {
+    const s = [...mapa(anp.estados.filter((l) => UF_POR_NOME.get(l.estado) === u.uf))].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+    if (!s.length) throw new Error(`ANP sem dados de ${produto} para ${u.uf}`);
+    porUF[u.uf] = real(s);
+  }
+  return { serie: real(nominalBR), nominal: nominalBR.map(([p, v]) => [p, arred(v, 2)]), porUF, base };
+}
+
 // ---------------------------------------------------------------- indicadores
 // Cada um tem os metadados do índice e `montar()`, que devolve { serie, porUF?, meta? } (meta sobrescreve
 // campos do índice que dependem dos dados, como o mês de referência do salário mínimo real).
@@ -121,6 +255,41 @@ const INDICADORES = [
     nota: null,
     async montar() {
       return { serie: mensal(await sgs(13522), 2) };
+    },
+  },
+  {
+    id: 'alimentos',
+    titulo: 'Inflação dos alimentos (alimentação no domicílio, 12 meses)',
+    curto: 'Alimentos',
+    unidade: '%',
+    casas: 2,
+    periodicidade: 'mensal',
+    descricao: 'Variação acumulada em 12 meses dos preços da alimentação no domicílio (comida comprada em ' +
+      'supermercados, feiras e padarias para consumo em casa), grupo do IPCA.',
+    fonte: 'IBGE — IPCA (SIDRA, tabelas 655, 2938, 1419 e 7060)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/7060',
+    nota: 'Desde 2012, a variação em 12 meses publicada pelo IBGE; antes disso, calculada por este painel ' +
+      'encadeando as variações mensais publicadas (o IBGE não divulga o acumulado em 12 meses dessas tabelas).',
+    async montar() {
+      // 12 meses calculados a partir das variações mensais (precisa de 11 meses antes do início).
+      const mensais = (await ipcaSubitens([7171], '2002-02')).get('7171');
+      const calc = new Map();
+      const ps = [...mensais.keys()].sort();
+      for (const p of meses(INICIO, ps[ps.length - 1])) {
+        const janela = meses(`${Number(p.slice(0, 4)) - 1}${p.slice(4)}`, p).slice(1); // os 12 meses terminados em p
+        if (janela.some((q) => !mensais.has(q))) continue;
+        calc.set(p, arred((janela.reduce((f, q) => f * (1 + mensais.get(q) / 100), 1) - 1) * 100, 2));
+      }
+      // Acumulado em 12 meses oficial (variável 2265), existente nas tabelas desde 2012; prevalece sobre o cálculo.
+      const oficial = new Map();
+      for (const t of [1419, 7060]) {
+        for (const [p, v] of serieSidra(await sidra(`t/${t}/n1/all/v/2265/p/all/c315/7171`), 'D3C', periodoMovel, 2)) oficial.set(p, v);
+      }
+      let difMax = 0;
+      for (const [p, v] of oficial) if (calc.has(p)) difMax = Math.max(difMax, Math.abs(calc.get(p) - v));
+      console.log(`  (12 meses calculado × oficial, 2012+: diferença máxima de ${difMax.toFixed(2)} p.p.)`);
+      const serie = [...new Map([...calc, ...oficial])].filter(([p]) => p >= INICIO).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+      return { serie };
     },
   },
   {
@@ -196,17 +365,59 @@ const INDICADORES = [
       'mais recente com IPCA divulgado.',
     async montar() {
       const nominal = new Map(mensal(await sgs(1619), 2));
-      const ipca = mensal(await sgs(433), 2);
-      // Índice de preços encadeado (base arbitrária) a partir das variações mensais.
-      const indice = new Map();
-      let nivel = 1;
-      for (const [p, v] of ipca) indice.set(p, (nivel *= 1 + v / 100));
-      const ultimo = ipca[ipca.length - 1][0], base = indice.get(ultimo);
+      const { indice, ultimo } = await indiceIPCA();
+      const base = indice.get(ultimo);
       const serie = [];
       for (const [p, v] of nominal) if (indice.has(p)) serie.push([p, arred((v * base) / indice.get(p), 2)]);
       return {
         serie,
         meta: { descricao: `Salário mínimo nacional em vigor em cada mês, corrigido pelo IPCA, em reais de ${mesPorExtenso(ultimo)}.` },
+      };
+    },
+  },
+  {
+    id: 'gasolina',
+    titulo: 'Preço da gasolina comum',
+    curto: 'Gasolina',
+    unidade: 'R$/litro',
+    casas: 2,
+    periodicidade: 'mensal',
+    descricao: 'Preço médio da gasolina comum nos postos (revenda), média mensal, corrigido pelo IPCA.', // completada em montar()
+    fonte: 'ANP — Levantamento de Preços de Combustíveis (série histórica mensal); IPCA mensal do IBGE (SGS 433)',
+    fonteUrl: ANP_PAGINA,
+    nota: 'Valores reais: o preço nominal de cada mês (o que se pagava na bomba na época, guardado à parte) é ' +
+      'multiplicado pela inflação (IPCA) acumulada até o mês mais recente da série, por isso o último ponto é igual ' +
+      'ao preço nominal atual. Por estado, a média de cada UF corrigida pelo mesmo IPCA nacional. A ANP não fez ' +
+      'pesquisa entre 18/8 e 17/10/2020.',
+    porUF: true,
+    async montar() {
+      const r = await combustivel('GASOLINA COMUM');
+      return {
+        ...r,
+        meta: { descricao: `Preço médio da gasolina comum nos postos (revenda), média mensal, em reais de ${mesPorExtenso(r.base)}, corrigido pelo IPCA.` },
+      };
+    },
+  },
+  {
+    id: 'botijao',
+    titulo: 'Preço do botijão de gás (13 kg)',
+    curto: 'Botijão',
+    unidade: 'R$/13 kg',
+    casas: 2,
+    periodicidade: 'mensal',
+    descricao: 'Preço médio do botijão de gás de cozinha (GLP, 13 kg) na revenda, média mensal, corrigido pelo IPCA.', // completada em montar()
+    fonte: 'ANP — Levantamento de Preços de Combustíveis (série histórica mensal); IPCA mensal do IBGE (SGS 433)',
+    fonteUrl: ANP_PAGINA,
+    nota: 'Valores reais: o preço nominal de cada mês (o que se pagava na época, guardado à parte) é multiplicado ' +
+      'pela inflação (IPCA) acumulada até o mês mais recente da série, por isso o último ponto é igual ao preço ' +
+      'nominal atual. Por estado, a média de cada UF corrigida pelo mesmo IPCA nacional. A ANP não fez pesquisa ' +
+      'entre 18/8 e 17/10/2020.',
+    porUF: true,
+    async montar() {
+      const r = await combustivel('GLP');
+      return {
+        ...r,
+        meta: { descricao: `Preço médio do botijão de gás de cozinha (GLP, 13 kg) na revenda, média mensal, em reais de ${mesPorExtenso(r.base)}, corrigido pelo IPCA.` },
       };
     },
   },
@@ -277,6 +488,49 @@ const CONTEXTO = [
   { inicio: '2020-03-01', fim: '2021-12-31', rotulo: 'Pandemia de covid-19' },
 ];
 
+// ---------------------------------------------------------------- mercado.json
+// Variação mensal do IPCA (Brasil) de itens do dia a dia, desde jan/2012 (tabelas 1419 e 7060; os códigos da
+// classificação 315 são os mesmos nas duas). Não entra no índice: é usado à parte pela página.
+const MERCADO_INICIO = '2012-01';
+const MERCADO_ITENS = [
+  { id: 'geral', nome: 'Inflação geral (IPCA)', grupo: 'referencia', codigo: 7169 },
+  { id: 'alimentos', nome: 'Alimentação no domicílio', grupo: 'referencia', codigo: 7171 },
+  { id: 'arroz', nome: 'Arroz', grupo: 'mercado', codigo: 7173 },
+  { id: 'feijao', nome: 'Feijão-carioca', grupo: 'mercado', codigo: 12222 },
+  { id: 'cafe', nome: 'Café moído', grupo: 'mercado', codigo: 7392 },
+  { id: 'carnes', nome: 'Carnes', grupo: 'mercado', codigo: 7283 },
+  { id: 'frango', nome: 'Frango inteiro', grupo: 'mercado', codigo: 107617 },
+  { id: 'ovo', nome: 'Ovo de galinha', grupo: 'mercado', codigo: 7355 },
+  { id: 'leite', nome: 'Leite longa vida', grupo: 'mercado', codigo: 12393 },
+  { id: 'pao', nome: 'Pão francês', grupo: 'mercado', codigo: 7375 },
+  { id: 'oleo', nome: 'Óleo de soja', grupo: 'mercado', codigo: 7385 },
+  { id: 'acucar', nome: 'Açúcar refinado', grupo: 'mercado', codigo: 7220 },
+  { id: 'tomate', nome: 'Tomate', grupo: 'mercado', codigo: 7212 },
+  { id: 'batata', nome: 'Batata-inglesa', grupo: 'mercado', codigo: 7202 },
+  { id: 'banana', nome: 'Banana-prata', grupo: 'mercado', codigo: 7260 },
+  { id: 'botijao', nome: 'Gás de botijão', grupo: 'casa', codigo: 7482 },
+  { id: 'energia', nome: 'Energia elétrica residencial', grupo: 'casa', codigo: 7485 },
+  { id: 'gasolina', nome: 'Gasolina', grupo: 'casa', codigo: 7657 },
+];
+
+async function montarMercado() {
+  const dados = await ipcaSubitens(MERCADO_ITENS.map((i) => i.codigo), MERCADO_INICIO);
+  const fim = [...dados.get('7169').keys()].sort().pop();
+  const itens = MERCADO_ITENS.map(({ id, nome, grupo, codigo }) => {
+    const m = dados.get(String(codigo));
+    const faltam = meses(MERCADO_INICIO, fim).filter((p) => !m.has(p));
+    if (faltam.length) console.warn(`  AVISO: ${id} (${codigo}) sem dado em ${faltam.join(', ')}`);
+    const serie = [...m].filter(([p]) => p <= fim).sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([p, v]) => [p, arred(v, 2)]);
+    return { id, nome, grupo, serie };
+  });
+  return {
+    atualizadoEm: fim,
+    fonte: 'IBGE — IPCA (SIDRA, tabelas 1419 e 7060)',
+    fonteUrl: 'https://sidra.ibge.gov.br/tabela/7060',
+    itens,
+  };
+}
+
 // ---------------------------------------------------------------- validação e gravação
 function validar(id, serie) {
   if (!Array.isArray(serie) || serie.length < 8) throw new Error(`${id}: série vazia ou curta demais`);
@@ -305,8 +559,10 @@ async function main() {
       const r = await montar();
       validar(ind.id, r.serie);
       if (porUF) for (const [uf, s] of Object.entries(r.porUF)) validar(`${ind.id}/${uf}`, s);
+      if (r.nominal) validar(`${ind.id}/nominal`, r.nominal);
       atualizadoEm = r.serie[r.serie.length - 1][0];
       const saida = { id: ind.id, atualizadoEm, serie: r.serie };
+      if (r.nominal) saida.nominal = r.nominal; // preços da época, sem correção (combustíveis)
       if (porUF) saida.porUF = r.porUF;
       gravar(destino, saida);
       extra = r.meta || {};
@@ -328,6 +584,19 @@ async function main() {
     entradas.push({ ...meta, ...extra, inicioSerie: serieArq?.[0]?.[0] ?? null, nota: meta.nota ?? null, arquivo, porUF });
   }
 
+  // mercado.json (fora do índice): variação mensal de itens do supermercado e da casa.
+  console.log('\nmercado...');
+  const destinoMercado = path.join(outDir, 'mercado.json');
+  try {
+    const m = await montarMercado();
+    for (const it of m.itens) validar(`mercado/${it.id}`, it.serie);
+    gravar(destinoMercado, m);
+    ok++;
+    console.log(`  ${m.itens.length} itens, ${m.itens[0].serie[0][0]} … ${m.atualizadoEm} — ${(fs.statSync(destinoMercado).size / 1024).toFixed(1)} KB`);
+  } catch (err) {
+    console.warn(`  AVISO: mercado falhou (${err.message}); mantendo o arquivo anterior.`);
+  }
+
   if (!ok) {
     console.error('\nERRO: todos os indicadores falharam; nada foi atualizado.');
     process.exit(1);
@@ -338,7 +607,7 @@ async function main() {
   const indicadores = entradas.map((e) => Object.fromEntries(CHAVES.map((k) => [k, e[k]])));
   const geradoEm = datas.filter(Boolean).sort().pop();
   gravar(path.join(outDir, 'indice.json'), { geradoEm, mandatos: MANDATOS, contexto: CONTEXTO, indicadores });
-  console.log(`\nindice.json: ${indicadores.length} indicadores, geradoEm ${geradoEm} (${ok}/${INDICADORES.length} atualizados).`);
+  console.log(`\nindice.json: ${indicadores.length} indicadores, geradoEm ${geradoEm} (${ok}/${INDICADORES.length + 1} arquivos atualizados, contando mercado.json).`);
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });
