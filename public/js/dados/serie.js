@@ -18,10 +18,12 @@ export const dataFimParaT = (s) => {
 
 // Intervalo [ini, fim) de tempo coberto por um ponto da série.
 // Mensal: o mês inteiro. Trimestral: os 3 meses do trimestre (aceita o período marcado pelo
-// último mês — mar/jun/set/dez — ou pelo primeiro — jan/abr/jul/out).
+// último mês — mar/jun/set/dez — ou pelo primeiro — jan/abr/jul/out). Anual: os 12 meses que
+// terminam no mês do período ("2024-12" = ano de 2024; "2024-07" = ago/2023 a jul/2024, PRODES).
 export function intervaloPonto(periodo, periodicidade) {
   const [a, m] = periodo.split('-').map(Number);
   const t = a * 12 + (m - 1);
+  if (periodicidade === 'anual') return [t - 11, t + 1];
   if (periodicidade === 'trimestral') {
     const ini = m % 3 === 0 ? t - 2 : t - ((m - 1) % 3);
     return [ini, ini + 3];
@@ -32,6 +34,7 @@ export function intervaloPonto(periodo, periodicidade) {
 // Rótulo curto do período: "ago/2026" ou "2º tri 2026".
 export function rotuloPeriodo(periodo, periodicidade) {
   const [a, m] = periodo.split('-').map(Number);
+  if (periodicidade === 'anual') return m === 12 ? String(a) : `${a - 1}/${String(a).slice(2)}`;
   if (periodicidade === 'trimestral') {
     const [ini] = intervaloPonto(periodo, periodicidade);
     const tri = Math.floor((ini - a * 12) / 3) + 1;
@@ -50,16 +53,20 @@ export function dataBR(s) {
 const num = (v, casas) =>
   v.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
 
-// Unidades em reais: "R$", "R$/US$", "R$/litro", "R$/13 kg" (o que vem depois da barra vira "por …").
+// Unidades em reais: "R$", "R$/US$", "R$/litro", "R$/13 kg" (o que vem depois da barra vira
+// "por …") e "R$ bi" (bilhões: "R$ 2.900 bi").
 const emReais = (ind) => (ind.unidade || '').startsWith('R$');
-const porQue = (ind) => (ind.unidade || '').split('/')[1] || '';
+const porQue = (ind) => {
+  const resto = (ind.unidade || '').slice(2).trim();
+  return resto.startsWith('/') ? `por ${resto.slice(1)}` : resto;
+};
 
 // Valor com unidade: "4,58%", "82,9% do PIB", "R$ 3.660", "R$ 5,14".
 export function fmtValor(v, ind, casas = ind.casas ?? 1) {
   if (v == null || !Number.isFinite(v)) return '—';
   const neg = v < 0 ? '−' : '';
   const a = Math.abs(v);
-  if (emReais(ind)) return `${neg}R$ ${num(a, casas)}`;
+  if (emReais(ind)) return `${neg}R$ ${num(a, casas)}${porQue(ind).startsWith('por') ? '' : porQue(ind) ? ` ${porQue(ind)}` : ''}`;
   switch (ind.unidade) {
     case '% do PIB':
       return `${neg}${num(a, casas)}% do PIB`;
@@ -74,7 +81,7 @@ export function fmtValor(v, ind, casas = ind.casas ?? 1) {
 export function partesValor(v, ind) {
   if (v == null || !Number.isFinite(v)) return { pre: '', num: '—', suf: '' };
   const n = (v < 0 ? '−' : '') + num(Math.abs(v), ind.casas ?? 1);
-  if (emReais(ind)) return { pre: 'R$', num: n, suf: porQue(ind) ? `por ${porQue(ind)}` : '' };
+  if (emReais(ind)) return { pre: 'R$', num: n, suf: porQue(ind) };
   if (ind.unidade === '% do PIB') return { pre: '', num: n, suf: '% do PIB' };
   if (ind.unidade === '%') return { pre: '', num: n, suf: '%' };
   return { pre: '', num: n, suf: ind.unidade || '' };
@@ -134,11 +141,11 @@ export function estatisticasPorMandato(pts, mandatos, ind, periodicidade) {
     const media = dentro.reduce((s, p) => s + p.v, 0) / dentro.length;
     const notas = [];
     // A série começa depois do início do mandato (folga de um período).
-    if (a === primeiro && primeiro.ini > m.t0 + (periodicidade === 'trimestral' ? 3 : 1)) {
+    if (a === primeiro && primeiro.ini > m.t0 + ({ trimestral: 3, anual: 12 }[periodicidade] || 1)) {
       notas.push(`dados a partir de ${rotuloPeriodo(a.periodo, periodicidade)}`);
     }
     if (m.emCurso) notas.push(`dados até ${rotuloPeriodo(b.periodo, periodicidade)}`);
-    else if (b === ultimo && ultimo.fim < m.t1 - (periodicidade === 'trimestral' ? 3 : 1)) {
+    else if (b === ultimo && ultimo.fim < m.t1 - ({ trimestral: 3, anual: 12 }[periodicidade] || 1)) {
       notas.push(`dados até ${rotuloPeriodo(b.periodo, periodicidade)}`);
     }
     out.push({
@@ -181,7 +188,8 @@ export function detectarPeriodicidade(serie, padrao = 'mensal') {
   });
   if (ts.length < 3) return padrao;
   const difs = ts.slice(1).map((t, i) => t - ts[i]).sort((a, b) => a - b);
-  return difs[difs.length >> 1] >= 3 ? 'trimestral' : 'mensal';
+  const med = difs[difs.length >> 1];
+  return med >= 12 ? 'anual' : med >= 3 ? 'trimestral' : 'mensal';
 }
 
 // Valor compacto para eixos: "3,5 mil" etc.

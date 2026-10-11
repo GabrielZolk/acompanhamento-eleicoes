@@ -199,7 +199,7 @@ function htmlTabela(ind, ptsTodos, periodicidade) {
       <td data-rot="Início">${cel(l.ini)}</td>
       <td data-rot="Fim">${cel(l.fim)}</td>
       <td data-rot="Variação">${esc(l.variacao)}</td>
-      <td data-rot="Média">${esc(fmtValor(l.media, ind))}<small>${l.n} ${periodicidade === 'trimestral' ? (l.n > 1 ? 'trimestres' : 'trimestre') : l.n > 1 ? 'meses' : 'mês'}</small></td>
+      <td data-rot="Média">${esc(fmtValor(l.media, ind))}<small>${l.n} ${periodicidade === 'anual' ? (l.n > 1 ? 'anos' : 'ano') : periodicidade === 'trimestral' ? (l.n > 1 ? 'trimestres' : 'trimestre') : l.n > 1 ? 'meses' : 'mês'}</small></td>
     </tr>`;
   }).join('');
   const expVar = variacaoEmPP(ind)

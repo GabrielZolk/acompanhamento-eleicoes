@@ -89,7 +89,14 @@ export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = 
     const valor = semPandemia && semPand != null ? semPand : cheio;
     const usados = semPandemia ? fora : dentro;
     const media = usados.reduce((s, p) => s + p.v, 0) / usados.length;
-    return { m, dentro, ini: dentro[0], fim: dentro[dentro.length - 1], media, valor, cheio, semPand, nPandemia };
+    // Melhor e pior marca do governo no período considerado, pelo sentido do indicador.
+    let alto = usados[0], baixo = usados[0];
+    for (const p of usados) {
+      if (p.v > alto.v) alto = p;
+      if (p.v < baixo.v) baixo = p;
+    }
+    const [melhor, pior] = r.melhor === 'menor' ? [baixo, alto] : [alto, baixo];
+    return { m, dentro, ini: dentro[0], fim: dentro[dentro.length - 1], media, valor, cheio, semPand, nPandemia, melhor, pior };
   });
   if (lados.some((l) => !l)) return null;
   const [a, b] = lados;
@@ -104,6 +111,8 @@ const ICONE = {
   maior: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   trofeu: '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" fill="currentColor"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14v3M8.5 20h7M10 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   igual: '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5h8M3 9h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  bom: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5 5 9l4.5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ext__rot">melhor</span>',
+  ruim: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 3 6 6M9 3 3 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="ext__rot">pior</span>',
   virus: '<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.5" fill="currentColor"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4M5.3 5.3l2.8 2.8M15.9 15.9l2.8 2.8M5.3 18.7l2.8-2.8M15.9 8.1l2.8-2.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
 };
 
@@ -146,6 +155,10 @@ function htmlLado(l, i, cmp, ind, periodicidade) {
       <div class="lado__rot">${rot}</div>
       ${alt}
       <div class="lado__ext">${esc(fmtValor(l.ini.v, ind))} <span aria-hidden="true">→</span> ${esc(fmtValor(l.fim.v, ind))}<small>${esc(rotuloPeriodo(l.ini.periodo, periodicidade))} a ${esc(rotuloPeriodo(l.fim.periodo, periodicidade))}</small></div>
+      <div class="lado__ext2">
+        <span class="ext ext--bom" title="Melhor marca do governo">${ICONE.bom}<b>${esc(fmtValor(l.melhor.v, ind))}</b> ${esc(rotuloPeriodo(l.melhor.periodo, periodicidade))}</span>
+        <span class="ext ext--ruim" title="Pior marca do governo">${ICONE.ruim}<b>${esc(fmtValor(l.pior.v, ind))}</b> ${esc(rotuloPeriodo(l.pior.periodo, periodicidade))}</span>
+      </div>
     </div>`;
 }
 
