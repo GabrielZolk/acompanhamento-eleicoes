@@ -105,6 +105,8 @@ terminado naquele mês (carga tributária, pobreza e Gini: "AAAA-12"; desmatamen
 | Famílias no Bolsa Família / Auxílio Brasil (milhões) e benefício médio por família (R$, corrigido pelo IPCA) | MDS — [VIS DATA / MI Social](https://aplicacoes.mds.gov.br/sagi/vis/data3/data-explorer.php) (base Solr `aplicacoes.mds.gov.br/sagi/servicos/misocial`, soma dos municípios por mês com `stats.facet`); desde jan/2004. Auxílio Brasil (nov/2021–fev/2023) pelos campos `pab_*`, com o benefício extraordinário somado ao valor. Benefício médio = valor repassado ÷ famílias, deflacionado pelo IPCA (SGS 433); sem pontos em abr–dez/2020 e abr–out/2021 (Auxílio Emergencial no lugar do benefício) |
 | Ideb anos iniciais, anos finais e ensino médio (rede pública) | INEP — [resultados do Ideb](https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados) (`divulgacao_brasil_ideb_{edição}.zip`, planilha XLSX dentro do ZIP; edição mais recente achada automaticamente); bienal desde 2005, período "AAAA-12" |
 | Homicídios por 100 mil habitantes (anual) | Ministério da Saúde — SIM via [DATASUS/TabNet](http://tabnet.datasus.gov.br/cgi/deftohtm.exe?sim/cnv/ext10uf.def) (óbitos por agressão, CID-10 X85–Y09, por residência; só anos com dados finais) ÷ IBGE, [Projeções da População, revisão 2024](https://ftp.ibge.gov.br/Projecao_da_Populacao/Projecao_da_Populacao_2024/) (população em 1º de julho) |
+| Feminicídios, latrocínios, estupros (inclui estupro de vulnerável), roubos de veículos, mortes por intervenção de agentes do Estado e agentes de segurança mortos (soma de 12 meses) | Ministério da Justiça e Segurança Pública — Sinesp VDE, [Dados Nacionais de Segurança Pública](https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados-nacionais-1/base-de-dados-e-notas-metodologicas-dos-gestores-estaduais-sinesp-vde-2022-e-2023) (`bancovde-AAAA.xlsx`, uma planilha por ano desde 2015, por UF, município e mês; ~25 MB cada, lidas em blocos); só meses informados pelas 27 UFs (roubos de veículos desde 2021) |
+| Novos registros de armas de fogo (Polícia Federal/SINARM, soma de 12 meses) | Polícia Federal — [SINARM, arquivos CSV](https://servicos.dpf.gov.br/dadosabertos/SINARM_CSV/REGISTROS/) (`REGISTROS_com_categoria_*.csv`, pessoas físicas, por ano e mês de emissão); desde 2012, depois do recadastramento de 2008–2011 |
 
 Cada indicador do índice tem um `tema` (custo de vida, renda e emprego, crédito e dívidas, impostos e contas públicas,
 economia, meio ambiente, social, educação, segurança). Nas séries com `periodicidade` "anual", o período "AAAA-MM" é o ano de 12 meses terminado
@@ -112,7 +114,9 @@ naquele mês (carga tributária: "AAAA-12"; desmatamento: "AAAA-07"). O saldo do
 do Trabalho hoje só publica apresentações em PDF e microdados compactados em 7z, sem tabela legível por máquina.
 A cobertura vacinal também ficou de fora: o TabNet do SI-PNI só vai até 2022 e os dados desde 2023 estão só no painel
 do Ministério da Saúde, sem tabela legível por máquina. Os indicadores sociais (Bolsa Família, Ideb, homicídios) ficam
-em `tools/indicadores-sociais.mjs`.
+em `tools/indicadores-sociais.mjs`; os de segurança pública (Sinesp e SINARM), em `tools/indicadores-seguranca.mjs`.
+Os registros de armas de CAC (colecionadores, atiradores e caçadores) ficaram de fora: o SIGMA do Exército não tem
+dados abertos e a Polícia Federal, responsável desde jul/2025, só publica um painel de BI (o CSV do SINARM-CAC está vazio).
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
