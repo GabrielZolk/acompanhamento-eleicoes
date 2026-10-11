@@ -1,0 +1,348 @@
+{
+  "atualizadoEm": "2026-10-11",
+  "criterio": "Critério fixado antes da pesquisa e aplicado igualmente aos três nomes. PARTE A (pessoas): entram Lula, Flávio Bolsonaro e Jair Bolsonaro (este como chefe do governo anterior e pai do candidato). Entra todo procedimento criminal formal de iniciativa pública e alcance nacional em que a pessoa figurou como investigada, indiciada, denunciada, ré, condenada ou absolvida, ou cujo processo foi anulado, trancado, arquivado ou extinto por prescrição: inquérito no STF ou STJ, inquérito da Polícia Federal com relatório enviado a tribunal, denúncia do Ministério Público ou ação penal. Não entram: notícias-crime e pedidos de investigação rejeitados sem abertura de inquérito; queixas-crime privadas por crimes contra a honra (calúnia, injúria, difamação movidas pela própria vítima); processos eleitorais, cíveis, de improbidade ou fiscais; investigações de familiares ou aliados em que a pessoa não é formalmente investigada; reportagens sem procedimento formal. Para cada caso, registra-se só a situação processual oficial (investigado, indiciado, denunciado, réu, condenado em tal instância, absolvido, anulado, trancado, arquivado, prescrito). Nada aqui afirma culpa ou inocência além do que os tribunais decidiram. Em anulações, trancamentos e prescrições, informa-se o fundamento jurídico e se o mérito (culpa ou inocência) chegou a ser julgado. PARTE B (casos): entram os maiores casos de corrupção ou fraude envolvendo recursos públicos federais, ou o sistema financeiro sob supervisão federal, revelados ou ocorridos em cada governo federal desde 2003, desde que (1) tenham sido objeto de operação da PF, auditoria do TCU ou da CGU ou decisão judicial e (2) tenham dano estimado ou volume de recursos sob suspeita de pelo menos R$ 1 bilhão segundo fonte oficial ou grande imprensa. Exceção declarada: entra também caso em que o STF condenou ex-ministro de Estado por corrupção ligada ao governo, ainda que abaixo de R$ 1 bi (é o caso do Mensalão). Para cada caso: período dos fatos, governos em que ocorreram, quem foi investigado ou condenado segundo fontes oficiais e situação. Valores são estimativas das fontes citadas, não valores de dano julgados, salvo indicação. Datas no formato AAAA-MM-DD; quando a fonte só confirma mês ou ano, usa-se AAAA-MM ou AAAA.",
+  "metodo": "Levantamento feito em 11/10/2026. Cada evento tem uma fonte aberta e lida: notícias e decisões do STF (noticias.stf.jus.br, portal.stf.jus.br e íntegras de decisões), TJRJ, Agência Brasil, Petrobras (formulário 6-K na SEC) e grande imprensa (Poder360, CNN Brasil, Gazeta do Povo, Estado de Minas, Correio Braziliense, Migalhas, ConJur, Congresso em Foco, O Povo, Metrópoles, entre outros). Fatos que não puderam ser confirmados numa fonte aberta ficaram de fora. Quando nenhuma fonte trouxe desfecho posterior, a situação registrada é a última confirmada, com a data. Situações processuais mudam; confira o andamento no tribunal antes de citar.",
+  "pessoas": [
+    {
+      "id": "lula-triplex",
+      "pessoa": "Lula",
+      "caso": "Triplex do Guarujá (Lava Jato)",
+      "situacao": "condenação anulada pelo STF (incompetência da 13ª Vara Federal de Curitiba e suspeição do juiz Sergio Moro); mérito não foi julgado de novo; arquivado por prescrição em 2022",
+      "eventos": [
+        { "data": "2017-07-12", "fase": "condenação 1ª instância", "texto": "O juiz Sergio Moro (13ª Vara Federal de Curitiba) condenou Lula por corrupção passiva e lavagem de dinheiro a 9 anos e 6 meses de prisão.", "fonteUrl": "https://www.poder360.com.br/justica/ex-presidente-lula-completa-1-ano-na-prisao-por-triplex-no-guaruja/" },
+        { "data": "2018-01-24", "fase": "condenação 2ª instância", "texto": "O TRF-4 manteve a condenação por unanimidade e aumentou a pena para 12 anos e 1 mês.", "fonteUrl": "https://www.poder360.com.br/justica/ex-presidente-lula-completa-1-ano-na-prisao-por-triplex-no-guaruja/" },
+        { "data": "2018-04-07", "fase": "prisão", "texto": "Lula se apresentou à Superintendência da PF em Curitiba para cumprir a pena após a condenação em 2ª instância (execução provisória, então admitida pelo STF).", "fonteUrl": "https://www.poder360.com.br/justica/ex-presidente-lula-completa-1-ano-na-prisao-por-triplex-no-guaruja/" },
+        { "data": "2019-04-23", "fase": "STJ mantém condenação", "texto": "A 5ª Turma do STJ manteve a condenação por unanimidade e reduziu a pena para 8 anos e 10 meses.", "fonteUrl": "https://www.opovo.com.br/noticias/politica/2019/04/23/amp/defesa-de-lula-diz-que-vai-recorrer-para-garantir-absolvicao.html" },
+        { "data": "2019-11-08", "fase": "soltura", "texto": "A Justiça Federal em Curitiba mandou soltar Lula um dia depois de o STF decidir (7/11/2019) que a pena só pode ser executada após o trânsito em julgado. A condenação seguia válida naquele momento.", "fonteUrl": "https://moneytimes.com.br/juiz-manda-soltar-ex-presidente-lula-e-saida-deve-ocorrer-ainda-nesta-sexta/" },
+        { "data": "2021-03-08", "fase": "anulação (incompetência)", "texto": "O ministro Edson Fachin (HC 193.726) declarou a 13ª Vara Federal de Curitiba incompetente, porque os fatos não tinham relação direta com contratos da Petrobras. Anulou as decisões do caso e mandou o processo para a Justiça Federal do DF. Não houve julgamento sobre provas, culpa ou inocência.", "fonteUrl": "https://www.migalhas.com.br/quentes/341380/fachin-anula-as-condenacoes-de-lula-na-lava-jato" },
+        { "data": "2021-03-23", "fase": "suspeição do juiz", "texto": "A 2ª Turma do STF (HC 164.493) declarou, por 3 votos a 2, a suspeição (parcialidade) de Sergio Moro no caso do triplex. Com isso, foram anulados os atos de Moro, inclusive os da fase de investigação.", "fonteUrl": "https://www.conjur.com.br/2021-jun-23/moro-suspeito-julgar-lula-decide-stf-votos//?print=1" },
+        { "data": "2021-04-15", "fase": "Plenário confirma incompetência", "texto": "O Plenário do STF confirmou, por 8 votos a 3, a incompetência da vara de Curitiba.", "fonteUrl": "https://www.migalhas.com.br/quentes/343754/stf-derruba-condenacoes-de-lula-in-the-Car%20Wash-case" },
+        { "data": "2021-06-23", "fase": "Plenário confirma suspeição", "texto": "O Plenário do STF manteve, por 7 votos a 4, a suspeição de Moro no caso do triplex.", "fonteUrl": "https://www.conjur.com.br/2021-jun-23/moro-suspeito-julgar-lula-decide-stf-votos//?print=1" },
+        { "data": "2022-01-27", "fase": "arquivamento por prescrição", "texto": "A pedido do MPF, a 12ª Vara Federal Criminal de Brasília arquivou o caso por prescrição: com Lula acima de 70 anos, o prazo de prescrição cai pela metade e já tinha se esgotado. O mérito nunca foi julgado de novo.", "fonteUrl": "https://www.gazetadopovo.com.br/republica/breves/justica-do-df-arquiva-caso-do-triplex-do-guaruja-atribuido-a-lula-na-lava-jato/" }
+      ]
+    },
+    {
+      "id": "lula-atibaia",
+      "pessoa": "Lula",
+      "caso": "Sítio de Atibaia (Lava Jato)",
+      "situacao": "condenações anuladas pelo STF (incompetência e extensão da suspeição de Moro); a Justiça Federal do DF não aceitou retomar a denúncia (provas anuladas e prescrição); mérito não foi julgado de novo",
+      "eventos": [
+        { "data": "2019-02-06", "fase": "condenação 1ª instância", "texto": "A 13ª Vara Federal de Curitiba condenou Lula por corrupção passiva e lavagem de dinheiro a 12 anos e 11 meses de prisão.", "fonteUrl": "https://www.poder360.com.br/justica/ex-presidente-lula-completa-1-ano-na-prisao-por-triplex-no-guaruja/" },
+        { "data": "2019-11-27", "fase": "condenação 2ª instância", "texto": "A 8ª Turma do TRF-4 manteve a condenação por unanimidade e aumentou a pena para 17 anos, 1 mês e 10 dias.", "fonteUrl": "https://www.poder360.com.br/justica/lula-tem-condenacao-mantida-e-pena-aumentada-para-17-anos-no-caso-do-sitio/" },
+        { "data": "2021-03-08", "fase": "anulação (incompetência)", "texto": "A decisão do ministro Fachin no HC 193.726, confirmada depois pelo Plenário, também atingiu esta ação: a vara de Curitiba foi declarada incompetente e o caso enviado ao DF, sem julgamento de mérito.", "fonteUrl": "https://www.migalhas.com.br/quentes/341380/fachin-anula-as-condenacoes-de-lula-na-lava-jato" },
+        { "data": "2021-06-24", "fase": "suspeição estendida", "texto": "O ministro Gilmar Mendes estendeu a este processo a suspeição de Moro reconhecida no caso do triplex. Na prática, os atos de Moro no caso foram anulados.", "fonteUrl": "https://www.em.com.br/app/noticia/politica/2021/06/24/interna_politica,1280223/gilmar-estende-efeitos-da-suspeicao-de-moro-a-outros-2-processos-que-atinge.shtml" },
+        { "data": "2021-08", "fase": "denúncia não ratificada", "texto": "A 12ª Vara Federal Criminal do DF rejeitou o pedido do MPF para retomar a ação. Fundamentos: as provas eram as mesmas anuladas pelo STF, e a prescrição já tinha ocorrido.", "fonteUrl": "https://www.poder360.com.br/justica/justica-do-df-volta-a-negar-denuncia-contra-lula-no-caso-do-sitio-de-atibaia/" },
+        { "data": "2021-09-29", "fase": "nova rejeição", "texto": "A juíza rejeitou novo pedido do MPF: a denúncia não indicava provas válidas além das anuladas. O mérito não foi julgado.", "fonteUrl": "https://www.poder360.com.br/justica/justica-do-df-volta-a-negar-denuncia-contra-lula-no-caso-do-sitio-de-atibaia/" }
+      ]
+    },
+    {
+      "id": "lula-sede-instituto",
+      "pessoa": "Lula",
+      "caso": "Terreno para a sede do Instituto Lula (Lava Jato)",
+      "situacao": "réu sem sentença; atos anulados (incompetência e suspeição); provas do acordo de leniência da Odebrecht declaradas imprestáveis; ação trancada pelo STF em 2023 por falta de justa causa; mérito não julgado",
+      "eventos": [
+        { "data": "2021-03-08", "fase": "anulação (incompetência)", "texto": "O HC 193.726 (ministro Fachin) declarou a vara de Curitiba incompetente também para esta ação penal, que ainda não tinha sentença, e a enviou ao DF.", "fonteUrl": "https://www.migalhas.com.br/quentes/341380/fachin-anula-as-condenacoes-de-lula-na-lava-jato" },
+        { "data": "2021-06-24", "fase": "suspeição estendida", "texto": "O ministro Gilmar Mendes estendeu a esta ação a suspeição de Moro.", "fonteUrl": "https://www.em.com.br/app/noticia/politica/2021/06/24/interna_politica,1280223/gilmar-estende-efeitos-da-suspeicao-de-moro-a-outros-2-processos-que-atinge.shtml" },
+        { "data": "2021-06", "fase": "provas declaradas imprestáveis", "texto": "Na Reclamação 43.007, o ministro Ricardo Lewandowski declarou que as provas obtidas a partir do acordo de leniência da Odebrecht não podem ser usadas contra Lula nesta ação. A 2ª Turma manteve a decisão em fevereiro de 2022.", "fonteUrl": "https://www.conjur.com.br/wp-content/uploads/2023/09/lewandowski-lula.pdf" },
+        { "data": "2023-02-17", "fase": "ação trancada", "texto": "O ministro Lewandowski concedeu habeas corpus de ofício e trancou a ação penal, por ausência de justa causa: considerou imprestáveis as provas da acusação. Não houve julgamento de culpa ou inocência.", "fonteUrl": "https://static.poder360.com.br/2023/02/lewandowski-stf-acao-instituto-lula-17-fev-2023.pdf" }
+      ]
+    },
+    {
+      "id": "lula-doacoes-instituto",
+      "pessoa": "Lula",
+      "caso": "Doações da Odebrecht ao Instituto Lula (Lava Jato)",
+      "situacao": "réu sem sentença; atos anulados (incompetência); ação trancada pelo STF em 2023 por falta de justa causa; mérito não julgado",
+      "eventos": [
+        { "data": "2021-03-08", "fase": "anulação (incompetência)", "texto": "O HC 193.726 incluiu esta ação penal entre as quatro em que a vara de Curitiba foi declarada incompetente, com envio ao DF.", "fonteUrl": "https://www.migalhas.com.br/quentes/341380/fachin-anula-as-condenacoes-de-lula-na-lava-jato" },
+        { "data": "2021-09-14", "fase": "ação suspensa", "texto": "O ministro Lewandowski suspendeu as ações sobre a sede e as doações ao Instituto Lula, por causa da ilicitude de provas.", "fonteUrl": "https://portal.stf.jus.br/noticias/verNoticiaDetalhe.asp?idConteudo=502832&ori=1" },
+        { "data": "2023-02-17", "fase": "ação trancada", "texto": "Na Reclamação 43.007, o ministro Lewandowski trancou a ação por falta de justa causa: considerou contaminadas as provas vindas dos sistemas da Odebrecht. O STF divulgou o encerramento em 22/02/2023. Não houve julgamento de mérito.", "fonteUrl": "https://portal.stf.jus.br/noticias/verNoticiaDetalhe.asp?idConteudo=502832&ori=1" }
+      ]
+    },
+    {
+      "id": "lula-gripen",
+      "pessoa": "Lula",
+      "caso": "Compra dos caças Gripen (desdobramento da Operação Zelotes)",
+      "situacao": "réu sem sentença; ação suspensa (2022) e trancada pelo STF (2023) por ilicitude das provas e falta de justa causa; mérito não julgado",
+      "eventos": [
+        { "data": "2022-03-02", "fase": "ação suspensa", "texto": "O ministro Lewandowski suspendeu a ação penal da 10ª Vara Federal do DF, em que Lula respondia por tráfico de influência, lavagem de dinheiro e organização criminosa ligados à compra dos caças.", "fonteUrl": "https://portal.stf.jus.br/noticias/verNoticiaDetalhe.asp?idConteudo=482620&ori=1" },
+        { "data": "2023-02", "fase": "ação trancada", "texto": "O ministro Lewandowski encerrou a ação. Fundamento: as imputações se basearam em provas contaminadas, o que mostraria ausência de justa causa. Não houve julgamento de mérito.", "fonteUrl": "https://portal.stf.jus.br/noticias/verNoticiaDetalhe.asp?idConteudo=502832&ori=1" }
+      ]
+    },
+    {
+      "id": "lula-quadrilhao-pt",
+      "pessoa": "Lula",
+      "caso": "\"Quadrilhão do PT\" (organização criminosa)",
+      "situacao": "absolvido sumariamente em 1ª instância (2019), a pedido do próprio MPF",
+      "eventos": [
+        { "data": "2019-12-04", "fase": "absolvição sumária", "texto": "O juiz Marcus Vinicius Reis Bastos (12ª Vara Federal de Brasília) absolveu sumariamente Lula, Dilma Rousseff, Antonio Palocci, Guido Mantega e João Vaccari Neto. Para o juiz, a denúncia não descrevia os elementos do crime de organização criminosa. O MPF havia pedido a absolvição.", "fonteUrl": "https://moneytimes.com.br/justica-federal-do-df-absolve-lula-e-dilma-no-processo-do-chamado-quadrilhao-do-pt/" }
+      ]
+    },
+    {
+      "id": "lula-obstrucao-cervero",
+      "pessoa": "Lula",
+      "caso": "Suposta obstrução de justiça (delação de Nestor Cerveró / caso Delcídio)",
+      "situacao": "absolvido em 1ª instância (2018), com pedido de absolvição do MPF",
+      "eventos": [
+        { "data": "2018-07-12", "fase": "absolvição", "texto": "A 10ª Vara Federal de Brasília absolveu Lula e outros seis réus por insuficiência de provas. O juiz considerou que a gravação usada como base não era prova válida para condenar. O MPF havia pedido a absolvição de Lula.", "fonteUrl": "https://www.em.com.br/app/noticia/politica/2018/07/12/interna_politica,973024/juiz-do-df-absolve-lula-e-outros-seis-reus-no-caso-delcidio.shtml" }
+      ]
+    },
+    {
+      "id": "lula-mp-471",
+      "pessoa": "Lula",
+      "caso": "Medida Provisória 471 (Operação Zelotes)",
+      "situacao": "absolvido em 1ª instância (2021), com pedido de absolvição do MPF",
+      "eventos": [
+        { "data": "2021-06-21", "fase": "absolvição", "texto": "O juiz Frederico Botelho de Barros Viana (10ª Vara Federal do DF) absolveu Lula e Gilberto Carvalho da acusação de corrupção passiva ligada à edição da MP 471/2009. Para o juiz, a acusação não demonstrou a participação deles. O MPF havia pedido a absolvição.", "fonteUrl": "https://www.suno.com.br/noticias/justica-absolve-lula-incentivos-fiscais-montadoras/amp/" }
+      ]
+    },
+    {
+      "id": "lula-guine-equatorial",
+      "pessoa": "Lula",
+      "caso": "Guiné Equatorial / Grupo ARG (lavagem de dinheiro)",
+      "situacao": "réu; ação trancada pelo TRF-3 em 2021 (provas derivadas de buscas ordenadas por juiz declarado suspeito); mérito não julgado",
+      "eventos": [
+        { "data": "2018-12-14", "fase": "denúncia recebida", "texto": "A Justiça Federal em São Paulo recebeu a denúncia da força-tarefa da Lava Jato e Lula virou réu por lavagem de dinheiro. A acusação: R$ 1 milhão pago ao Instituto Lula para intermediar negócios do grupo ARG na Guiné Equatorial.", "fonteUrl": "https://www.poder360.com.br/justica/ex-presidente-lula-completa-1-ano-na-prisao-por-triplex-no-guaruja/" },
+        { "data": "2021-08-09", "fase": "ação trancada", "texto": "A 5ª Turma do TRF-3 trancou a ação por unanimidade. As provas vinham de e-mails apreendidos por ordem de Sergio Moro, declarado suspeito pelo STF. Não houve julgamento de mérito.", "fonteUrl": "https://www.poder360.com.br/justica/trf-3-tranca-acao-contra-lula-por-suposta-lavagem-de-dinheiro/" }
+      ]
+    },
+    {
+      "id": "lula-angola-bndes",
+      "pessoa": "Lula",
+      "caso": "Financiamentos do BNDES para obras da Odebrecht em Angola (denúncia de 2016)",
+      "situacao": "réu; ação trancada pelo TRF-1 em 2020 (denúncia sem indícios nem descrição das condutas)",
+      "eventos": [
+        { "data": "2020-09-01", "fase": "ação trancada", "texto": "A 4ª Turma do TRF-1 encerrou a ação penal da denúncia de 2016, que acusava Lula de influenciar o BNDES a favor da Odebrecht em Angola. Para os desembargadores, a denúncia não apontava indícios de crime nem quais condutas ilícitas teriam sido praticadas.", "fonteUrl": "https://www.poder360.com.br/justica/tribunal-arquiva-acao-contra-lula-na-justica-federal-em-brasilia/" }
+      ]
+    },
+    {
+      "id": "flavio-rachadinhas",
+      "pessoa": "Flávio Bolsonaro",
+      "caso": "\"Rachadinhas\" no gabinete da Alerj",
+      "situacao": "denúncia rejeitada pelo Órgão Especial do TJRJ em 2022 (falta de justa causa após o STJ anular as provas); mérito não julgado; nova investigação com provas válidas não está impedida",
+      "eventos": [
+        { "data": "2020-11-04", "fase": "denúncia", "texto": "Foi divulgada a denúncia do MPRJ, protocolada em outubro de 2020 no Órgão Especial do TJRJ, contra Flávio, Fabrício Queiroz e outras 15 pessoas. Acusações: organização criminosa, peculato, lavagem de dinheiro e apropriação indébita, em fatos de 2007 a 2018, quando Flávio era deputado estadual.", "fonteUrl": "https://www.correiobraziliense.com.br/politica/2020/11/amp/4886510-mp-denuncia-flavio-bolsonaro-e-queiroz-por-esquema-de-rachadinha.html" },
+        { "data": "2021-02-23", "fase": "anulação de provas (quebra de sigilo)", "texto": "A 5ª Turma do STJ anulou, por 4 votos a 1, as quebras de sigilo bancário e fiscal autorizadas na investigação, por falta de fundamentação da decisão de 1ª instância. O relator ficou vencido.", "fonteUrl": "https://diariodonordeste.verdesmares.com.br/politica/stj-anula-quebra-de-sigilo-bancario-e-fiscal-de-flavio-bolsonaro-no-caso-das-rachadinhas-1.3051176" },
+        { "data": "2021-11-09", "fase": "anulação de decisões (incompetência)", "texto": "A 5ª Turma do STJ anulou, por 4 votos a 1, todas as decisões do juiz da 27ª Vara Criminal do Rio. Entendeu que o caso cabia à 2ª instância (foro de deputado estadual mantido após a eleição para o Senado) e que as provas colhidas com autorização dele não podem ser usadas.", "fonteUrl": "https://www.em.com.br/app/noticia/politica/2021/11/09/interna_politica,1321477/amp.html" },
+        { "data": "2021-11-30", "fase": "STF mantém foro", "texto": "A 2ª Turma do STF rejeitou, por 3 votos a 1, recurso do MPRJ e manteve o caso no Órgão Especial do TJRJ.", "fonteUrl": "https://poder360.com.br/justica/rachadinhas-2a-turma-do-stf-reconhece-foro-privilegiado-de-flavio-bolsonaro/" },
+        { "data": "2022-05", "fase": "denúncia rejeitada", "texto": "A pedido do próprio MP, o Órgão Especial do TJRJ rejeitou a denúncia por falta de justa causa: ela se baseava em provas que o STJ considerou ilícitas. O tribunal registrou que a rejeição não impede a retomada das investigações. Notícia do TJRJ publicada em 16/05/2022.", "fonteUrl": "https://portaltj.tjrj.jus.br/noticias/noticia/-/visualizar-conteudo/5111210/92111643" },
+        { "data": "2025-02-26", "fase": "recursos negados", "texto": "O ministro Gilmar Mendes (STF) negou dois recursos do MPRJ para reabrir a ação. Lembrou que as anulações não impedem nova denúncia com provas novas.", "fonteUrl": "https://www.poder360.com.br/poder-justica/gilmar-nega-pedido-para-reabrir-acao-contra-flavio-por-rachadinha/" }
+      ]
+    },
+    {
+      "id": "flavio-cpi-pandemia",
+      "pessoa": "Flávio Bolsonaro",
+      "caso": "Inquérito sobre as conclusões da CPI da Pandemia",
+      "situacao": "investigado (inquérito aberto em setembro de 2025); sem indiciamento ou denúncia localizados até 11/10/2026",
+      "eventos": [
+        { "data": "2025-09-18", "fase": "inquérito aberto", "texto": "A pedido da PF, o ministro Flávio Dino (STF) mandou abrir inquérito para apurar as conclusões da CPI da Pandemia. Flávio Bolsonaro está entre os 24 nomes investigados, ao lado de Jair, Eduardo e Carlos Bolsonaro e ex-ministros.", "fonteUrl": "https://www.cnnbrasil.com.br/politica/veja-quem-deve-ser-investigado-em-inquerito-sobre-gestao-da-pandemia/" }
+      ]
+    },
+    {
+      "id": "flavio-calunia-lula",
+      "pessoa": "Flávio Bolsonaro",
+      "caso": "Suposta calúnia contra o presidente Lula (publicação de 03/01/2026)",
+      "situacao": "investigado (inquérito no STF, Pet 15.648); sem denúncia localizada até 11/10/2026",
+      "eventos": [
+        { "data": "2026-04-15", "fase": "inquérito aberto", "texto": "O ministro Alexandre de Moraes mandou instaurar inquérito para apurar suposta calúnia (art. 138 do Código Penal) de Flávio contra o presidente Lula, numa publicação de 3/1/2026. O pedido foi da PF, por requisição do ministro da Justiça, com parecer favorável da PGR. A data é a da publicação da notícia.", "fonteUrl": "https://www.migalhas.com.br/quentes/454026/stf-moraes-abre-inquerito-contra-flavio-bolsonaro-por-post-sobre-lula" }
+      ]
+    },
+    {
+      "id": "flavio-dark-horse",
+      "pessoa": "Flávio Bolsonaro",
+      "caso": "Recursos de Daniel Vorcaro (Banco Master) para o filme \"Dark Horse\"",
+      "situacao": "investigado (procedimento ligado ao INQ 5026 no STF); sem indiciamento ou denúncia localizados até 11/10/2026",
+      "eventos": [
+        { "data": "2026-07-22", "fase": "investigação autorizada", "texto": "A pedido da PF e com concordância da PGR, o ministro André Mendonça autorizou investigar Flávio por suspeita de lavagem de dinheiro, evasão de divisas, corrupção e delitos correlatos, no financiamento do filme por Daniel Vorcaro. A decisão ficou em sigilo e veio a público em 11/09/2026. Flávio nega irregularidades e diz que os recursos eram privados.", "fonteUrl": "https://www.cnnbrasil.com.br/blogs/teo-cury/politica/flavio-bolsonaro-e-investigado-no-stf-sobre-financiamento-de-dark-horse/" }
+      ]
+    },
+    {
+      "id": "jair-trama-golpista",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Tentativa de golpe de Estado (AP 2668, \"Núcleo 1\")",
+      "situacao": "condenado pela 1ª Turma do STF a 27 anos e 3 meses (set/2025); trânsito em julgado em 25/11/2025; cumpre pena em prisão domiciliar humanitária; revisão criminal (RvC 6021) pendente",
+      "eventos": [
+        { "data": "2024-11-21", "fase": "indiciamento", "texto": "A Polícia Federal indiciou Bolsonaro e outras pessoas no inquérito sobre a tentativa de golpe.", "fonteUrl": "https://www.poder360.com.br/poder-justica/pgr-denuncia-bolsonaro-ao-stf-por-planejar-golpe-de-estado/" },
+        { "data": "2025-02-18", "fase": "denúncia", "texto": "O procurador-geral Paulo Gonet denunciou Bolsonaro e outras 33 pessoas ao STF por golpe de Estado, tentativa de abolição violenta do Estado Democrático de Direito, organização criminosa armada, dano qualificado e deterioração de patrimônio tombado.", "fonteUrl": "https://www.poder360.com.br/poder-justica/pgr-denuncia-bolsonaro-ao-stf-por-planejar-golpe-de-estado/" },
+        { "data": "2025-03-26", "fase": "réu", "texto": "A 1ª Turma do STF recebeu a denúncia por unanimidade (5 a 0), e Bolsonaro e sete aliados viraram réus.", "fonteUrl": "https://agenciabrasil.ebc.com.br/justica/noticia/2025-03/por-unanimidade-turma-do-stf-torna-bolsonaro-e-mais-7-reus-por-golpe" },
+        { "data": "2025-09-11", "fase": "condenação (STF, 1ª Turma)", "texto": "A 1ª Turma do STF condenou os oito réus do Núcleo 1, Bolsonaro entre eles, por 4 votos a 1 (o ministro Luiz Fux votou pela absolvição de Bolsonaro). A pena dele foi fixada em 27 anos e 3 meses. Os condenados também têm de pagar, juntos, R$ 30 milhões por danos morais coletivos. Crimes: organização criminosa armada, tentativa de abolição violenta do Estado Democrático de Direito, golpe de Estado, dano qualificado e deterioração de patrimônio tombado.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-fixa-penas-de-16-a-27-anos-para-condenados-por-tentativa-de-golpe-de-estado/" },
+        { "data": "2025-11-07", "fase": "embargos rejeitados", "texto": "A 1ª Turma formou unanimidade, no plenário virtual, para rejeitar os embargos de declaração de Bolsonaro e dos demais condenados. O julgamento terminou em 14/11.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/1a-turma-tem-unanimidade-para-rejeitar-recursos-de-ex-presidente-bolsonaro-e-demais-condenados-na-ap-2668/" },
+        { "data": "2025-11-22", "fase": "prisão preventiva", "texto": "A pedido da PF, o ministro Alexandre de Moraes decretou a prisão preventiva, no lugar da domiciliar que vigorava desde agosto. Motivos: violação da tornozeleira eletrônica e risco de fuga às vésperas do trânsito em julgado. A 1ª Turma manteve a prisão em 24/11.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-decreta-prisao-preventiva-de-jair-bolsonaro/" },
+        { "data": "2025-11-25", "fase": "trânsito em julgado e execução", "texto": "O ministro Moraes não conheceu os novos recursos, declarou o trânsito em julgado e determinou o início do cumprimento das penas do Núcleo 1. A decisão foi confirmada pela 1ª Turma.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/ap-2668-stf-determina-cumprimento-imediato-da-pena-dos-sete-reus-do-nucleo-1-da-tentativa-de-golpe/" },
+        { "data": "2026-01-15", "fase": "transferência", "texto": "O STF determinou a transferência de Bolsonaro da Superintendência da PF para uma unidade da PM-DF no Complexo Penitenciário da Papuda (\"Papudinha\").", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-determina-transferencia-do-ex-presidente-bolsonaro-para-unidade-da-pm-df-no-complexo-penitenciario-da-papuda/" },
+        { "data": "2026-03-24", "fase": "prisão domiciliar humanitária", "texto": "Com parecer favorável da PGR, o STF concedeu prisão domiciliar temporária por razões de saúde, por até 90 dias a partir da alta hospitalar. Bolsonaro estava internado com pneumonia. Antes disso, em março, a 1ª Turma havia negado outro pedido de domiciliar.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-concede-prisao-domiciliar-temporaria-ao-ex-presidente-jair-bolsonaro/" },
+        { "data": "2026-05-12", "fase": "revisão criminal", "texto": "A defesa apresentou revisão criminal (RvC 6021) pedindo a anulação da condenação. Relator: ministro Nunes Marques, que em 27/05/2026 deu 20 dias para a PGR se manifestar. Nenhum julgamento foi localizado até 11/10/2026.", "fonteUrl": "https://www.poder360.com.br/poder-justica/nunes-marques-pgr-acao-bolsonaro-stf/" },
+        { "data": "2026-07-03", "fase": "domiciliar mantida", "texto": "O STF manteve a prisão domiciliar do ex-presidente, na Execução Penal 169.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-mantem-ex-presidente-bolsonaro-em-prisao-domiciliar/" }
+      ]
+    },
+    {
+      "id": "jair-coacao",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Coação no curso do processo da trama golpista (atuação junto ao governo dos EUA)",
+      "situacao": "indiciado pela PF (ago/2025); não foi denunciado pela PGR, que denunciou só Eduardo Bolsonaro e Paulo Figueiredo (set/2025)",
+      "eventos": [
+        { "data": "2025-08-04", "fase": "medida cautelar", "texto": "O STF determinou a prisão domiciliar de Bolsonaro por descumprimento de medidas cautelares. Em novembro de 2025, essa domiciliar foi substituída pela prisão preventiva, decretada na Pet 14.129.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/stf-determina-prisao-domiciliar-do-ex-presidente-jair-bolsonaro-por-descumprimento-de-medidas-cautelares/" },
+        { "data": "2025-08-20", "fase": "indiciamento", "texto": "A PF entregou o relatório final e indiciou Jair e Eduardo Bolsonaro por coação no curso do processo. O STF enviou o relatório à PGR.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/relator-envia-a-pgr-relatorio-final-da-pf-sobre-coacao-no-julgamento-de-acao-por-tentativa-de-golpe/" },
+        { "data": "2025-09-22", "fase": "não denunciado", "texto": "A PGR denunciou Eduardo Bolsonaro e Paulo Figueiredo por coação. Jair Bolsonaro, também investigado no inquérito, não foi incluído na denúncia.", "fonteUrl": "https://www.poder360.com.br/poder-justica/pgr-denuncia-eduardo-bolsonaro-e-paulo-figueiredo-por-coacao/" }
+      ]
+    },
+    {
+      "id": "jair-joias",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Joias e presentes de alto valor do acervo presidencial (\"joias sauditas\")",
+      "situacao": "indiciado pela PF (jul/2024); a PGR pediu arquivamento (mar/2026); o STF pediu novo parecer e ainda não decidiu (até 11/10/2026)",
+      "eventos": [
+        { "data": "2024-07", "fase": "indiciamento", "texto": "A PF indiciou Bolsonaro e outras 11 pessoas por suspeita de desviar e vender presentes de alto valor recebidos em viagens oficiais, estimados em R$ 6,8 milhões.", "fonteUrl": "https://agenciabrasil.ebc.com.br/justica/noticia/2026-03/pgr-pede-arquivamento-de-inquerito-sobre-desvio-de-joias-por-bolsonaro" },
+        { "data": "2026-03-05", "fase": "PGR pede arquivamento", "texto": "A PGR pediu o arquivamento por \"persistente indeterminação normativa\": para ela, as regras não definem com clareza se esses presentes pertencem ao presidente ou ao Estado. A manifestação vale só para a esfera penal.", "fonteUrl": "https://agenciabrasil.ebc.com.br/justica/noticia/2026-03/pgr-pede-arquivamento-de-inquerito-sobre-desvio-de-joias-por-bolsonaro" },
+        { "data": "2026-03-18", "fase": "novo parecer pedido", "texto": "O ministro Moraes devolveu o caso à PGR para que analisasse a parte do relatório da PF sobre o advogado Frederick Wassef, antes de decidir se arquiva o inquérito.", "fonteUrl": "https://agenciabrasil.ebc.com.br/justica/noticia/2026-03/stf-pede-novo-parecer-da-pgr-sobre-caso-das-joias-saudita" },
+        { "data": "2026-10-07", "fase": "procedimento fiscal", "texto": "Moraes mandou intimar Bolsonaro num procedimento fiscal da Receita sobre os bens. A notícia não registra decisão sobre o arquivamento penal.", "fonteUrl": "https://www.poder360.com.br/poder-justica/moraes-intima-bolsonaro-sobre-caso-das-joias-sauditas/" }
+      ]
+    },
+    {
+      "id": "jair-cartao-vacina",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Inserção de dados falsos de vacinação contra a Covid-19",
+      "situacao": "indiciado pela PF (2024); arquivado a pedido da PGR (mar/2025) por falta de provas que corroborassem a delação; pode ser reaberto se surgirem provas novas",
+      "eventos": [
+        { "data": "2024-03", "fase": "indiciamento", "texto": "A PF indiciou Bolsonaro, Mauro Cid e o deputado Gutemberg Reis por associação criminosa e inserção de dados falsos em sistema de informações.", "fonteUrl": "https://www.cnnbrasil.com.br/blogs/teo-cury/politica/moraes-arquiva-investigacao-contra-bolsonaro-por-fraude-em-cartao-de-vacina/" },
+        { "data": "2025-03-28", "fase": "arquivamento", "texto": "O ministro Moraes arquivou a investigação em relação a Bolsonaro a pedido da PGR. Para o procurador-geral, não havia provas que confirmassem a versão do delator Mauro Cid, e a lei proíbe denúncia baseada só em delação.", "fonteUrl": "https://www.cnnbrasil.com.br/blogs/teo-cury/politica/moraes-arquiva-investigacao-contra-bolsonaro-por-fraude-em-cartao-de-vacina/" }
+      ]
+    },
+    {
+      "id": "jair-abin-paralela",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "\"Abin paralela\" (monitoramento ilegal)",
+      "situacao": "não indiciado (já era réu pelos mesmos fatos na trama golpista); inquérito arquivado em relação a ele em jul/2026",
+      "eventos": [
+        { "data": "2025-06", "fase": "relatório da PF", "texto": "A PF concluiu o inquérito e indiciou mais de 30 pessoas, entre elas Carlos Bolsonaro e Alexandre Ramagem. Jair Bolsonaro não foi indiciado porque já respondia pela mesma acusação na ação da trama golpista, mas a PF apontou indícios de que ele sabia do esquema e era o principal beneficiário.", "fonteUrl": "https://www.infomoney.com.br/politica/bolsonaro-soma-tres-inqueritos-abertos-na-pf-caso-do-cartao-de-vacina-foi-arquivado/" },
+        { "data": "2026-07-20", "fase": "arquivamento", "texto": "O ministro Moraes arquivou o inquérito em relação a Bolsonaro e Ramagem: os fatos já tinham sido considerados na condenação da trama golpista. A investigação de Carlos Bolsonaro e de outros investigados sem foro foi enviada à Justiça Federal.", "fonteUrl": "https://gazetadopovo.com.br/republica/moraes-arquiva-investigacao-da-abin-paralela-contra-bolsonaro/" }
+      ]
+    },
+    {
+      "id": "jair-interferencia-pf",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Suposta interferência na Polícia Federal (acusações de Sergio Moro, 2020)",
+      "situacao": "investigado; apuração reaberta pelo STF em out/2025 a pedido da PGR; sem denúncia localizada até 11/10/2026",
+      "eventos": [
+        { "data": "2022-03", "fase": "conclusão da PF", "texto": "A PF concluiu que não houve interferência política e recomendou o arquivamento. A apuração foi encerrada depois da manifestação da PGR na gestão Augusto Aras.", "fonteUrl": "https://www.opovo.com.br/noticias/politica/2025/10/15/pgr-pede-retomada-de-inquerito-sobre-interferencia-de-bolsonaro-na-pf.html" },
+        { "data": "2025-10-16", "fase": "investigação reaberta", "texto": "A pedido do procurador-geral Paulo Gonet, o ministro Moraes reabriu as investigações e determinou novas diligências.", "fonteUrl": "https://www.poder360.com.br/poder-justica/moraes-reabre-investigacao-sobre-interferencia-de-bolsonaro-na-pf/" }
+      ]
+    },
+    {
+      "id": "jair-fake-news-urnas",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Inquérito das fake news (ataques às urnas na live de 29/07/2021)",
+      "situacao": "investigado desde ago/2021; sem denúncia e sem desfecho localizados em fonte oficial até 11/10/2026",
+      "eventos": [
+        { "data": "2021-08-04", "fase": "incluído como investigado", "texto": "Atendendo a notícia-crime do TSE, o ministro Moraes incluiu Bolsonaro como investigado no inquérito das fake news por causa da live em que ele questionou, sem provas, a segurança das urnas. A decisão listava possíveis crimes \"em tese\".", "fonteUrl": "https://www.cnnbrasil.com.br/politica/stf-abre-investigacao-contra-jair-bolsonaro-sobre-ataques-contra-eleicoes/" }
+      ]
+    },
+    {
+      "id": "jair-vazamento-tse",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Divulgação de inquérito sigiloso sobre ataque hacker ao TSE",
+      "situacao": "investigado; a PF apontou crime, mas não indiciou por causa do foro; a PGR pediu arquivamento e o relator recusou (ago/2022); desfecho posterior não localizado",
+      "eventos": [
+        { "data": "2022-01-28", "fase": "relatório da PF", "texto": "A PF afirmou haver indícios de \"atuação direta, voluntária e consciente\" de Bolsonaro e do deputado Filipe Barros na divulgação do inquérito. A delegada não os indiciou porque, com foro no STF, o indiciamento dependeria de autorização prévia.", "fonteUrl": "https://www.poder360.com.br/justica/pf-ha-indicio-de-atuacao-direta-de-bolsonaro-em-vazamento/" },
+        { "data": "2022-08-05", "fase": "arquivamento negado", "texto": "O ministro Moraes rejeitou o pedido da PGR para arquivar a investigação.", "fonteUrl": "https://www.poder360.com.br/justica/moraes-rejeita-pedido-para-arquivar-inquerito-contra-bolsonaro/" }
+      ]
+    },
+    {
+      "id": "jair-live-vacina-aids",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Associação falsa entre vacina contra a Covid-19 e aids (live de 2021)",
+      "situacao": "investigado; a PF apontou crime; a PGR pediu arquivamento (fev/2023); decisão final não localizada",
+      "eventos": [
+        { "data": "2021-12-03", "fase": "inquérito aberto", "texto": "A pedido da CPI da Covid, o ministro Moraes abriu inquérito sobre a live em que Bolsonaro associou a vacina à aids.", "fonteUrl": "https://www.poder360.com.br/justica/moraes-abre-inquerito-contra-bolsonaro-por-relacionar-vacina-a-hiv/" },
+        { "data": "2023-02-16", "fase": "PGR pede arquivamento", "texto": "A PF tinha concluído, em 2022, que houve incitação ao crime e a contravenção de provocar alarme. A PGR discordou e pediu arquivamento por falta de \"elementos mínimos\" para uma ação penal.", "fonteUrl": "https://www.poder360.com.br/justica/pgr-defende-arquivamento-de-inquerito-contra-bolsonaro/" }
+      ]
+    },
+    {
+      "id": "jair-cpi-pandemia",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Inquérito sobre as conclusões da CPI da Pandemia",
+      "situacao": "investigado (inquérito aberto em setembro de 2025); sem indiciamento ou denúncia localizados até 11/10/2026",
+      "eventos": [
+        { "data": "2025-09-18", "fase": "inquérito aberto", "texto": "A pedido da PF, o ministro Flávio Dino abriu inquérito sobre as condutas apontadas pela CPI da Pandemia: estímulo a remédios sem eficácia comprovada, desinformação sobre vacinas e possíveis fraudes em compras. Bolsonaro e outras 23 pessoas são investigados.", "fonteUrl": "https://noticias.stf.jus.br/postsnoticias/a-pedido-da-pf-stf-determina-abertura-de-inquerito-para-investigar-resultados-da-cpi-da-pandemia/" }
+      ]
+    },
+    {
+      "id": "jair-maria-do-rosario",
+      "pessoa": "Jair Bolsonaro",
+      "caso": "Incitação ao crime (fala de 2014 sobre a deputada Maria do Rosário)",
+      "situacao": "réu desde 2016; ação suspensa durante o mandato presidencial; extinta por prescrição em 2023; mérito não julgado",
+      "eventos": [
+        { "data": "2016", "fase": "réu", "texto": "O STF recebeu a denúncia, e Bolsonaro, então deputado federal, virou réu por incitação ao crime, por uma fala na Câmara em 2014. Em 2019 o processo foi suspenso pela imunidade temporária do presidente da República.", "fonteUrl": "https://www.gazetadopovo.com.br/republica/justica-arquiva-acao-em-que-bolsonaro-era-reu-por-dizer-que-deputada-nao-merecia-ser-estuprada/" },
+        { "data": "2023-11", "fase": "prescrição", "texto": "Com o fim do mandato, o caso voltou à 1ª instância. O 2º Juizado Especial Criminal de Brasília declarou a prescrição, considerando a pena máxima (6 meses) e o tempo de suspensão. Uma queixa-crime da deputada por calúnia e injúria sobre o mesmo episódio também foi extinta por prescrição, em 24/07/2023.", "fonteUrl": "https://www.gazetadopovo.com.br/republica/justica-arquiva-acao-em-que-bolsonaro-era-reu-por-dizer-que-deputada-nao-merecia-ser-estuprada/" }
+      ]
+    }
+  ],
+  "casos": [
+    {
+      "id": "mensalao",
+      "caso": "Mensalão (Ação Penal 470)",
+      "periodoFatos": "2003–2005",
+      "governos": ["Lula 1"],
+      "dano": "cerca de R$ 78 milhões desviados da Câmara dos Deputados e do Banco do Brasil (fundo Visanet), segundo a cobertura do julgamento; abaixo de R$ 1 bi. Entra pela exceção do critério (condenação de ex-ministro pelo STF)",
+      "situacao": "julgado pelo STF; 25 dos 38 réus condenados (2012); a condenação por quadrilha foi revertida em 2014, e as demais condenações foram mantidas",
+      "texto": "O Plenário do STF concluiu o julgamento em 17/12/2012 e condenou 25 dos 38 réus por crimes ligados a desvios de contratos da Câmara e do Banco do Brasil e a pagamentos a parlamentares da base aliada. Entre os condenados: o ex-ministro da Casa Civil José Dirceu (corrupção ativa, 7 anos e 11 meses), o deputado João Paulo Cunha (PT) e os deputados Pedro Henry (PP) e Valdemar Costa Neto (PR). O STF não fixou valor mínimo de ressarcimento. Em 27/02/2014, ao julgar embargos infringentes, o STF absolveu Dirceu e mais sete réus do crime de formação de quadrilha, por 6 votos a 5.",
+      "fontes": [
+        "https://www.congressoemfoco.com.br/noticias/stf-encerra-julgamento-do-mensalao",
+        "https://congressoemfoco.com.br/noticias/jose-dirceu-condenado-a-10-anos-de-prisao",
+        "https://www.jb.com.br/pais/noticias/2014/02/27/stf-absolve-jose-dirceu-e-mais-sete-reus-do-crime-de-formacao-de-quadrilha.html"
+      ]
+    },
+    {
+      "id": "petrolao-lava-jato",
+      "caso": "Corrupção na Petrobras (Operação Lava Jato)",
+      "periodoFatos": "2004–2012 (cartel e pagamentos de propina, segundo as demonstrações da Petrobras); operação deflagrada em 2014",
+      "governos": ["Lula 1", "Lula 2", "Dilma"],
+      "dano": "R$ 6,194 bi lançados pela Petrobras como baixa de gastos pagos a mais e capitalizados indevidamente (balanço de 2014, estimativa)",
+      "situacao": "dezenas de condenações; parte delas anulada a partir de 2021 (incompetência, suspeição de juiz, provas declaradas imprestáveis); força-tarefa de Curitiba encerrada em fev/2021",
+      "texto": "Segundo nota das demonstrações financeiras de 2014, 27 empresas formaram um cartel que, entre 2004 e abril de 2012, pagou propina para obter contratos com a Petrobras. A estatal lançou R$ 6,194 bilhões como baixa de custos pagos a mais. No encerramento da força-tarefa de Curitiba (fevereiro de 2021), o MPF contabilizava 79 operações, 130 denúncias contra 533 acusados, 174 condenados e R$ 4,3 bilhões devolvidos aos cofres públicos. A partir de 2021, o STF anulou condenações por incompetência da vara de Curitiba e por suspeição do ex-juiz Sergio Moro (casos de Lula; ver a seção de pessoas). Em 06/09/2023, o ministro Dias Toffoli declarou imprestáveis as provas do acordo de leniência da Odebrecht, sem anular o acordo nem as multas. O impacto em cada processo ficou a cargo de cada juízo.",
+      "fontes": [
+        "https://www.sec.gov/Archives/edgar/data/0001119639/000129281415000912/pbradfifrs4q14rs_6k.htm",
+        "https://observador.pt/2021/02/03/principal-nucleo-de-investigacao-da-lava-jato-e-encerrado-no-brasil/",
+        "https://congressoemfoco.com.br/area/justica/toffoli-anula-todas-as-provas-contra-lula-em-acordos-da-lava-jato"
+      ]
+    },
+    {
+      "id": "orcamento-secreto",
+      "caso": "\"Orçamento secreto\" (emendas de relator, RP9)",
+      "periodoFatos": "2020–2022",
+      "governos": ["Bolsonaro"],
+      "dano": "R$ 53,5 bi distribuídos via RP9 desde 2020 (levantamento citado pela imprensa em dez/2022). É o volume de recursos com destinação sem transparência, não dano apurado",
+      "situacao": "declarado inconstitucional pelo STF em 19/12/2022 (6 a 5); o julgamento tratou da prática orçamentária, não da responsabilidade de pessoas",
+      "texto": "No julgamento das ADPFs 850, 851, 854 e 1.014, o Plenário do STF decidiu que as emendas de relator usadas para criar ou ampliar despesas violavam a isonomia, a impessoalidade e a publicidade, porque escondiam os parlamentares que pediam os recursos. A tese fixada restringe essas emendas à correção de erros e omissões. O STF também deu 90 dias para os órgãos divulgarem as obras, serviços e compras pagos com RP9 de 2020 a 2022. Votaram pela inconstitucionalidade Rosa Weber (relatora), Lewandowski, Fachin, Barroso, Fux e Cármen Lúcia; ficaram vencidos Gilmar Mendes, André Mendonça, Nunes Marques, Alexandre de Moraes e Dias Toffoli.",
+      "fontes": [
+        "https://www.conjur.com.br/2022-dez-19/maioria-stf-declara-inconstitucionalidade-orcamento-secreto//?print=1",
+        "https://diariodonordeste.verdesmares.com.br/pontopoder/stf-retoma-julgamento-sobre-o-orcamento-secreto-com-voto-da-ministra-rosa-weber-1.3312134"
+      ]
+    },
+    {
+      "id": "inss-descontos",
+      "caso": "Descontos associativos não autorizados em aposentadorias e pensões do INSS",
+      "periodoFatos": "2019–2024",
+      "governos": ["Bolsonaro", "Lula 3"],
+      "dano": "R$ 6,3 bi descontados de aposentados e pensionistas pelas entidades investigadas (estimativa PF/CGU)",
+      "situacao": "48 pessoas indiciadas pela PF (jul/2026), entre elas o ex-presidente do INSS Alessandro Stefanutto; a PGR ainda não apresentou denúncia (até 11/10/2026); relator no STF: André Mendonça",
+      "texto": "A PF e a CGU deflagraram a Operação Sem Desconto em abril de 2025, contra descontos de mensalidades associativas feitos sem autorização nos benefícios do INSS. Houve novas fases em 2026. Em 14/07/2026, a PF enviou ao STF o relatório da primeira parte da investigação, com 48 indiciados. Entre eles: o ex-presidente do INSS Alessandro Stefanutto (preso preventivamente, segundo sua defesa), o ex-procurador-geral do órgão Virgílio Antônio Ribeiro Filho, o ex-diretor de Benefícios André Fidelis e o empresário Antonio Camilo Antunes, o \"Careca do INSS\". Cabe à PGR decidir se denuncia, pede novas diligências ou arquiva. Indiciamento não é condenação.",
+      "fontes": [
+        "https://www.opovo.com.br/noticias/politica/2026/05/27/inss-pf-e-cgu-investigam-descontos-nao-autorizados-de-pensionistas.html",
+        "https://www.correiobraziliense.com.br/politica/2026/07/7461666-pf-conclui-inquerito-sobre-fraudes-no-inss-pgr-decidira-sobre-denuncia-contra-stefanutto.html"
+      ]
+    },
+    {
+      "id": "banco-master",
+      "caso": "Banco Master (liquidação e suspeita de fraude contra o sistema financeiro)",
+      "periodoFatos": "2024–2025 (operações sob suspeita, como a venda de carteiras de crédito ao BRB); o banco cresceu emitindo CDBs a partir de 2019",
+      "governos": ["Lula 3"],
+      "dano": "R$ 12,2 bi em carteiras de crédito que a PF suspeita serem forjadas, vendidas ao BRB (estimativa da investigação); pagamento do FGC estimado em mais de R$ 47 bi (preliminar, não oficial)",
+      "situacao": "investigação em andamento (Operação Compliance Zero, PF; inquérito no STF, relator André Mendonça); sem denúncia localizada até 11/10/2026",
+      "texto": "O Banco Central decretou a liquidação extrajudicial do Banco Master em 18/11/2025, citando crise de liquidez e violações das normas do sistema financeiro. No mesmo dia, a PF prendeu o controlador, Daniel Vorcaro, na Operação Compliance Zero. A suspeita é de fraude na venda de carteiras de crédito ao BRB, banco do Governo do Distrito Federal. Não se trata de esquema de gasto do governo federal: o caso entra pelo critério de fraude no sistema financeiro sob supervisão federal, com operação da PF e valor acima de R$ 1 bi. A defesa nega fraude. Um desdobramento é a investigação sobre recursos de Vorcaro para o filme \"Dark Horse\" (ver Flávio Bolsonaro na seção de pessoas).",
+      "fontes": [
+        "https://www.opovo.com.br/agencia/bbc/2026/01/27/o-que-se-sabe-ate-agora-sobre-crise-do-banco-master-e-o-que-falta-descobrir.html",
+        "https://www.cnnbrasil.com.br/blogs/teo-cury/politica/flavio-bolsonaro-e-investigado-no-stf-sobre-financiamento-de-dark-horse/"
+      ]
+    }
+  ]
+}
