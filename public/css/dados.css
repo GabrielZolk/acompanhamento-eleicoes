@@ -678,3 +678,7 @@ button.duelo:hover .duelo__mais span { transform: translateX(4px); }
   .tema { font-size: 17px; margin-top: 20px; }
   .tx-num b { font-size: 28px; }
 }
+@media (max-width: 640px) {
+  .ext { flex-wrap: wrap; white-space: normal; gap: 2px 5px; }
+  .ext__rot { min-width: 0; }
+}
