@@ -25,6 +25,9 @@ const VEREDITO = {
   'removido pelo TSE': ['Removido pelo TSE', '#a855f7'],
 };
 
+// Conteúdo gerado por inteligência artificial ou montado ("IA" só como palavra inteira e maiúscula).
+const FEITO_COM_IA = /\bIA\b|[Ii]ntelig[êe]ncia artificial|[Dd]eepfake|[Mm]ontagem|[Mm]anipulad/;
+
 function cartaoChecagem(it, i) {
   const [rot, cor] = VEREDITO[it.veredito] || [it.veredito, '#8a93a6'];
   return `<article class="ck" style="--v:${cor};animation-delay:${Math.min(i, 20) * 0.03}s">
