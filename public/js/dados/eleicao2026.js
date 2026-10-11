@@ -31,7 +31,7 @@ const FEITO_COM_IA = /\bIA\b|[Ii]ntelig[êe]ncia artificial|[Dd]eepfake|[Mm]onta
 function cartaoChecagem(it, i) {
   const [rot, cor] = VEREDITO[it.veredito] || [it.veredito, '#8a93a6'];
   return `<article class="ck" style="--v:${cor};animation-delay:${Math.min(i, 20) * 0.03}s">
-      <div class="ck__topo"><span class="ck__ver">${esc(rot)}</span>${/(IA|intelig[êe]ncia artificial|deepfake|montagem|manipulad)/i.test(`${it.alegacao} ${it.explicacao}`) ? '<span class="ck__ia">🤖 feito com IA ou montagem</span>' : ''}<span class="tx__data">${esc(dia(it.data))}</span></div>
+      <div class="ck__topo"><span class="ck__ver">${esc(rot)}</span>${FEITO_COM_IA.test(`${it.alegacao} ${it.explicacao}`) ? '<span class="ck__ia">🤖 feito com IA ou montagem</span>' : ''}<span class="tx__data">${esc(dia(it.data))}</span></div>
       <p class="ck__alegacao">“${esc(it.alegacao)}”</p>
       <p class="ck__exp">${esc(it.explicacao || '')}</p>
       ${it.origem ? `<p class="ck__origem">Origem apontada pela checagem: ${esc(it.origem)}</p>` : ''}
