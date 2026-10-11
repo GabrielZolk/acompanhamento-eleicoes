@@ -1,0 +1,840 @@
+{
+  "atualizadoEm": "2026-10-11",
+  "criterio": "Entram boatos e conteúdos enganosos sobre Lula, Flávio Bolsonaro, suas campanhas e candidatos a vice, ou sobre o processo eleitoral (urnas, votação, apuração), que tenham sido (a) checados entre 16/08/2026 (início da campanha) e 11/10/2026 por checadores profissionais signatários da IFCN ou consolidados no Brasil (Aos Fatos, Agência Lupa, Comprova, Estadão Verifica, AFP Checamos, Reuters Checagem de Fatos, g1 Fato ou Fake, UOL Confere; Boatos.org e o Fato ou Boato da Justiça Eleitoral só como fonte complementar), ou (b) objeto de decisão do TSE que mandou remover ou suspender o conteúdo por ser falso, gravemente descontextualizado, sem lastro mínimo ou feito com IA em desacordo com as regras. O mesmo critério vale para os dois lados. O campo 'alvo' indica quem a alegação prejudica, não quem a espalhou: 'lula', 'flavio', 'processo eleitoral' ou 'ambos'. Quando o boato favorece um candidato (apoio inventado, pesquisa falsa, multidão de outro evento), registra-se como alvo o adversário. O campo 'origem' só é preenchido quando o checador ou a decisão identificam quem publicou; caso contrário, fica nulo. 'data' é a data da checagem mais antiga listada ou da decisão do TSE. Decisões liminares podem ser revistas pelo plenário do TSE ou pelo STF.",
+  "metodo": "Levantamento feito em 11/10/2026 nas páginas de checagem por candidato e por tema do Aos Fatos (tags Lula, Flávio Bolsonaro e TSE, canal Eleições 2026), na lista de verificações da Agência Lupa, na seção Fato ou Fake Eleições do g1, e em buscas na web por checagens da AFP, Reuters, Comprova, Estadão Verifica e UOL Confere e por decisões do TSE sobre remoção de conteúdo envolvendo os dois candidatos. Cada link foi aberto para confirmar data, alegação e conclusão; itens sem confirmação foram descartados. Quando o mesmo boato foi checado por mais de um veículo, os links foram agrupados num único item. Para decisões do TSE, o link aponta para o portal do TSE quando há notícia oficial; nos demais casos, para a cobertura jornalística da decisão. Até cerca de 25 itens por candidato, priorizando os de maior alcance informado pelos checadores. A lista não é exaustiva: os checadores publicam dezenas de verificações por semana, e a contagem por alvo reflete o que foi encontrado e verificado, não uma medida de quem mais desinforma. Não foi encontrada, no período, checagem que confirmasse como verdadeira uma alegação viral sobre os candidatos.",
+  "itens": [
+    {
+      "id": "2026-10-10-tse-gaspar-propina-lula",
+      "data": "2026-10-10",
+      "alvo": "lula",
+      "alegacao": "Lula teria cobrado R$ 1 bilhão em propina para dar a Daniel Vorcaro acesso a fundos de pensão federais.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro Marco Aurélio Bellizze entendeu que a publicação ultrapassa os limites da crítica política e que faltam provas para as acusações; Lula nega.",
+      "origem": "candidato a vice-presidente Alfredo Gaspar (PL), da chapa de Flávio",
+      "checadores": [],
+      "tse": {
+        "decisao": "Decisão do ministro Marco Aurélio Bellizze (10/10/2026) mandou retirar o vídeo do Instagram em 24 horas, sob multa diária.",
+        "url": "https://www.poder360.com.br/poder-eleicoes-2026/tse-manda-candidato-a-vice-de-flavio-apagar-video-sobre-lula/"
+      }
+    },
+    {
+      "id": "2026-10-09-flavio-decadas-no-poder",
+      "data": "2026-10-09",
+      "alvo": "flavio",
+      "alegacao": "Em vídeo, Flávio Bolsonaro diz que \"a gente vai ficar por décadas no poder\".",
+      "veredito": "enganoso",
+      "explicacao": "A legenda está errada: no vídeo, Flávio diz que o país ficará \"por décadas sem falar de PT\", e não que ficará décadas no poder.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Reuters Checagem de Fatos",
+          "url": "https://www.reuters.com/fact-check/portugues/6KUU5BUKUNJYRMHYTDVVYBHMVA-2026-10-09/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-09-audio-flavio-padroeira-cleitinho",
+      "data": "2026-10-09",
+      "alvo": "flavio",
+      "alegacao": "Vídeo mostra Cleitinho Azevedo reproduzindo áudio em que Flávio Bolsonaro diria que vai \"tirar a Padroeira do Brasil\" se eleito.",
+      "veredito": "falso",
+      "explicacao": "É montagem: usa vídeo antigo de Cleitinho no Senado, em que o áudio exibido era da delação de Joesley Batista, com trechos adulterados de falas de Flávio.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "AFP Checamos",
+          "url": "https://checamos.afp.com/doc.afp.com.D2TQ6ZR"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-09-pcc-cv-apoio-lula",
+      "data": "2026-10-09",
+      "alvo": "lula",
+      "alegacao": "As facções PCC e Comando Vermelho declararam apoio a Lula no segundo turno.",
+      "veredito": "falso",
+      "explicacao": "Não há registro de manifestação das facções ou de seus líderes; o MP-RJ e fonte do MP-SP negaram a informação.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/pcc-comando-vermelho-apoio-lula-falso/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-09-lula-extinguir-bolsa-familia",
+      "data": "2026-10-09",
+      "alvo": "lula",
+      "alegacao": "O governo Lula avalia extinguir o Bolsa Família.",
+      "veredito": "falso",
+      "explicacao": "Os posts usaram fora de contexto um vídeo da CNN Brasil de abril de 2025 que não fala em extinção; não há registro de que o governo estude acabar com o programa.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/governo-lula-extinguir-bolsa-familia/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-09-corinthians-apoio-flavio",
+      "data": "2026-10-09",
+      "alvo": "lula",
+      "alegacao": "O Corinthians publicou nota oficial de apoio a Flávio Bolsonaro no segundo turno.",
+      "veredito": "falso",
+      "explicacao": "A nota não existe nos canais oficiais do clube, que negou a autoria e disse não apoiar candidato.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/corinthians-apoio-flavio-bolsonaro-falso/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-pf-compra-votos-flavio",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "A Polícia Federal descobriu um esquema de compra de votos para Flávio Bolsonaro no Norte e Nordeste, com R$ 27 milhões apreendidos.",
+      "veredito": "falso",
+      "explicacao": "Não há registro de investigação da PF sobre compra de votos para Flávio. Os posts usaram reportagem que não cita o candidato, e os R$ 27 milhões somam apreensões de todos os crimes eleitorais em cinco estados.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/pf-esquema-compra-votos-flavio/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-deepfake-flavio-corte-13-aposentadorias",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "Vídeo mostra Flávio Bolsonaro anunciando que, se eleito, vai cortar 13º salário, aposentadorias/pensões e o Pé-de-Meia.",
+      "veredito": "falso",
+      "explicacao": "O vídeo é uma versão manipulada com inteligência artificial do discurso de agradecimento de Flávio após o primeiro turno; a fala original não contém esse anúncio.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/flavio-cortes-pensoes-deepfake/"
+        },
+        {
+          "nome": "g1 Fato ou Fake",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/08/e-fake-video-de-flavio-bolsonaro-dizendo-que-se-eleito-vai-cortar-13-e-aposentadorias-fala-foi-manipulada-com-ia.ghtml"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-flavio-farmacia-popular",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "Flávio Bolsonaro disse que, se eleito, vai acabar com o Farmácia Popular porque \"não existe remédio gratuito\".",
+      "veredito": "falso",
+      "explicacao": "Não há registro da declaração e a campanha a desmentiu; o plano de governo registrado não prevê o fim do programa.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/flavio-bolsonaro-farmacia-popular/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-tse-videos-lula-cortes-programas",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "Se Flávio vencer, vai cortar Pé-de-Meia, Farmácia Popular, Minha Casa, Minha Vida, merenda escolar e Gás do Povo, e acabar com remédios gratuitos e ganhos do salário mínimo (\"Se o Flávio vence, você perde\").",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro André Mendonça entendeu que os vídeos apresentavam como certas intenções atribuídas a Flávio sem declarações ou documentos que as comprovassem; o plano de governo registrado prevê manter os programas sociais.",
+      "origem": "candidato Lula (perfis oficiais)",
+      "checadores": [],
+      "tse": {
+        "decisao": "Decisões liminares do ministro André Mendonça (8/10/2026) mandaram remover duas publicações de Lula, com proibição de republicar; ainda sujeitas ao plenário.",
+        "url": "https://agenciabrasil.ebc.com.br/justica/noticia/2026-10/tse-ministros-ordenam-que-lula-e-janja-removam-videos-contra-flavio"
+      }
+    },
+    {
+      "id": "2026-10-08-tse-video-janja-flavio",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "Se Flávio vencer, vai impor jornada de trabalho de sete dias por semana, acabar com o Farmácia Popular e o país será dominado pelo crime organizado.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro Nunes Marques considerou que as afirmações sobre jornada de sete dias, fim do Farmácia Popular e domínio do crime organizado foram apresentadas como fatos sem evidências mínimas.",
+      "origem": "primeira-dama Janja Lula da Silva (perfil no Instagram)",
+      "checadores": [],
+      "tse": {
+        "decisao": "Liminar do ministro Kassio Nunes Marques (8/10/2026) mandou remover o vídeo em 24 horas e proibiu republicação.",
+        "url": "https://agenciabrasil.ebc.com.br/justica/noticia/2026-10/tse-ministros-ordenam-que-lula-e-janja-removam-videos-contra-flavio"
+      }
+    },
+    {
+      "id": "2026-10-08-tse-videos-janones-lindbergh",
+      "data": "2026-10-08",
+      "alvo": "flavio",
+      "alegacao": "Flávio propõe aumentar a idade mínima da aposentadoria, desvincular benefícios do salário mínimo, acabar com a valorização do piso, adotar jornada de 12 horas por sete dias e privatizar a Petrobras.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro André Mendonça não encontrou sustentação mínima para atribuir essas propostas concretas a Flávio e distinguiu isso de críticas e projeções, que fazem parte do debate.",
+      "origem": "deputados André Janones e Lindbergh Farias, aliados de Lula",
+      "checadores": [],
+      "tse": {
+        "decisao": "Liminar do ministro André Mendonça (8/10/2026) mandou retirar cinco publicações em três horas, sob multa.",
+        "url": "https://www.estadao.com.br/politica/eleicoes/tse-manda-retirar-publicacoes-de-lula-janja-e-deputados-com-criticas-a-flavio-bolsonaro-nprp/"
+      }
+    },
+    {
+      "id": "2026-10-08-lula-mulher-milho",
+      "data": "2026-10-08",
+      "alvo": "lula",
+      "alegacao": "Lula disse \"mulher é que nem milho, nasceu pelinho já pode comer\", segundo manchete do g1.",
+      "veredito": "falso",
+      "explicacao": "A manchete é montagem: o g1 nunca a publicou e não há registro da frase. A fala real de Lula no Pará tratava de homens que evitam o exame de próstata.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/montagem-g1-declaracao-falsa-lula-pedofilia/"
+        },
+        {
+          "nome": "g1 Fato ou Fake",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/09/e-fake-que-lula-disse-mulher-e-que-nem-milho.ghtml"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/09/e-falso-que-lula-comparou-mulheres-a-milho-em-declaracao-que-faz-alusao-a-pedofilia/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-lula-video-pobres-editado",
+      "data": "2026-10-08",
+      "alvo": "lula",
+      "alegacao": "Vídeo mostra Lula dizendo \"acabou as eleições, acabou o interesse pelo pobre\", como se admitisse desinteresse pelos pobres.",
+      "veredito": "falso",
+      "explicacao": "O trecho vem de entrevista ao Podpah em 2021, em que Lula criticava adversários que tratam os pobres como números de voto; a edição inverteu o sentido.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/08/video-antigo-de-lula-e-editado-para-sugerir-que-petista-criticou-pobres/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-tse-flavio-ia-faccoes-lula",
+      "data": "2026-10-08",
+      "alvo": "lula",
+      "alegacao": "Publicações associam Lula às facções PCC e Comando Vermelho; uma delas simula Lula com IA em situação inexistente.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "Por unanimidade, o TSE entendeu que a associação a organizações criminosas sem substrato fático mínimo ultrapassa a crítica política, e que o conteúdo com IA não trazia a identificação obrigatória.",
+      "origem": "candidato Flávio Bolsonaro (perfil no X)",
+      "checadores": [],
+      "tse": {
+        "decisao": "Plenário do TSE (8/10/2026, relator André Mendonça, Rp 0600955-65.2026.6.00.0000) mandou remover três publicações em 24 horas e proibiu republicação.",
+        "url": "https://www.tse.jus.br/comunicacao/noticias/2026/Outubro/tse-manda-retirar-do-ar-videos-com-uso-de-inteligencia-artificial-publicados-por-flavio-bolsonaro"
+      }
+    },
+    {
+      "id": "2026-10-08-urna-trocada-rn",
+      "data": "2026-10-08",
+      "alvo": "processo eleitoral",
+      "alegacao": "Vídeo mostra urna sendo trocada por outra já carregada com votos para Lula em Parnamirim (RN).",
+      "veredito": "falso",
+      "explicacao": "A urna foi substituída porque a tela falhou, como prevê a lei; segundo o TRE-RN, nenhum voto foi perdido, alterado ou direcionado.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/urna-trocada-votos-lula-rn/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-08-mesarios-colinhas-pt-bahia",
+      "data": "2026-10-08",
+      "alvo": "processo eleitoral",
+      "alegacao": "Mesários em Camaçari (BA) distribuíram \"colinhas\" do PT na fila de votação.",
+      "veredito": "falso",
+      "explicacao": "Os papéis eram lembretes oficiais em branco do TRE-BA, sem nome de candidato ou partido; a Justiça Eleitoral disse que não houve irregularidade.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/verificacao/2026/10/08/e-falso-que-mesarios-na-bahia-distribuiram-colinhas-do-pt-na-fila-de-votacao/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-07-operacao-pf-2025-nao-envolve-flavio",
+      "data": "2026-10-07",
+      "alvo": "flavio",
+      "alegacao": "Reportagem sobre operação da Polícia Federal contra político do PL seria recente e ligada a Flávio Bolsonaro e às eleições atuais.",
+      "veredito": "enganoso",
+      "explicacao": "A reportagem é de abril de 2025, trata de outros políticos e não menciona Flávio Bolsonaro.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Reuters Checagem de Fatos",
+          "url": "https://www.reuters.com/fact-check/portugues/IAATMNV4FZLXHCZM22YTRUHYGA-2026-10-07/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-07-foto-ia-virginia-fazendo-o-l",
+      "data": "2026-10-07",
+      "alvo": "flavio",
+      "alegacao": "Foto mostra a influenciadora Virgínia Fonseca \"fazendo o L\" em apoio a Lula no segundo turno.",
+      "veredito": "falso",
+      "explicacao": "A imagem foi manipulada com IA a partir de uma foto de março de 2026; Virgínia não se manifestou publicamente sobre a eleição.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/foto-virginia-lula/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-07-falas-lula-nordestinos",
+      "data": "2026-10-07",
+      "alvo": "lula",
+      "alegacao": "Lula disse que só ganhou eleições porque o nordestino é analfabeto, que compra um baiano com R$ 10 e que basta um grão de arroz para o nordestino votar.",
+      "veredito": "falso",
+      "explicacao": "As três falas foram distorcidas ou inventadas: a primeira citava declaração de Jair Bolsonaro em 2022, a segunda cortou entrevista de 2017 e a terceira não tem registro.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/falas-lula-nordestinos/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-07-foto-ia-eleitores-tornozeleira",
+      "data": "2026-10-07",
+      "alvo": "lula",
+      "alegacao": "Foto mostra eleitores do PT, de roupa vermelha e tornozeleira eletrônica, na fila de votação.",
+      "veredito": "falso",
+      "explicacao": "A imagem foi gerada por IA: o detector da OpenAI encontrou marca d'água SynthID e outros detectores também apontaram geração sintética.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "g1 Fato ou Fake",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/07/e-fake-foto-de-eleitores-com-tornozeleira-eletronica-e-roupa-vermelha-em-fila-para-votar-na-eleicao-imagem-foi-feita-com-ia.ghtml"
+        },
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/foto-eleitores-pt-tornozeleira-IA/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-07-aviso-faltou-tse",
+      "data": "2026-10-07",
+      "alvo": "processo eleitoral",
+      "alegacao": "O aviso \"faltou\" no site do TSE indica que o voto do eleitor não foi computado.",
+      "veredito": "falso",
+      "explicacao": "A mensagem aparecia por padrão enquanto o TSE processava dados de comparecimento; depois foi trocada por \"em processamento\".",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/aviso-faltou-tse-voto-computado/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-06-carro-janja-ovos",
+      "data": "2026-10-06",
+      "alvo": "lula",
+      "alegacao": "Vídeo mostra o carro da primeira-dama Janja sendo atacado com ovos.",
+      "veredito": "falso",
+      "explicacao": "A gravação é de um protesto em julho em Tirana, na Albânia, contra a construção de resorts; não envolve a primeira-dama.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "g1 Fato ou Fake",
+          "url": "https://g1.globo.com/fato-ou-fake/noticia/2026/10/06/e-fake-que-video-mostre-carro-de-janja-sofrendo-ataque-com-ovos-gravacao-exibe-protesto-na-albania.ghtml"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-06-apuracao-interrompida-fraude",
+      "data": "2026-10-06",
+      "alvo": "processo eleitoral",
+      "alegacao": "A interrupção na divulgação dos resultados na noite do 1º turno prova fraude; urnas UE2013 e UE2015 teriam travado a apuração.",
+      "veredito": "falso",
+      "explicacao": "Uma falha técnica atrasou só a publicação dos resultados nacionais para presidente na internet, sem afetar urnas, apuração ou totalização; o TSE disse que a imagem com supostos registros de erro é \"100% falsa\".",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/urnas-apuracao-votos-primeiro-turno/"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/06/e-falso-que-a-demora-de-divulgacao-dos-resultados-pelo-tse-indique-fraude-nas-eleicoes/"
+        },
+        {
+          "nome": "Justiça Eleitoral (Fato ou Boato)",
+          "url": "https://www.justicaeleitoral.jus.br/fato-ou-boato/checagens/2026/e-falso-que-a-interrupcao-na-divulgacao-dos-resultados-tenha-fraudado-o-resultado-do-1o-turno-para-presidente"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-05-lula-7-bilhoes-viagens",
+      "data": "2026-10-05",
+      "alvo": "lula",
+      "alegacao": "Lula gastou mais de R$ 7 bilhões em viagens no terceiro mandato, mais que Biden e Trump juntos.",
+      "veredito": "falso",
+      "explicacao": "O valor se refere a viagens de servidores e órgãos de todo o governo federal entre 2023 e 2025; a Presidência registrou R$ 150,5 milhões no período.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/lula-7-bilhoes-viagens/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-05-votos-senado-pl-flavio",
+      "data": "2026-10-05",
+      "alvo": "processo eleitoral",
+      "alegacao": "A diferença entre os votos dos candidatos do PL ao Senado e os de Flávio para presidente indica fraude (\"a conta não fecha\").",
+      "veredito": "enganoso",
+      "explicacao": "A comparação é inválida: em 2026 cada eleitor votou em dois nomes para o Senado e em um para presidente. O Aos Fatos classificou como enganoso; a Lupa, como falso.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/votos-senadores-pl-flavio-fraude/"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/06/comparacao-entre-votos-para-senado-e-presidencia-do-pl-nao-e-indicio-de-fraude/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-deepfake-flavio-direitos-trabalhistas",
+      "data": "2026-10-04",
+      "alvo": "flavio",
+      "alegacao": "Vídeo mostra Flávio Bolsonaro dizendo que o trabalhador terá de escolher entre menos direitos com emprego ou todos os direitos com desemprego.",
+      "veredito": "falso",
+      "explicacao": "O áudio foi fabricado com IA sobre imagens de uma entrevista de janeiro em que Flávio falava sobre o Holocausto; ferramentas de detecção apontaram manipulação.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/video-ia-flavio-direitos-trabalhistas/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-lula-bandeira-chao",
+      "data": "2026-10-04",
+      "alvo": "lula",
+      "alegacao": "Lula amassou e jogou a bandeira do Brasil no chão depois de votar.",
+      "veredito": "falso",
+      "explicacao": "Imagens de diferentes ângulos mostram que Lula entregou a bandeira ao fotógrafo oficial, Ricardo Stuckert.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/lula-bandeira-brasil-chao/"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/04/lula-nao-jogou-bandeira-do-brasil-no-chao-apos-votar-simbolo-foi-entregue-a-fotografo/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-pesquisa-flavio-61",
+      "data": "2026-10-04",
+      "alvo": "lula",
+      "alegacao": "Pesquisa mostra Flávio com 61% das intenções de voto contra 38% de Lula.",
+      "veredito": "falso",
+      "explicacao": "Os números vêm do Polymarket, plataforma de apostas, e não de pesquisa eleitoral; Datafolha e CNT/MDA mostravam outros resultados.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/pesquisa-flavio-61-intencoes-voto/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-boca-de-urna-verita-flavio",
+      "data": "2026-10-04",
+      "alvo": "lula",
+      "alegacao": "Pesquisa de boca de urna do Instituto Veritá mostra Flávio eleito no 1º turno com 54,98%.",
+      "veredito": "falso",
+      "explicacao": "O Veritá não divulgou boca de urna; seu último levantamento, de 1º de outubro, mostrava Flávio com 45,14% e Lula com 44,65% dos votos válidos.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/verificacao/2026/10/04/e-falsa-pesquisa-de-boca-de-urna-que-mostra-flavio-eleito-em-1o-turno/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-voto-pelo-celular",
+      "data": "2026-10-04",
+      "alvo": "processo eleitoral",
+      "alegacao": "O TSE liberou o voto pelo celular para quem não puder ir ao local de votação.",
+      "veredito": "falso",
+      "explicacao": "O voto é presencial, na urna eletrônica; o e-Título não permite votar. O boato já circulou em 2020 e foi desmentido pelo TSE.",
+      "origem": "página falsa que imitava o TSE no Facebook",
+      "checadores": [
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/04/e-falso-que-tse-divulgou-possibilidade-de-voto-digital/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-04-mendonca-locais-votacao-mare",
+      "data": "2026-10-04",
+      "alvo": "processo eleitoral",
+      "alegacao": "O ministro André Mendonça mudou, na véspera da eleição, locais de votação no Complexo da Maré, reduto de eleitores de Lula.",
+      "veredito": "falso",
+      "explicacao": "A mudança foi feita pelo TRE-RJ cerca de dois meses antes, por segurança; não há decisão de Mendonça nesse sentido.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/mendonca-locais-votacao-rio/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-03-deepfake-waack-lula-golpe",
+      "data": "2026-10-03",
+      "alvo": "lula",
+      "alegacao": "O jornalista William Waack disse em vídeo que Lula planeja um golpe de Estado se perder a eleição.",
+      "veredito": "falso",
+      "explicacao": "O vídeo é deepfake: voz e boca não coincidem, a CNN negou a autenticidade e não há registro da declaração.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/william-waack-lula-golpe-eleicoes/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-03-eleitores-votam-dias-diferentes",
+      "data": "2026-10-03",
+      "alvo": "processo eleitoral",
+      "alegacao": "O TSE decidiu que eleitores de Flávio votam em 4 de outubro e os de Lula em outro dia ou horário.",
+      "veredito": "falso",
+      "explicacao": "Não há decisão do TSE nesse sentido; o 1º turno teve data única para todos, e a medida violaria o sigilo do voto.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/eleitores-flavio-votar-4-outubro/"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/eleicoes/2026/10/04/e-falso-que-lulistas-e-bolsonaristas-devem-votar-em-dias-e-horarios-diferentes/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-02-janja-nem-deus",
+      "data": "2026-10-02",
+      "alvo": "lula",
+      "alegacao": "Janja disse em comício em Teresina que \"nem Deus tira essa eleição de Lula\".",
+      "veredito": "falso",
+      "explicacao": "A transcrição do discurso não contém a frase; os posts usaram manchete adulterada do Correio Braziliense e foto de outro evento.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/janja-deus-eleicao-lula/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-02-papa-apoio-flavio",
+      "data": "2026-10-02",
+      "alvo": "lula",
+      "alegacao": "O papa Leão 14 declarou apoio a Flávio Bolsonaro.",
+      "veredito": "falso",
+      "explicacao": "Não há registro na imprensa nem nos canais oficiais do Vaticano; discursos e entrevistas recentes do papa não citam Flávio nem a eleição brasileira.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/papa-leao-14-flavio-bolsonaro/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-02-ministra-tse-debate-globo",
+      "data": "2026-10-02",
+      "alvo": "processo eleitoral",
+      "alegacao": "A ministra do TSE Estela Aranha proibiu que Lula fosse mencionado no debate presidencial da TV Globo.",
+      "veredito": "enganoso",
+      "explicacao": "A decisão vetou o destaque ao púlpito vazio de Lula e as perguntas dirigidas a candidato ausente, mas não proibiu menções a ele.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/ministra-tse-lula-debate-globo/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-10-01-tebet-critica-lula-toque",
+      "data": "2026-10-01",
+      "alvo": "lula",
+      "alegacao": "Vídeo mostra Simone Tebet criticando Lula pela fala sobre \"tomar toque\".",
+      "veredito": "falso",
+      "explicacao": "O vídeo é de abril de 2026, quando Tebet criticou falas machistas de um assessor de Trump; os posts cortaram o trecho para associá-lo a Lula.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/simone-tebet-lula-tomar-toque/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-29-lula-tomar-toque-pedofilia",
+      "data": "2026-09-29",
+      "alvo": "lula",
+      "alegacao": "Em discurso em Belém, Lula defendeu a pedofilia ao dizer que \"as mulheres aprendem a tomar toque desde pequenas\".",
+      "veredito": "falso",
+      "explicacao": "A frase foi tirada de contexto: Lula comparava a resistência dos homens ao exame de próstata com os exames ginecológicos que as mulheres fazem desde cedo.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/lula-discursa-cancer-de-prostata-nao-sobre-defesa-pedofilia/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-28-lula-desistir-candidatura",
+      "data": "2026-09-28",
+      "alvo": "lula",
+      "alegacao": "Lula avalia desistir da candidatura à reeleição.",
+      "veredito": "falso",
+      "explicacao": "O vídeo usado é de abril de 2026, antes da oficialização da candidatura, feita pelo PT em agosto; a campanha negou.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/lula-desistir-candidatura/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-25-tse-flavio-nossa-senhora-aparecida",
+      "data": "2026-09-25",
+      "alvo": "flavio",
+      "alegacao": "Flávio Bolsonaro ou sua família propuseram ou pretendem retirar de Nossa Senhora Aparecida o título de Padroeira do Brasil.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro André Mendonça (TSE) classificou a associação como \"notoriamente inverídica\" e mandou remover 1.170 links; Flávio negou. Em 27/9 o ministro Flávio Dino (STF) anulou a decisão para uma postagem que não citava o candidato e outras retiradas pelo mesmo fundamento. O Aos Fatos mostrou que o boato reedita narrativas falsas de 2018 e 2022.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/boato-sobre-nossa-senhora-aparecida-e-flavio-retoma-narrativas-falsas-de-2018-e-2022/"
+        }
+      ],
+      "tse": {
+        "decisao": "Liminar do ministro André Mendonça (25/9/2026), a pedido da campanha de Flávio, mandou as plataformas removerem 1.170 links com a alegação; parte foi anulada pelo ministro Flávio Dino (STF) em 27/9/2026.",
+        "url": "https://www.cnnbrasil.com.br/eleicoes/mendonca-manda-derrubar-posts-sobre-flavio-e-nossa-senhora-aparecida/"
+      }
+    },
+    {
+      "id": "2026-09-25-kit-chuca-sus",
+      "data": "2026-09-25",
+      "alvo": "lula",
+      "alegacao": "O governo Lula passou a distribuir kits de higiene íntima anal (\"chuca\") pelo SUS.",
+      "veredito": "falso",
+      "explicacao": "O item é distribuído apenas por um ambulatório municipal de Salvador; o Ministério da Saúde não compra, financia nem distribui o kit.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/governo-lula-higienizador-intimo-anal-chuca-sus/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-24-lula-cortar-cana",
+      "data": "2026-09-24",
+      "alvo": "lula",
+      "alegacao": "Lula disse que os pobres devem passar a vida cortando cana.",
+      "veredito": "falso",
+      "explicacao": "O trecho de quatro segundos foi tirado de um discurso em que Lula criticava a elite por negar educação aos pobres ao longo dos séculos.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/lula-nao-defendeu-que-pobres-devem-passar-a-vida-cortando-cana/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-22-tse-flavio-deepfake-lulinha",
+      "data": "2026-09-22",
+      "alvo": "lula",
+      "alegacao": "Vídeo \"Missão: localizar Lulinha\" retrata o filho de Lula como foragido por ter roubado aposentados, com imagens manipuladas de Lula e Janja.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "O ministro Nunes Marques considerou que o vídeo usa deepfake para prejudicar a imagem de Lula; o aviso de uso de IA não afasta a proibição de deepfake eleitoral.",
+      "origem": "candidato Flávio Bolsonaro (perfil no Instagram)",
+      "checadores": [],
+      "tse": {
+        "decisao": "Decisão do ministro Kassio Nunes Marques (22/9/2026), a pedido da federação do PT, mandou remover o vídeo em 24 horas.",
+        "url": "https://www.cnnbrasil.com.br/eleicoes/nunes-marques-manda-flavio-retirar-video-com-ia-sobre-lulinha-e-inss/"
+      }
+    },
+    {
+      "id": "2026-09-21-foto-ia-flavio-elefante",
+      "data": "2026-09-21",
+      "alvo": "flavio",
+      "alegacao": "Foto mostra Flávio Bolsonaro com uma espingarda ao lado de um elefante que ele teria abatido em um safári.",
+      "veredito": "falso",
+      "explicacao": "A imagem foi gerada por inteligência artificial e inserida no layout de uma reportagem real da revista piauí sobre uma viagem à África do Sul, que não diz que Flávio caçou animais.",
+      "origem": "Entre os perfis que publicaram a imagem, o Comprova identificou o do ator José de Abreu (post depois apagado)",
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/flavio-bolsonaro-elefante-morto-safari-ia/"
+        },
+        {
+          "nome": "Comprova",
+          "url": "https://noticias.uol.com.br/comprova/ultimas-noticias/2026/09/24/desinformacao-falso-imagem-ia-flavio-bolsonaro-matou-elefante.ghtm"
+        },
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/verificacao/2026/10/04/foto-de-flavio-bolsonaro-com-elefante-abatido-foi-gerada-por-ia/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-18-flavio-fora-da-eleicao",
+      "data": "2026-09-18",
+      "alvo": "flavio",
+      "alegacao": "Flávio Bolsonaro está fora da eleição e pode ser preso a qualquer momento.",
+      "veredito": "falso",
+      "explicacao": "O registro da candidatura foi aprovado por unanimidade pelo TSE em 2 de setembro e segue ativo; não houve retirada nem prisão.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Agência Lupa",
+          "url": "https://www.agencialupa.org/verificacao/2026/09/18/e-falso-que-flavio-bolsonaro-nao-disputara-as-eleicoes/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-18-datafolha-falso-lula-52",
+      "data": "2026-09-18",
+      "alvo": "flavio",
+      "alegacao": "Pesquisa Datafolha mostra Lula com 52,9% das intenções de voto, 17 pontos à frente de Flávio.",
+      "veredito": "falso",
+      "explicacao": "O Datafolha não divulgou esses números em nenhuma pesquisa; os levantamentos oficiais da época mostravam empate técnico.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "AFP Checamos",
+          "url": "https://checamos.afp.com/doc.afp.com.C8QD7T3"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-17-mendonca-lula-inelegivel",
+      "data": "2026-09-17",
+      "alvo": "lula",
+      "alegacao": "O ministro André Mendonça declarou Lula inelegível caso ele não comprove inocência no STF.",
+      "veredito": "falso",
+      "explicacao": "O TSE negou a decisão e não há registro dela.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Reuters Checagem de Fatos",
+          "url": "https://www.reuters.com/fact-check/portugues/WOY6P4ELVFNWHEFSYVLRUCNUGM-2026-09-17/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-09-14-flavio-viagem-eua",
+      "data": "2026-09-14",
+      "alvo": "flavio",
+      "alegacao": "Flávio Bolsonaro viajou para os Estados Unidos após uma investigação da Polícia Federal contra ele.",
+      "veredito": "falso",
+      "explicacao": "Os posts recircularam uma reportagem de maio de 2026 sobre outra viagem; não há registro de viagem recente ao exterior.",
+      "origem": null,
+      "checadores": [
+        {
+          "nome": "Aos Fatos",
+          "url": "https://www.aosfatos.org/noticias/flavio-nao-viajou-para-eua/"
+        }
+      ],
+      "tse": null
+    },
+    {
+      "id": "2026-08-30-tse-propaganda-curriculo-flavio",
+      "data": "2026-08-30",
+      "alvo": "flavio",
+      "alegacao": "Propaganda \"Conheça o currículo de Flávio Bolsonaro\" apresenta o senador como atualmente denunciado por lavagem de dinheiro e organização criminosa, entre outras acusações.",
+      "veredito": "removido pelo TSE",
+      "explicacao": "A ministra Estela Aranha viu \"grave descontextualização\": a peça omite que a denúncia citada foi arquivada e que não houve condenação, e associa o candidato a organizações criminosas sem dado concreto.",
+      "origem": "campanha de Lula",
+      "checadores": [],
+      "tse": {
+        "decisao": "Liminar da ministra Estela Aranha (30/8/2026) suspendeu a propaganda, a pedido de Flávio Bolsonaro.",
+        "url": "https://www.cnnbrasil.com.br/blogs/jussara-soares/eleicoes/tse-suspende-propaganda-de-lula-sobre-curriculo-de-flavio/"
+      }
+    }
+  ]
+}
