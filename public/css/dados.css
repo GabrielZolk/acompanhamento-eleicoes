@@ -761,3 +761,17 @@ button.duelo:hover .duelo__mais span { transform: translateX(4px); }
   .minha__grade { grid-template-columns: minmax(0, 1fr); }
   .minha__nums .rnum b { font-size: 32px; }
 }
+
+/* ------------------------------------------------------------------ calculadora do IR */
+.irb { display: flex; flex-direction: column; gap: 6px; }
+.irb__linha { display: grid; grid-template-columns: 110px minmax(0, 1fr) 150px; gap: 12px; align-items: center; }
+.irb__mes { display: flex; flex-direction: column; font-size: 13px; font-weight: 700; color: var(--text); }
+.irb__mes small { font-size: 11px; font-weight: 600; color: color-mix(in srgb, var(--c) 50%, #fff); }
+.irb__barra { height: 14px; border-radius: 5px; background: rgba(255, 255, 255, 0.03); overflow: hidden; }
+.irb__barra i { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 65%, #000), var(--c)); box-shadow: 0 0 12px -2px var(--c); transform-origin: left; animation: cresce-x 0.8s var(--ease-out) both; }
+.irb__val { display: flex; flex-direction: column; text-align: right; font-size: 14px; }
+.irb__val small { font-size: 11.5px; color: var(--muted); }
+@media (max-width: 640px) {
+  .irb__linha { grid-template-columns: 78px minmax(0, 1fr) 104px; gap: 8px; }
+  .irb__val { font-size: 12.5px; }
+}

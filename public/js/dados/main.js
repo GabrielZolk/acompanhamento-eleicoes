@@ -12,6 +12,7 @@ import { htmlMercado } from './mercado.js';
 import { htmlImpostos } from './impostos.js';
 import { htmlLeis } from './leis.js';
 import { montarMinhaInflacao } from './minha.js';
+import { montarCalcIR } from './ir.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
 
@@ -588,6 +589,7 @@ async function iniciar() {
     buscarJSON(BASE + 'mercado.json').then((j) => (estado.mercado = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'impostos.json').then((j) => (estado.impostos = j?.medidas?.length ? j : null)),
     buscarJSON(BASE + 'leis.json').then((j) => (estado.leis = j?.itens?.length ? j : null)),
+    buscarJSON(BASE + 'ir.json').then((j) => (estado.ir = j?.tabelas?.length ? j : null)),
   ]);
   estado.modo = ABAS.includes(qs.get('ver')) ? qs.get('ver') : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
@@ -605,6 +607,7 @@ async function iniciar() {
   );
   await pedidoMercado;
   montarMinhaInflacao($('#minha-inflacao'), estado.mercado, estado.mandatos);
+  montarCalcIR($('#calc-ir'), estado.ir, estado.mercado);
   // Aba de leis só aparece quando o levantamento existe.
   modos.querySelector('[data-modo="leis"]').hidden = !estado.leis;
   if (estado.modo === 'leis' && !estado.leis) {
