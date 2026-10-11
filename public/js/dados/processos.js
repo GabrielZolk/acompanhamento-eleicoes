@@ -22,7 +22,7 @@ const link = (url, txt) => (url ? `<a href="${esc(url)}" target="_blank" rel="no
 function tomSituacao(s = '') {
   const t = s.toLowerCase();
   if (/absolvi/.test(t)) return ['#22c55e', 'absolvido'];
-  if (/anulad|prescri|arquivad|extint/.test(t)) return ['#a3a3a3', 'encerrado sem condenação válida'];
+  if (/anulad|prescri|arquivad|extint|trancad|rejeitad/.test(t)) return ['#a3a3a3', 'encerrado sem condenação válida'];
   if (/condena/.test(t)) return ['#ef4444', 'condenação'];
   return ['#f5b13d', 'em andamento'];
 }
