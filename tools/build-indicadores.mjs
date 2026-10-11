@@ -49,6 +49,7 @@ import { fileURLToPath } from 'node:url';
 import { UFS } from '../public/js/ufs.js';
 import { lerXlsx, lerZip, lerOds, dataExcel } from './xlsx.mjs';
 import { indicadoresSociais } from './indicadores-sociais.mjs';
+import { indicadoresExtra } from './indicadores-extra.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const outDir = path.join(root, 'public', 'data', 'indicadores');
@@ -1106,6 +1107,8 @@ const INDICADORES = [
 
 // Indicadores sociais (Bolsa Família, Ideb, homicídios): fontes e cálculo em tools/indicadores-sociais.mjs.
 INDICADORES.push(...indicadoresSociais({ indiceIPCA }));
+// Juro real, dívida líquida, estatais federais e área queimada: fontes e cálculo em tools/indicadores-extra.mjs.
+INDICADORES.push(...indicadoresExtra({ indiceIPCA, sgs }));
 
 const MANDATOS = [
   { id: 'lula1', nome: 'Lula (1º mandato)', curto: 'Lula 1', inicio: '2003-01-01', fim: '2006-12-31' },
