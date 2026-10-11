@@ -14,7 +14,7 @@ import { htmlLeis } from './leis.js';
 import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
 import { htmlPoder } from './poder.js';
-import { htmlChecagens, htmlPropostas, htmlOrigens } from './eleicao2026.js';
+import { htmlChecagens, htmlPropostas, htmlOrigens, montarFeedChecagens } from './eleicao2026.js';
 import { htmlProcessos } from './processos.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
 import { htmlDuelo, htmlPlacar, mandatosDuelo, animarNumeros, definirPandemia, htmlSegPandemia, htmlFases, TEMAS, temaDe } from './comparar.js';
@@ -188,6 +188,7 @@ function renderLeis() {
   $('#origens-wrap').innerHTML = htmlOrigens(estado.origens);
   $('#propostas-wrap').innerHTML = htmlPropostas(estado.propostas);
   $('#checagens-wrap').innerHTML = htmlChecagens(estado.checagens);
+  montarFeedChecagens($('#ck-feed'));
   $('#processos-wrap').innerHTML = htmlProcessos(estado.processos);
   $('#leis-wrap').innerHTML = htmlLeis(estado.leis, estado.areaLei);
 }

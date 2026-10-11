@@ -28,7 +28,7 @@ const VEREDITO = {
 function cartaoChecagem(it, i) {
   const [rot, cor] = VEREDITO[it.veredito] || [it.veredito, '#8a93a6'];
   return `<article class="ck" style="--v:${cor};animation-delay:${Math.min(i, 20) * 0.03}s">
-      <div class="ck__topo"><span class="ck__ver">${esc(rot)}</span><span class="tx__data">${esc(dia(it.data))}</span></div>
+      <div class="ck__topo"><span class="ck__ver">${esc(rot)}</span>${/(IA|intelig[êe]ncia artificial|deepfake|montagem|manipulad)/i.test(`${it.alegacao} ${it.explicacao}`) ? '<span class="ck__ia">🤖 feito com IA ou montagem</span>' : ''}<span class="tx__data">${esc(dia(it.data))}</span></div>
       <p class="ck__alegacao">“${esc(it.alegacao)}”</p>
       <p class="ck__exp">${esc(it.explicacao || '')}</p>
       ${it.origem ? `<p class="ck__origem">Origem apontada pela checagem: ${esc(it.origem)}</p>` : ''}
@@ -64,7 +64,10 @@ export function htmlChecagens(dados) {
       <h3 class="tx-col__titulo"><i></i>Prejudicam ${esc(c.nome)} <small>${contra(c.id).length} itens</small></h3>
       ${contra(c.id).map(cartaoChecagem).join('') || '<p class="vazio">Nenhum item no levantamento.</p>'}
     </div>`;
+  const legenda = `<div class="ck-leg">${Object.values(VEREDITO).map(([rot, cor]) => `<span style="--v:${cor}"><i></i>${esc(rot)}</span>`).join('')}<span class="ck-leg__txt">Veredito da agência de checagem ou decisão do TSE, como publicado na fonte.</span></div>`;
   return `${resumo}
+    <div id="ck-feed"></div>
+    <h2 class="tema">Levantamento por candidato</h2>${legenda}
     <div class="tx-cols">${CANDIDATOS.map(coluna).join('')}</div>
     ${processo.length ? `<h2 class="tema">Sobre a urna e a votação</h2><div class="ck-grade">${processo.map(cartaoChecagem).join('')}</div>` : ''}
     <p class="tab__nota">Levantamento atualizado em ${esc(dia(dados.atualizadoEm))}/${esc((dados.atualizadoEm || '').slice(0, 4))}. Cada item tem o link da checagem original.</p>`;
@@ -108,4 +111,26 @@ export function htmlOrigens(dados) {
         <ol class="og__ev">${(p.eventos || []).map((e) => `<li style="--c:${COR_GOV[e.governo] || '#8a93a6'}"><span class="og__quando">${esc((e.data || '').slice(0, 4))} · ${esc(e.governo)} · ${esc(e.tipo)}</span>${esc(e.texto)}${e.norma ? ` <span class="og__norma">${link(e.url, e.norma)}</span>` : ''}</li>`).join('')}</ol>
       </details>`).join('')}</div>
     <p class="tab__nota">${esc(dados.criterio || '')}</p>`;
+}
+
+// Checagens recentes, automáticas: tudo o que os feeds das agências publicaram sobre a disputa,
+// na ordem de publicação, sem seleção do site (api/checagens-feed.js).
+let feedCache = null;
+const haQuanto = (ms) => {
+  const h = Math.round((Date.now() - ms) / 36e5);
+  return h < 1 ? 'agora' : h < 24 ? `há ${h} h` : `há ${Math.round(h / 24)} d`;
+};
+export async function montarFeedChecagens(el) {
+  if (!el) return;
+  const desenhar = (f) => {
+    el.innerHTML = f?.itens?.length ? `<h2 class="tema">Checagens mais recentes <small class="tema__sub">automático · ${esc(f.fontes.join(', '))}</small></h2>
+      <ul class="feed">${f.itens.slice(0, 16).map((i) => `<li><a href="${esc(i.link)}" target="_blank" rel="noopener noreferrer">${esc(i.titulo)}</a><small>${esc(i.fonte)}${i.data ? ` · ${haQuanto(i.data)}` : ''}</small></li>`).join('')}</ul>
+      <p class="tab__nota">Lista automática: entram todas as publicações dessas agências cujo título fala da eleição, sem escolha do site. Atualiza a cada 15 minutos.</p>` : '';
+  };
+  if (feedCache) return desenhar(feedCache);
+  try {
+    const r = await fetch('/api/checagens-feed');
+    if (r.ok) feedCache = await r.json();
+  } catch { /* sem a lista automática */ }
+  desenhar(feedCache);
 }
