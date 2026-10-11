@@ -74,7 +74,7 @@ export function fmtValor(v, ind, casas = ind.casas ?? 1) {
     case '%':
       return `${neg}${num(a, casas)}%`;
     default:
-      return `${neg}${num(a, casas)}${ind.unidade ? ' ' + ind.unidade : ''}`;
+      return `${neg}${num(a, casas)}${ind.unidade && ind.unidade !== 'índice' ? ' ' + ind.unidade : ''}`;
   }
 }
 
@@ -85,7 +85,7 @@ export function partesValor(v, ind) {
   if (emReais(ind)) return { pre: moeda(ind), num: n, suf: porQue(ind) };
   if (ind.unidade === '% do PIB') return { pre: '', num: n, suf: '% do PIB' };
   if (ind.unidade === '%') return { pre: '', num: n, suf: '%' };
-  return { pre: '', num: n, suf: ind.unidade || '' };
+  return { pre: '', num: n, suf: ind.unidade === 'índice' ? '' : ind.unidade || '' };
 }
 
 // Indicadores em % mostram a variação em pontos percentuais; os em R$, em % de mudança.
