@@ -1,0 +1,767 @@
+{
+  "atualizadoEm": "2026-10-12",
+  "periodos": [
+    {
+      "id": "ate-jul-2023",
+      "inicio": "2019-01-01",
+      "fim": "2023-07-31",
+      "governo": "ambos",
+      "titulo": "Regra antiga: 60% para compras de empresas; isenção só entre pessoas físicas",
+      "resumo": "Pela lei, toda compra de empresa estrangeira pagava Imposto de Importação de 60%, de qualquer valor. A isenção de US$ 50 valia apenas para remessas de pessoa física para pessoa física.",
+      "programaRemessaConforme": false,
+      "ate50": {
+        "ii": 60,
+        "iiDeducaoUSD": 0,
+        "icms": null,
+        "observacao": "Legalmente, 60% desde o primeiro centavo quando o remetente era empresa. Na prática, a fiscalização era por amostragem e muitas encomendas chegavam sem cobrança; a Receita relatou em 2023 o uso indevido da isenção entre pessoas físicas por vendedores (remessas fracionadas e declaradas como envio de pessoa física). Não há percentual oficial de encomendas fiscalizadas publicado."
+      },
+      "acima50": {
+        "ii": 60,
+        "iiDeducaoUSD": 0,
+        "icms": null,
+        "observacao": "60% sobre produto + frete + seguro, até US$ 3.000. Imposto pago pelo comprador depois da chegada da encomenda."
+      },
+      "isencaoPessoaFisicaParaPessoaFisica": {
+        "vigente": true,
+        "limiteUSD": 50,
+        "observacao": "O Decreto-Lei 1.804/1980 (art. 2º, II, com redação da Lei 8.383/1991) permitia isenção para remessas de até US$ 100 destinadas a pessoas físicas; a Portaria MF 156/1999 fixou US$ 50 e a regulamentação exigiu remetente pessoa física. Essa diferença (US$ 100 na lei × US$ 50 com remetente pessoa física na norma infralegal) gerou ações judiciais."
+      },
+      "icmsObservacao": "Não havia alíquota unificada de ICMS para remessas internacionais; cada estado cobrava segundo sua própria legislação quando a encomenda era tributada. A carga unificada de 17% só veio com o Convênio ICMS 81/2023.",
+      "icmsPorUF": null,
+      "baseIcmsPorDentro": true,
+      "freteNaBase": true,
+      "fontes": [
+        {
+          "nome": "Decreto-Lei 1.804/1980 (texto compilado, Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del1804.htm"
+        },
+        {
+          "nome": "Receita Federal - apresentação do Programa Remessa Conforme (jun/2023)",
+          "url": "https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2023/junho/ministerio-da-fazenda-reduz-a-zero-aliquota-de-importacao-para-compras-do-exterior-de-ate-50-dolares/programa-remessa-conforme"
+        },
+        {
+          "nome": "Agência Brasil - Como funciona a importação por pessoas físicas (14/04/2023)",
+          "url": "https://agenciabrasil.ebc.com.br/economia/noticia/2023-04/agencia-brasil-explica-como-funciona-importacao-por-pessoas-fisicas"
+        },
+        {
+          "nome": "Agência Brasil - Isenção para encomendas de até US$ 50 entre pessoas físicas é mantida (18/04/2023)",
+          "url": "https://agenciabrasil.ebc.com.br/economia/noticia/2023-04/isencao-para-encomendas-de-ate-us-50-entre-pessoas-fisicas-e-mantida"
+        },
+        {
+          "nome": "Poder360 - 'Uma pessoa mandou 16 milhões de pacotes ao Brasil, diz Receita' (13/09/2023)",
+          "url": "https://www.poder360.com.br/economia/uma-pessoa-mandou-16-milhoes-de-pacotes-ao-brasil-diz-receita/"
+        }
+      ]
+    },
+    {
+      "id": "remessa-conforme-2023",
+      "inicio": "2023-08-01",
+      "fim": "2024-07-31",
+      "governo": "lula3",
+      "titulo": "Remessa Conforme: Imposto de Importação zero até US$ 50 em sites certificados + ICMS de 17%",
+      "resumo": "Compras de até US$ 50 em plataformas certificadas no Programa Remessa Conforme passaram a ter Imposto de Importação zero, com ICMS de 17% cobrado já no pagamento. Fora do programa, continuava a regra de 60%.",
+      "programaRemessaConforme": true,
+      "ate50": {
+        "ii": 0,
+        "iiDeducaoUSD": 0,
+        "icms": 17,
+        "observacao": "Alíquota zero (Portaria MF 612/2023) só para plataformas certificadas; impostos estaduais pagos antecipadamente no checkout."
+      },
+      "acima50": {
+        "ii": 60,
+        "iiDeducaoUSD": 0,
+        "icms": 17,
+        "observacao": "Acima de US$ 50, 60% sem dedução, mesmo em plataforma certificada."
+      },
+      "foraDoPrograma": {
+        "ate50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17,
+          "observacao": "60% quando o remetente era empresa; a isenção entre pessoas físicas de até US$ 50 continuava existindo."
+        },
+        "acima50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17
+        }
+      },
+      "isencaoPessoaFisicaParaPessoaFisica": {
+        "vigente": true,
+        "limiteUSD": 50
+      },
+      "icmsObservacao": "Convênio ICMS 81/2023 autorizou os estados a reduzir a base de cálculo para carga equivalente a 17% em toda remessa do Regime de Tributação Simplificada, qualquer que seja o produto. Segundo o Comsefaz, em 2024 o Amapá praticava 18%; os demais, 17%.",
+      "icmsPorUF": {
+        "AC": 17,
+        "AL": 17,
+        "AM": 17,
+        "AP": 18,
+        "BA": 17,
+        "CE": 17,
+        "DF": 17,
+        "ES": 17,
+        "GO": 17,
+        "MA": 17,
+        "MG": 17,
+        "MS": 17,
+        "MT": 17,
+        "PA": 17,
+        "PB": 17,
+        "PE": 17,
+        "PI": 17,
+        "PR": 17,
+        "RJ": 17,
+        "RN": 17,
+        "RO": 17,
+        "RR": 17,
+        "RS": 17,
+        "SC": 17,
+        "SE": 17,
+        "SP": 17,
+        "TO": 17
+      },
+      "baseIcmsPorDentro": true,
+      "freteNaBase": true,
+      "fontes": [
+        {
+          "nome": "Portaria MF 612/2023 (texto em repositório de legislação)",
+          "url": "https://www.normasbrasil.com.br/norma/portaria-612-2023_446947.html"
+        },
+        {
+          "nome": "Receita Federal - apresentação do Programa Remessa Conforme (jun/2023)",
+          "url": "https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2023/junho/ministerio-da-fazenda-reduz-a-zero-aliquota-de-importacao-para-compras-do-exterior-de-ate-50-dolares/programa-remessa-conforme"
+        },
+        {
+          "nome": "Receita Federal - Nota Cetad/Coest 086/2023 (impacto da alíquota zero)",
+          "url": "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/estudos/notas-cetad/notas-tecnicas/2023/nota-cetad-coest-no-086-2023.pdf"
+        },
+        {
+          "nome": "CONFAZ - Convênio ICMS 81/2023 (texto compilado)",
+          "url": "https://www.confaz.fazenda.gov.br/legislacao/convenios/2023/CV081_23"
+        },
+        {
+          "nome": "Comsefaz - Alíquota de ICMS sobre importações pelo RTS por UF (versão 21/05/2025)",
+          "url": "https://comsefaz.org.br/novo/wp-content/uploads/2025/05/Aliquota-ICMS-import.-RTS-por-UF-17-e-20-CV81-23-v21-05-2025.pdf"
+        },
+        {
+          "nome": "Agência Brasil - Isenção federal para comércio eletrônico entra em vigor (07/2023)",
+          "url": "https://agenciabrasil.ebc.com.br/economia/noticia/2023-07/isencao-federal-para-comercio-eletronico-entra-em-vigor-nesta-terca"
+        }
+      ]
+    },
+    {
+      "id": "lei-14902-2024",
+      "inicio": "2024-08-01",
+      "fim": "2025-03-31",
+      "governo": "lula3",
+      "titulo": "Lei 14.902/2024: Imposto de Importação de 20% até US$ 50; 60% com dedução de US$ 20 acima",
+      "resumo": "A lei do Programa Mover incluiu no Decreto-Lei 1.804 uma tabela com 20% até US$ 50 e 60% com dedução de US$ 20 entre US$ 50,01 e US$ 3.000. A isenção entre pessoas físicas foi revogada.",
+      "programaRemessaConforme": true,
+      "ate50": {
+        "ii": 20,
+        "iiDeducaoUSD": 0,
+        "icms": 17,
+        "observacao": "Para plataformas certificadas no Remessa Conforme."
+      },
+      "acima50": {
+        "ii": 60,
+        "iiDeducaoUSD": 20,
+        "icms": 17,
+        "observacao": "60% sobre o valor aduaneiro, menos US$ 20 (a dedução evita salto no imposto ao passar de US$ 50)."
+      },
+      "foraDoPrograma": {
+        "ate50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17,
+          "observacao": "Portaria MF 1.086/2024: fora do programa, 60% sem parcela a deduzir em qualquer valor."
+        },
+        "acima50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17
+        }
+      },
+      "isencaoPessoaFisicaParaPessoaFisica": {
+        "vigente": false,
+        "observacao": "Lei 14.902/2024 revogou o inciso II do art. 2º do Decreto-Lei 1.804/1980; a Receita informa que a isenção entre pessoas físicas deixou de valer em 1º/8/2024."
+      },
+      "icmsObservacao": "Sem mudança no ICMS: 17% (Amapá 18%, segundo o Comsefaz).",
+      "icmsPorUF": {
+        "AC": 17,
+        "AL": 17,
+        "AM": 17,
+        "AP": 18,
+        "BA": 17,
+        "CE": 17,
+        "DF": 17,
+        "ES": 17,
+        "GO": 17,
+        "MA": 17,
+        "MG": 17,
+        "MS": 17,
+        "MT": 17,
+        "PA": 17,
+        "PB": 17,
+        "PE": 17,
+        "PI": 17,
+        "PR": 17,
+        "RJ": 17,
+        "RN": 17,
+        "RO": 17,
+        "RR": 17,
+        "RS": 17,
+        "SC": 17,
+        "SE": 17,
+        "SP": 17,
+        "TO": 17
+      },
+      "baseIcmsPorDentro": true,
+      "freteNaBase": true,
+      "fontes": [
+        {
+          "nome": "Lei 14.902/2024, art. 32 (Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/L14902.htm"
+        },
+        {
+          "nome": "Decreto-Lei 1.804/1980 (texto compilado, Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del1804.htm"
+        },
+        {
+          "nome": "Portaria MF 1.086/2024 (texto em repositório de legislação)",
+          "url": "https://www.legisweb.com.br/legislacao/?id=461026"
+        },
+        {
+          "nome": "Comsefaz - Alíquota de ICMS sobre importações pelo RTS por UF (versão 21/05/2025)",
+          "url": "https://comsefaz.org.br/novo/wp-content/uploads/2025/05/Aliquota-ICMS-import.-RTS-por-UF-17-e-20-CV81-23-v21-05-2025.pdf"
+        }
+      ]
+    },
+    {
+      "id": "icms-20-2025",
+      "inicio": "2025-04-01",
+      "fim": "2026-05-11",
+      "governo": "lula3",
+      "titulo": "Nove estados sobem o ICMS das compras internacionais para 20%",
+      "resumo": "Com o Convênio ICMS 135/2024, os estados puderam escolher carga de 17% ou 20%. Desde 1º/4/2025, nove estados cobram 20%; a maioria seguiu em 17%. O imposto federal não mudou.",
+      "programaRemessaConforme": true,
+      "ate50": {
+        "ii": 20,
+        "iiDeducaoUSD": 0,
+        "icms": 17,
+        "observacao": "Plataforma certificada. ICMS de 17% é a alíquota predominante (16 UFs); ver icmsPorUF."
+      },
+      "acima50": {
+        "ii": 60,
+        "iiDeducaoUSD": 20,
+        "icms": 17
+      },
+      "foraDoPrograma": {
+        "ate50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17
+        },
+        "acima50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17
+        }
+      },
+      "isencaoPessoaFisicaParaPessoaFisica": {
+        "vigente": false
+      },
+      "icmsObservacao": "20% em AC, AL, BA, CE, PB, PI, RN, RR e SE desde 1º/4/2025. Amapá 18%. Minas Gerais chegou a anunciar 20%, mas o Decreto 49.012/2025 manteve 17%. O Pará deixou o Convênio 81/2023 e passou a aplicar sua alíquota modal de 19% a partir de 1º/1/2026 (Decreto estadual 4.829/2025). Demais UFs: 17%.",
+      "icmsPorUF": {
+        "AC": 20,
+        "AL": 20,
+        "AM": 17,
+        "AP": 18,
+        "BA": 20,
+        "CE": 20,
+        "DF": 17,
+        "ES": 17,
+        "GO": 17,
+        "MA": 17,
+        "MG": 17,
+        "MS": 17,
+        "MT": 17,
+        "PA": 17,
+        "PB": 20,
+        "PE": 17,
+        "PI": 20,
+        "PR": 17,
+        "RJ": 17,
+        "RN": 20,
+        "RO": 17,
+        "RR": 20,
+        "RS": 17,
+        "SC": 17,
+        "SE": 20,
+        "SP": 17,
+        "TO": 17
+      },
+      "icmsMudancasNoPeriodo": [
+        {
+          "uf": "PA",
+          "data": "2026-01-01",
+          "icms": 19
+        }
+      ],
+      "baseIcmsPorDentro": true,
+      "freteNaBase": true,
+      "fontes": [
+        {
+          "nome": "CONFAZ - Convênio ICMS 135/2024",
+          "url": "https://www.confaz.fazenda.gov.br/legislacao/convenios/2024/CV135_24"
+        },
+        {
+          "nome": "CONFAZ - Convênio ICMS 81/2023 (texto compilado)",
+          "url": "https://www.confaz.fazenda.gov.br/legislacao/convenios/2023/CV081_23"
+        },
+        {
+          "nome": "Comsefaz - Alíquota de ICMS sobre importações pelo RTS por UF (versão 22/12/2025)",
+          "url": "https://comsefaz.org.br/novo/wp-content/uploads/2025/12/Aliquota-ICMS-import.-RTS-por-UF-17-e-20-CV81-23-v22-12-2025.pdf"
+        },
+        {
+          "nome": "Minas Gerais - Decreto 49.012/2025 (mantém 17%)",
+          "url": "https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/decretos/2025/d49012_2025.html"
+        },
+        {
+          "nome": "Lei 14.902/2024, art. 32 (Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/L14902.htm"
+        }
+      ]
+    },
+    {
+      "id": "mp-1357-2026",
+      "inicio": "2026-05-12",
+      "fim": null,
+      "governo": "lula3",
+      "titulo": "MP 1.357/2026 e Lei 15.502/2026: Imposto de Importação volta a zero até US$ 50 em sites certificados",
+      "resumo": "A MP 1.357 e a Portaria MF 1.342, publicadas em 12/5/2026, zeraram o Imposto de Importação até US$ 50 em plataformas do Remessa Conforme e ampliaram a dedução acima disso para US$ 30. A MP virou a Lei 15.502 em 10/9/2026, sem mudar essas alíquotas; o ICMS estadual continua.",
+      "programaRemessaConforme": true,
+      "ate50": {
+        "ii": 0,
+        "iiDeducaoUSD": 0,
+        "icms": 17,
+        "observacao": "Plataforma certificada no Remessa Conforme. Vale para remessas com declaração registrada desde 12/5/2026; não há devolução do imposto pago antes."
+      },
+      "acima50": {
+        "ii": 60,
+        "iiDeducaoUSD": 30,
+        "icms": 17,
+        "observacao": "60% sobre o valor aduaneiro, menos US$ 30. A Lei 15.502 permite à Fazenda baixar essa faixa até 30%, mas, até a atualização da Receita de 14/9/2026, a regra aplicada continuava 60% menos US$ 30."
+      },
+      "foraDoPrograma": {
+        "ate50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17,
+          "observacao": "Fora do programa: 60% sem desconto, de US$ 0,01 a US$ 3.000; impostos cobrados após a chegada."
+        },
+        "acima50": {
+          "ii": 60,
+          "iiDeducaoUSD": 0,
+          "icms": 17
+        }
+      },
+      "isencaoPessoaFisicaParaPessoaFisica": {
+        "vigente": false
+      },
+      "icmsObservacao": "ICMS igual dentro ou fora do programa, de 17% a 20% conforme o estado (Receita Federal). Última tabela do Comsefaz (dez/2025): 20% em AC, AL, BA, CE, PB, PI, RN, RR, SE; 19% no PA; 18% no AP; 17% nas demais. Nenhuma mudança posterior foi encontrada até 12/10/2026.",
+      "icmsPorUF": {
+        "AC": 20,
+        "AL": 20,
+        "AM": 17,
+        "AP": 18,
+        "BA": 20,
+        "CE": 20,
+        "DF": 17,
+        "ES": 17,
+        "GO": 17,
+        "MA": 17,
+        "MG": 17,
+        "MS": 17,
+        "MT": 17,
+        "PA": 19,
+        "PB": 20,
+        "PE": 17,
+        "PI": 20,
+        "PR": 17,
+        "RJ": 17,
+        "RN": 20,
+        "RO": 17,
+        "RR": 20,
+        "RS": 17,
+        "SC": 17,
+        "SE": 20,
+        "SP": 17,
+        "TO": 17
+      },
+      "baseIcmsPorDentro": true,
+      "freteNaBase": true,
+      "fontes": [
+        {
+          "nome": "Medida Provisória 1.357/2026 (Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/mpv/mpv1357.htm"
+        },
+        {
+          "nome": "Lei 15.502/2026, conversão da MP 1.357 (Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/L15502.htm"
+        },
+        {
+          "nome": "Decreto-Lei 1.804/1980 (texto compilado, Planalto)",
+          "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del1804.htm"
+        },
+        {
+          "nome": "Receita Federal - Novas regras (remessas registradas desde 12/05/2026)",
+          "url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/regras-futuras"
+        },
+        {
+          "nome": "Receita Federal - Quanto vou pagar de impostos? (atualizado 14/09/2026)",
+          "url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/preciso-pagar-impostos-nas-compras-internacionais/quanto-pagarei-de-imposto"
+        },
+        {
+          "nome": "Agência Senado - MP zera 'taxa das blusinhas' (13/05/2026)",
+          "url": "https://www12.senado.leg.br/noticias/materias/2026/05/13/medida-provisoria-zera-taxa-das-blusinhas-para-importacoes-de-ate-us-50"
+        },
+        {
+          "nome": "Agência Senado - Sancionada lei que autoriza zerar a 'taxa das blusinhas' (11/09/2026)",
+          "url": "https://www12.senado.leg.br/noticias/materias/2026/09/11/sancionada-lei-que-autoriza-zerar-taxa-das-blusinhas-ate-us-50"
+        },
+        {
+          "nome": "Econet - Portaria MF 1.342/2026 (resumo técnico)",
+          "url": "https://blog.econeteditora.com.br/remessa-conforme-o-que-muda-com-a-portaria-mf-1-342-2026/"
+        },
+        {
+          "nome": "Comsefaz - Alíquota de ICMS sobre importações pelo RTS por UF (versão 22/12/2025)",
+          "url": "https://comsefaz.org.br/novo/wp-content/uploads/2025/12/Aliquota-ICMS-import.-RTS-por-UF-17-e-20-CV81-23-v22-12-2025.pdf"
+        }
+      ]
+    }
+  ],
+  "exemplos": [
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "ate-jul-2023",
+      "remessaConforme": null,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": null,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 135.0,
+      "icmsReais": null,
+      "impostosReais": 135.0,
+      "totalReais": 360.0,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "Compra de empresa, se tributada: só o Imposto de Importação (ICMS variava por estado e não foi somado). Na prática muitas encomendas desse valor passavam sem cobrança. cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "remessa-conforme-2023",
+      "remessaConforme": true,
+      "iiAliquota": 0,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 0.0,
+      "icmsReais": 46.08,
+      "impostosReais": 46.08,
+      "totalReais": 271.08,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "remessa-conforme-2023",
+      "remessaConforme": false,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 135.0,
+      "icmsReais": 73.73,
+      "impostosReais": 208.73,
+      "totalReais": 433.73,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "lei-14902-2024",
+      "remessaConforme": true,
+      "iiAliquota": 20,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 45.0,
+      "icmsReais": 55.3,
+      "impostosReais": 100.3,
+      "totalReais": 325.3,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "icms-20-2025",
+      "remessaConforme": true,
+      "iiAliquota": 20,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 20,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 45.0,
+      "icmsReais": 67.5,
+      "impostosReais": 112.5,
+      "totalReais": 337.5,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "Estado com ICMS de 20%. cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": true,
+      "iiAliquota": 0,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 0.0,
+      "icmsReais": 46.08,
+      "impostosReais": 46.08,
+      "totalReais": 271.08,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": true,
+      "iiAliquota": 0,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 20,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 0.0,
+      "icmsReais": 56.25,
+      "impostosReais": 56.25,
+      "totalReais": 281.25,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "Estado com ICMS de 20%. cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 40,
+      "freteUSD": 5,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": false,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 225.0,
+      "iiReais": 135.0,
+      "icmsReais": 73.73,
+      "impostosReais": 208.73,
+      "totalReais": 433.73,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "ate-jul-2023",
+      "remessaConforme": null,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": null,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 330.0,
+      "icmsReais": null,
+      "impostosReais": 330.0,
+      "totalReais": 880.0,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "Só o Imposto de Importação (ICMS variava por estado e não foi somado). cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "remessa-conforme-2023",
+      "remessaConforme": true,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 330.0,
+      "icmsReais": 180.24,
+      "impostosReais": 510.24,
+      "totalReais": 1060.24,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "lei-14902-2024",
+      "remessaConforme": true,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 20,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 230.0,
+      "icmsReais": 159.76,
+      "impostosReais": 389.76,
+      "totalReais": 939.76,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "icms-20-2025",
+      "remessaConforme": true,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 20,
+      "icmsAliquota": 20,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 230.0,
+      "icmsReais": 195.0,
+      "impostosReais": 425.0,
+      "totalReais": 975.0,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "Estado com ICMS de 20%. cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": true,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 30,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 180.0,
+      "icmsReais": 149.52,
+      "impostosReais": 329.52,
+      "totalReais": 879.52,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 100,
+      "freteUSD": 10,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": false,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 550.0,
+      "iiReais": 330.0,
+      "icmsReais": 180.24,
+      "impostosReais": 510.24,
+      "totalReais": 1060.24,
+      "cambio": 5.0,
+      "fonte": null,
+      "observacao": "cálculo próprio com as regras do período (câmbio hipotético de R$ 5,00, o mesmo dos exemplos da Receita)"
+    },
+    {
+      "produtoUSD": 20,
+      "freteUSD": 0,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": true,
+      "iiAliquota": 0,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 100.0,
+      "iiReais": 0.0,
+      "icmsReais": 20.48,
+      "impostosReais": 20.48,
+      "totalReais": 120.48,
+      "cambio": 5.0,
+      "fonte": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/regras-futuras",
+      "observacao": "Exemplo oficial da Receita: compra de R$ 100 (produto + frete), ICMS de R$ 20,48."
+    },
+    {
+      "produtoUSD": 66,
+      "freteUSD": 0,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": true,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 30,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 330.0,
+      "iiReais": 48.0,
+      "icmsReais": 77.42,
+      "impostosReais": 125.42,
+      "totalReais": 455.42,
+      "cambio": 5.0,
+      "fonte": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/regras-futuras",
+      "observacao": "Exemplo oficial da Receita: compra de R$ 330, II de R$ 48,00 e ICMS de R$ 77,42 (total de impostos R$ 125,42)."
+    },
+    {
+      "produtoUSD": 20,
+      "freteUSD": 0,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": false,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 100.0,
+      "iiReais": 60.0,
+      "icmsReais": 32.77,
+      "impostosReais": 92.77,
+      "totalReais": 192.77,
+      "cambio": 5.0,
+      "fonte": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/regras-futuras",
+      "observacao": "Exemplo oficial da Receita, fora do programa: II de R$ 60,00 e ICMS de R$ 32,77."
+    },
+    {
+      "produtoUSD": 66,
+      "freteUSD": 0,
+      "periodo": "mp-1357-2026",
+      "remessaConforme": false,
+      "iiAliquota": 60,
+      "iiDeducaoUSD": 0,
+      "icmsAliquota": 17,
+      "valorAduaneiroReais": 330.0,
+      "iiReais": 198.0,
+      "icmsReais": 108.14,
+      "impostosReais": 306.14,
+      "totalReais": 636.14,
+      "cambio": 5.0,
+      "fonte": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/regras-futuras",
+      "observacao": "Exemplo oficial da Receita, fora do programa: II de R$ 198,00 e ICMS de R$ 108,14."
+    }
+  ],
+  "notas": [
+    "Base legal do Imposto de Importação: o Regime de Tributação Simplificada (RTS) foi criado pelo Decreto-Lei 1.804/1980 e regulamentado pela Portaria MF 156/1999, que fixou 60% sobre o valor da remessa até o limite de US$ 3.000. Os bens no RTS são isentos de IPI (art. 1º, § 1º, do DL 1.804).",
+    "A 'isenção de US$ 50' nunca valeu, pela norma, para compras de lojas: aplicava-se só a remessas de pessoa física para pessoa física. O Ministério da Fazenda declarou em abril de 2023 que 'nunca existiu' isenção para compras pela internet. O governo chegou a anunciar o fim da isenção entre pessoas físicas em abril de 2023 e recuou dias depois; ela só acabou com a Lei 14.902/2024 (efeitos em 1º/8/2024).",
+    "Valor que define a faixa (≤ US$ 50 ou > US$ 50) e base do imposto federal: valor aduaneiro = produto + frete + seguro (Receita Federal). Um item de US$ 45 com US$ 8 de frete (US$ 53) cai na faixa acima de US$ 50.",
+    "Fórmula da Receita para o ICMS 'por dentro': ICMS = [(valor aduaneiro + II) / (1 - alíquota)] × alíquota. A base inclui produto, frete, seguro, o Imposto de Importação e o próprio ICMS. Com 17%, o ICMS efetivo equivale a cerca de 20,5% sobre (valor + II); com 20%, a 25%.",
+    "Imposto de Importação no RTS: II = alíquota × valor aduaneiro em US$ − dedução em US$, convertido em reais pela taxa de câmbio da data de registro da declaração. A Lei 15.502/2026 (§ 2º-G do art. 1º do DL 1.804) passou a permitir usar o câmbio da data da compra para plataformas certificadas.",
+    "Dedução: US$ 20 (Lei 14.902/2024) e US$ 30 (Portaria MF 1.342/2026) equivalem à diferença entre 60% e a alíquota da faixa de baixo aplicada a US$ 50 (60% − 20% = 40% × 50 = 20; 60% − 0% = 60% × 50 = 30). Assim, o imposto não salta ao passar de US$ 50.",
+    "Lei 15.502/2026 (conversão da MP 1.357): autoriza o ministro da Fazenda a reduzir as alíquotas do RTS a zero até US$ 50 e a 30% até US$ 3.000, diferenciando por via postal, remessa expressa ou adesão ao Remessa Conforme. Permite limitar quantidade ou frequência de uso por pessoa física e combater fracionamento. Também prevê alíquota zero para medicamentos sem similar nacional para doenças raras ou negligenciadas (efeitos em até 180 dias) e avaliação periódica pela Fazenda e anual pelo Congresso. As alíquotas efetivas dependem de portaria; até a atualização da Receita de 14/9/2026, valia 0% até US$ 50 e 60% menos US$ 30 acima, para plataformas certificadas.",
+    "A 'taxa das blusinhas' (20%) entrou por emenda ao projeto do Programa Mover (Lei 14.902/2024), aprovada pelo Congresso e sancionada. A Lei 15.071/2024 depois incorporou ao DL 1.804 as obrigações das empresas de comércio eletrônico e a delegação à Fazenda (antes prevista na MP 1.236/2024, que perdeu a vigência), mantendo os pisos de 20% e 60%.",
+    "ICMS: o Convênio ICMS 81/2023 (efeitos a partir de 26/6/2023, aplicados com o Remessa Conforme a partir de 1º/8/2023) autorizou carga de 17% em toda remessa do RTS. O Convênio ICMS 135/2024 (efeitos em 1º/4/2025) passou a permitir 17% ou 20% e autorizou os estados a revogar o benefício. A decisão de cada estado depende de lei ou decreto estadual; a tabela por UF vem do Comsefaz (última versão encontrada: 22/12/2025).",
+    "Compras acima de US$ 3.000 ficam fora do RTS e seguem a importação comum (alíquota do II conforme a TEC do produto, mais IPI, PIS/Cofins e ICMS); não são cobertas por este arquivo.",
+    "Medicamentos para uso pessoal têm regra própria (isenção de II até US$ 10.000, segundo a Receita) e não seguem as faixas acima.",
+    "Os exemplos usam câmbio hipotético de R$ 5,00 por dólar, como a própria Receita nos exemplos oficiais, para comparar só o efeito das regras. Para um período real, use o câmbio do dia de registro da declaração.",
+    "No período antes de agosto de 2023, o ICMS não tinha alíquota única e a fiscalização era por amostragem; por isso o campo icms é null e os exemplos desse período somam só o Imposto de Importação."
+  ]
+}
