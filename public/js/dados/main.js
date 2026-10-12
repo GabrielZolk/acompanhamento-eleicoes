@@ -15,6 +15,7 @@ import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
 import { htmlPoder } from './poder.js';
 import { htmlEscada } from './escada.js';
+import { htmlIndependente } from './independente.js';
 import { htmlChecagens, htmlPropostas, htmlOrigens, montarFeedChecagens } from './eleicao2026.js';
 import { htmlProcessos } from './processos.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
@@ -179,6 +180,7 @@ function renderResumos() {
   $('#resumo-historico').innerHTML = resumoHistorico(base);
   $('#poder').innerHTML = htmlPoder(estado.dados, estado.mandatos);
   $('#escada-mercado').innerHTML = $('#escada-duelo').innerHTML = htmlEscada(estado.mercado, estado.mandatos);
+  $('#independente').innerHTML = htmlIndependente(estado.minhainflacao, estado.mercado);
 }
 
 function renderImpostos() {
@@ -610,6 +612,7 @@ async function iniciar() {
     buscarJSON(BASE + 'impostos.json').then((j) => (estado.impostos = j?.medidas?.length ? j : null)),
     buscarJSON(BASE + 'leis.json').then((j) => (estado.leis = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'ir.json').then((j) => (estado.ir = j?.tabelas?.length ? j : null)),
+    buscarJSON(BASE + 'minhainflacao.json').then((j) => (estado.minhainflacao = j?.pontos?.length ? j : null)),
     buscarJSON(BASE + 'checagens.json').then((j) => (estado.checagens = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'propostas.json').then((j) => (estado.propostas = j?.temas?.length ? j : null)),
     buscarJSON(BASE + 'origens.json').then((j) => (estado.origens = j?.programas?.length ? j : null)),

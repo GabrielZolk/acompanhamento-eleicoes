@@ -880,3 +880,13 @@ details.resumo__nota p { margin: 8px 0 0; }
 .escada__txt li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--pand); }
 .escada__txt b { color: var(--text); }
 @media (max-width: 760px) { .escada { padding: 16px 12px; } .escada__corpo { grid-template-columns: minmax(0, 1fr); } .escada__graf { height: 170px; } }
+
+/* ------------------------------------------------------------------ medição independente */
+.indep { margin: 0 0 22px; padding: 20px 22px; border-radius: 16px; background: radial-gradient(600px 200px at 0% -20%, rgba(245, 177, 61, 0.1), transparent 70%), var(--card); border: 1px solid var(--line); }
+.indep__pontos { margin: 12px 0 14px; }
+.indep__tab td, .indep__tab th { vertical-align: middle; }
+.indep__tab small a { color: #8fb2ff; }
+.ind-barra { display: inline-flex; align-items: center; gap: 8px; min-width: 120px; }
+.ind-barra i { display: block; height: 10px; width: 0; border-radius: 4px; max-width: 70px; flex: 0 0 auto; }
+.ind-barra b { font-size: 13px; }
+@media (max-width: 640px) { .indep { padding: 16px 12px; } }

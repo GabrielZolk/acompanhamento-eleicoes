@@ -1,0 +1,18 @@
+{
+  "atualizadoEm": "2026-10-12",
+  "nome": "Minha Inflação (@minhainflacao)",
+  "site": "https://sites.google.com/view/minhainflacao",
+  "perfil": "https://x.com/minhainflacao",
+  "metodo": "Medição independente feita por uma pessoa, sem vínculo com governo ou instituto: preços de uma cesta básica fixa (alimentos, higiene e limpeza; carnes em quantidades baseadas em reportagens sobre consumo) fotografados no último fim de semana de cada mês em três supermercados de uma mesma região, desde outubro de 2023. Considera a reduflação (embalagem menor pelo mesmo preço). O próprio autor avisa: 'é um cálculo pessoal, pode haver erros, não confie cegamente, faça o seu próprio cálculo'. Não há dados de antes de outubro de 2023, então não serve para comparar governos.",
+  "pontos": [
+    { "periodo": "out/23 → set/24", "de": "2023-11", "ate": "2024-09", "valor": 15.08, "tipo": "12 meses", "fonte": "https://sites.google.com/view/minhainflacao/hist%C3%B3rico/2024/setembro2024" },
+    { "periodo": "2024 (jan a dez)", "de": "2024-01", "ate": "2024-12", "valor": 11.37, "tipo": "ano", "fonte": "https://sites.google.com/view/minhainflacao/hist%C3%B3rico/2024/dezembro24" },
+    { "periodo": "2025 (jan a dez)", "de": "2025-01", "ate": "2025-12", "valor": 2.65, "tipo": "ano", "fonte": "https://sites.google.com/view/minhainflacao/hist%C3%B3rico/2025/dezembro25" },
+    { "periodo": "out/25 → set/26", "de": "2025-10", "ate": "2026-09", "valor": 2.89, "tipo": "12 meses", "fonte": "https://sites.google.com/view/minhainflacao/hist%C3%B3rico/2026/setembro26" },
+    { "periodo": "out/23 → set/26 (tudo)", "de": "2023-11", "ate": "2026-09", "valor": 28.46, "tipo": "desde o início", "fonte": "https://sites.google.com/view/minhainflacao/hist%C3%B3rico/2026/setembro26" }
+  ],
+  "observacoes": [
+    "Valores copiados dos textos mensais do próprio site, que publica também meses com variação forte de itens isolados (batata, tomate, limão).",
+    "Algumas páginas trazem números que não fecham entre si (ex.: agosto/2026 informa alta de 1,15% no mês e o mesmo acumulado de julho); usamos só os acumulados que o autor publica, sem recalcular."
+  ]
+}
