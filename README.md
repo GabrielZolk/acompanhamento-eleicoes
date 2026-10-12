@@ -124,6 +124,27 @@ em `tools/indicadores-sociais.mjs`; os de segurança pública (Sinesp e SINARM),
 Os registros de armas de CAC (colecionadores, atiradores e caçadores) ficaram de fora: o SIGMA do Exército não tem
 dados abertos e a Polícia Federal, responsável desde jul/2025, só publica um painel de BI (o CSV do SINARM-CAC está vazio).
 
+### Indicadores independentes (fora do governo federal)
+
+Para quem desconfia do IBGE poder comparar, `tools/indicadores-independentes.mjs` traz séries medidas por organismos
+internacionais, universidades, institutos privados, mercado e entidades de classe. Essas entradas têm
+`independente: true`, `fonteTipo` ("internacional", "universidade", "instituto privado", "mercado" ou "entidade de
+classe") e `melhor` ("maior", "menor" ou `null`).
+
+| Indicador | Fonte |
+|---|---|
+| Subnutrição; insegurança alimentar grave; moderada ou grave (% , média de 3 anos, anual "AAAA-12" = último ano da janela) | FAO — FAOSTAT, [bulk `Food_Security_Data_E_All_Data_(Normalized).zip`](https://bulks-faostat.fao.org/production/Food_Security_Data_E_All_Data_(Normalized).zip), itens 210041, 210401 e 210091, Brasil (a API do FAOSTAT exige autenticação). Subnutrição "<2.5" gravada como 2,5; insegurança alimentar desde 2014–2016 e, para o Brasil, integrada às estimativas oficiais (IBGE) |
+| Cesta básica em São Paulo (R$ nominais) e horas de trabalho com salário mínimo para comprá-la | DIEESE — [banco de dados da cesta](https://www.dieese.org.br/cesta/) (POST em `/cesta/produto`, produto 1, tipo 5 = gasto mensal, 3 = tempo de trabalho, cidade 8) |
+| Ibovespa em dólares (fim do mês) | B3, fechamento diário via Ipeadata (`GM366_IBVSP366`) ÷ PTAX de fim de período (SGS 3696) |
+| Confiança do consumidor (ICC, Fecomercio-SP) e do empresário industrial (ICEI, CNI) | SGS 4393; Ipeadata `CNI12_ICEIGER12` (mensal desde 2010) |
+| Famílias endividadas e com contas em atraso (Peic, CNC) | Ipeadata `CNC12_PEICT12` e `CNC12_PEICA12` (desde 2013) |
+| Preço de venda de imóveis (FipeZap, 12 meses) | Ipeadata `FIPE12_VENBR12` (índice Brasil desde 2008) |
+| IPC-Fipe e IGP-M (12 meses) | SGS 193 e 189 (variações mensais encadeadas) |
+
+Ficaram de fora: os índices de confiança da FGV (só no FGV Dados, com cadastro), o EMBI+ do J.P. Morgan (série do
+Ipeadata inativa desde jul/2024) e os pedidos de recuperação judicial da Serasa Experian (a planilha pública cobre só
+os dois últimos anos).
+
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
 ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, alimentação fora do domicílio,

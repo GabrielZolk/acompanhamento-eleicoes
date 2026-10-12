@@ -51,6 +51,7 @@ import { lerXlsx, lerZip, lerOds, dataExcel } from './xlsx.mjs';
 import { indicadoresSociais } from './indicadores-sociais.mjs';
 import { indicadoresExtra } from './indicadores-extra.mjs';
 import { indicadoresSeguranca } from './indicadores-seguranca.mjs';
+import { indicadoresIndependentes } from './indicadores-independentes.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const outDir = path.join(root, 'public', 'data', 'indicadores');
@@ -1112,6 +1113,8 @@ INDICADORES.push(...indicadoresSociais({ indiceIPCA }));
 INDICADORES.push(...indicadoresExtra({ indiceIPCA, sgs }));
 // Segurança pública (Sinesp e SINARM): fontes e cálculo em tools/indicadores-seguranca.mjs.
 INDICADORES.push(...indicadoresSeguranca());
+// Indicadores de fontes fora do governo federal (FAO, DIEESE, B3, Fipe, FGV, CNI, CNC, Fecomercio): tools/indicadores-independentes.mjs.
+INDICADORES.push(...indicadoresIndependentes({ sgs }));
 
 const MANDATOS = [
   { id: 'lula1', nome: 'Lula (1º mandato)', curto: 'Lula 1', inicio: '2003-01-01', fim: '2006-12-31' },
