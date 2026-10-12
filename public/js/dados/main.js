@@ -14,6 +14,7 @@ import { htmlLeis } from './leis.js';
 import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
 import { htmlPoder } from './poder.js';
+import { htmlEscada } from './escada.js';
 import { htmlChecagens, htmlPropostas, htmlOrigens, montarFeedChecagens } from './eleicao2026.js';
 import { htmlProcessos } from './processos.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
@@ -177,6 +178,7 @@ function renderResumos() {
   $('#resumo-leis').innerHTML = resumoLeis({ leis: estado.leis, mandatos: estado.mandatos });
   $('#resumo-historico').innerHTML = resumoHistorico(base);
   $('#poder').innerHTML = htmlPoder(estado.dados, estado.mandatos);
+  $('#escada-mercado').innerHTML = $('#escada-duelo').innerHTML = htmlEscada(estado.mercado, estado.mandatos);
 }
 
 function renderImpostos() {

@@ -21,8 +21,8 @@ export const DUELO = [
 // estoque, como a dívida, em que o nível médio esconde se ela subiu ou caiu).
 // aviso: ressalva curta que aparece no cartão.
 export const REGRAS = {
-  ipca: { melhor: 'menor', criterio: 'media', aviso: 'A inflação de 2021–22 subiu no mundo todo (pós-pandemia e guerra na Ucrânia).' },
-  alimentos: { melhor: 'menor', criterio: 'media', aviso: 'Inflação dos alimentos comprados para casa: quanto os preços subiram em 12 meses, em média.' },
+  ipca: { melhor: 'menor', criterio: 'media', aviso: 'Compara quanto os preços SUBIRAM, não o preço: hoje o preço é o mais alto (veja a escada no topo). A inflação de 2021–22 subiu no mundo todo.' },
+  alimentos: { melhor: 'menor', criterio: 'media', aviso: 'Compara quanto a comida SUBIU, não o preço: a comida hoje custa mais do que em 2022, só subiu mais devagar (veja a escada no topo).' },
   gasolina: { melhor: 'menor', criterio: 'media', aviso: 'Preço corrigido pela inflação. Em 2022, impostos federais foram zerados e o ICMS limitado; os federais voltaram em 2023.' },
   botijao: { melhor: 'menor', criterio: 'media', aviso: 'Preço corrigido pela inflação (reais de hoje).' },
   desemprego: { melhor: 'menor', criterio: 'media' },

@@ -71,7 +71,7 @@ export function resumoComparacao({ indicadores, dados, mandatos, semPandemia }) 
     titulo: `Placar em ${total} indicadores${semPandemia ? ' · sem a pandemia' : ''}`,
     placar,
     topicos,
-    nota: 'Cada indicador vale 1 ponto, sem peso: desemprego conta o mesmo que dólar. Por isso, o placar resume, mas não decide: veja o cartão de cada um.',
+    nota: 'Isto NÃO diz qual governo foi melhor no geral. Cada indicador vale 1 ponto e há mais indicadores de renda e social do que de bolso (juros, impostos, crédito), onde o governo Bolsonaro vai melhor. "Melhor na inflação" quer dizer que os preços subiram mais devagar, não que estão mais baratos: o preço de hoje é o mais alto.',
   });
 }
 
