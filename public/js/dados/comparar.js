@@ -54,6 +54,7 @@ export const REGRAS = {
   gini: { melhor: 'menor', criterio: 'media', aviso: 'De 0 a 1: quanto maior, mais desigual a renda.' },
   bolsa_familia_familias: { melhor: null, criterio: 'media', aviso: 'Sem selo: mais famílias pode ser mais cobertura ou mais pobreza. Subiu de 14,5 para 21,6 milhões em 2022 e caiu para cerca de 19 milhões com a revisão de cadastros (pente-fino) a partir de 2023.' },
   bolsa_familia_valor: { melhor: 'maior', criterio: 'media', aviso: 'Corrigido pela inflação. O governo Bolsonaro subiu o benefício para R$ 400 (dez/2021) e R$ 600 (ago/2022), mas na maior parte do mandato a média era cerca de R$ 190 por mês (R$ 280 em reais de hoje). Os R$ 600 não foram reajustados desde 2023 e perdem valor com a inflação. Faltam os meses do Auxílio Emergencial (2020–21).' },
+  situacao_rua: { melhor: 'menor', criterio: 'media', aviso: 'Pessoas na rua inscritas no Cadastro Único. Parte da alta recente vem de mais cadastro (busca ativa), e o cadastro foi menos atualizado em 2019–2022; ainda assim a UFMG aponta aumento real. A pesquisa de pobreza do IBGE não inclui quem vive na rua.' },
   ideb_iniciais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
   ideb_finais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
   ideb_medio: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
@@ -119,8 +120,9 @@ function valorDe(ps, todos, criterio) {
 }
 
 // Valor de cada governo segundo o critério e o vencedor (índice 0/1 ou null = empate).
-// semPandemia: tira da conta os meses da pandemia.
-export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = {}) {
+// semPandemia: tira da conta os meses da pandemia. fim: compara o último valor de cada mandato
+// (como cada governo terminou; para o governo em curso, o dado mais recente) em vez da média.
+export function compararIndicador(ind, pts, mandatos, { semPandemia = false, fim: noFim = false } = {}) {
   const gov = mandatosDuelo(mandatos);
   if (gov.length < 2) return null;
   const r = regra(ind);
@@ -131,7 +133,8 @@ export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = 
     const nPandemia = dentro.length - fora.length;
     const cheio = valorDe(dentro, pts, r.criterio);
     const semPand = valorDe(fora, pts, r.criterio);
-    const valor = semPandemia && semPand != null ? semPand : cheio;
+    const ultimo = dentro[dentro.length - 1].v;
+    const valor = noFim && r.criterio !== 'variacao' ? ultimo : semPandemia && semPand != null ? semPand : cheio;
     const usados = semPandemia ? fora : dentro;
     const media = usados.reduce((s, p) => s + p.v, 0) / usados.length;
     // Melhor e pior marca do governo no período considerado, pelo sentido do indicador.
@@ -149,7 +152,7 @@ export function compararIndicador(ind, pts, mandatos, { semPandemia = false } = 
   const dif = r.melhor === 'menor' ? b.valor - a.valor : a.valor - b.valor; // > 0: Bolsonaro melhor
   const limite = r.criterio === 'variacao' ? EMPATE_ABS : EMPATE_REL * Math.max(Math.abs(a.valor), Math.abs(b.valor));
   const vencedor = !r.melhor || Math.abs(dif) < limite ? null : dif > 0 ? 0 : 1;
-  return { regra: r, lados, vencedor, semPandemia };
+  return { regra: r, lados, vencedor, semPandemia, noFim };
 }
 
 const ICONE = {
@@ -192,7 +195,7 @@ function htmlLado(l, i, cmp, ind, periodicidade) {
   const r = cmp.regra;
   const vence = cmp.vencedor === i;
   const base = r.criterio === 'variacao' ? 'variação' : 'média';
-  const rot = l.nPandemia && cmp.semPandemia ? `${base} sem a pandemia` : `${base} no mandato`;
+  const rot = cmp.noFim && r.criterio !== 'variacao' ? (l.m.fim ? 'no fim do mandato' : 'agora (último dado)') : l.nPandemia && cmp.semPandemia ? `${base} sem a pandemia` : `${base} no mandato`;
   // O outro modo, sempre à vista: quem olha o mandato inteiro vê também o número sem a pandemia.
   const alt = l.nPandemia && l.semPand != null
     ? `<div class="lado__alt">${seloPandemia(cmp.semPandemia ? `com a pandemia: ${fmtCrit(l.cheio, ind, r)}` : `sem a pandemia: ${fmtCrit(l.semPand, ind, r)}`)}</div>`
@@ -245,8 +248,8 @@ function graficoDuelo(cmp) {
 }
 
 // Cartão de um indicador. compacto = grade (abre o detalhe ao clicar); senão, bloco do detalhe.
-export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true, semPandemia = false } = {}) {
-  const cmp = compararIndicador(ind, pts, mandatos, { semPandemia });
+export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true, semPandemia = false, fim = false } = {}) {
+  const cmp = compararIndicador(ind, pts, mandatos, { semPandemia, fim });
   if (!cmp) return '';
   const r = cmp.regra;
   const venc = cmp.vencedor == null ? null : cmp.lados[cmp.vencedor].m;
@@ -320,8 +323,12 @@ export function htmlPlacar(mandatos, ultimoDado) {
 }
 
 // Botões "Mandato inteiro | Sem a pandemia" (o mesmo estado na grade e no detalhe).
-export function htmlSegPandemia(semPandemia) {
-  return `<div class="seg seg--pand" role="group" aria-label="Meses considerados">
+export function htmlSegPandemia(semPandemia, fim = false) {
+  return `<div class="seg seg--fim" role="group" aria-label="Como comparar">
+      <button type="button" data-fim="0" aria-pressed="${!fim}">Média do mandato</button>
+      <button type="button" data-fim="1" aria-pressed="${fim}">Como terminou <small>fim do mandato × hoje</small></button>
+    </div>
+    <div class="seg seg--pand" role="group" aria-label="Meses considerados"${fim ? ' hidden' : ''}>
       <button type="button" data-pand="0" aria-pressed="${!semPandemia}">Mandato inteiro</button>
       <button type="button" data-pand="1" aria-pressed="${semPandemia}">${ICONE.virus}Sem a pandemia <small>${esc(rotuloPandemia())}</small></button>
     </div>`;

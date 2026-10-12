@@ -16,6 +16,7 @@ import { montarCalcIR } from './ir.js';
 import { htmlPoder } from './poder.js';
 import { htmlEscada } from './escada.js';
 import { htmlIndependente } from './independente.js';
+import { htmlAlertas } from './alertas.js';
 import { htmlChecagens, htmlPropostas, htmlOrigens, montarFeedChecagens } from './eleicao2026.js';
 import { htmlProcessos } from './processos.js';
 import { resumoComparacao, resumoMercado, resumoImpostos, resumoLeis, resumoHistorico } from './resumo.js';
@@ -37,6 +38,7 @@ const estado = {
   modo: 'duelo', // aba: "duelo", "mercado", "impostos", "leis" ou "historico" (todos os mandatos)
   periodo: 'duelo', // período do gráfico no detalhe: "duelo" (2019–hoje) ou "tudo"
   semPandemia: false, // comparação sem os meses da pandemia (mar/2020–dez/2021)
+  fim: false, // compara como cada governo terminou (último valor) em vez da média do mandato
   contexto: true,
   grafico: null,
   observador: null,
@@ -142,7 +144,7 @@ grade.addEventListener('click', (ev) => {
 function cartoesDuelo(filtro) {
   return (estado.indice?.indicadores || []).filter(filtro).map((i) => {
     const d = estado.dados.get(i.id);
-    return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade, { semPandemia: estado.semPandemia }) : '';
+    return d ? htmlDuelo(i, prepararSerie(d.serie, i.periodicidade), estado.mandatos, i.periodicidade, { semPandemia: estado.semPandemia, fim: estado.fim }) : '';
   }).filter(Boolean).join('');
 }
 
@@ -166,13 +168,13 @@ function renderDuelos() {
   const ref = estado.dados.get('ipca');
   const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
-  $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia);
+  $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia, estado.fim);
   $('#mercado-wrap').innerHTML = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia }) || '<p class="vazio">Dados de preços indisponíveis no momento.</p>';
 }
 
 // Placar e tópicos no topo de cada aba (recalculados com o botão "Sem a pandemia").
 function renderResumos() {
-  const base = { indicadores: estado.indice?.indicadores || [], dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia };
+  const base = { indicadores: estado.indice?.indicadores || [], dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia, fim: estado.fim };
   $('#resumo-duelo').innerHTML = resumoComparacao(base);
   $('#resumo-mercado').innerHTML = resumoMercado({ ...base, mercado: estado.mercado });
   $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos, ir: estado.ir, mercado: estado.mercado });
@@ -181,6 +183,7 @@ function renderResumos() {
   $('#poder').innerHTML = htmlPoder(estado.dados, estado.mandatos);
   $('#escada-mercado').innerHTML = $('#escada-duelo').innerHTML = htmlEscada(estado.mercado, estado.mandatos);
   $('#independente').innerHTML = htmlIndependente(estado.minhainflacao, estado.mercado);
+  $('#alertas').innerHTML = htmlAlertas(estado.dados);
 }
 
 function renderImpostos() {
@@ -206,6 +209,22 @@ document.addEventListener('click', (ev) => {
 
 // "Mandato inteiro | Sem a pandemia": mesmo estado na grade e no detalhe.
 document.addEventListener('click', (ev) => {
+  const fb = ev.target.closest('[data-fim]');
+  if (fb) {
+    const fim = fb.dataset.fim === '1';
+    if (fim === estado.fim) return;
+    estado.fim = fim;
+    history.replaceState(history.state, '', urlDe(estado.atual || '', estado.uf));
+    if (estado.atual) {
+      const ind = indicador(estado.atual);
+      const { pts, periodicidade } = serieAtual(ind);
+      $('#det-seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia, fim);
+      $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia, fim });
+      animarNumeros($('#det-duelo'), ind, reduzMov.matches);
+    }
+    renderDuelos();
+    return;
+  }
   const b = ev.target.closest('[data-pand]');
   if (!b) return;
   const sem = b.dataset.pand === '1';
@@ -215,7 +234,7 @@ document.addEventListener('click', (ev) => {
   if (estado.atual) {
     const ind = indicador(estado.atual);
     const { pts, periodicidade } = serieAtual(ind);
-    $('#det-seg-pand').innerHTML = htmlSegPandemia(sem);
+    $('#det-seg-pand').innerHTML = htmlSegPandemia(sem, estado.fim);
     $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: sem });
     animarNumeros($('#det-duelo'), ind, reduzMov.matches);
   }
@@ -323,7 +342,7 @@ function htmlDetalhe(ind) {
     ? `<option value="">Brasil</option>` + UFS.filter((u) => d.porUF[u.uf]).map((u) => `<option value="${u.uf}"${u.uf === estado.uf ? ' selected' : ''}>${esc(u.nome)}</option>`).join('')
     : '';
   const atualizado = d?.atualizadoEm ? rotuloPeriodo(d.atualizadoEm, 'mensal') : '';
-  const duelo = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia });
+  const duelo = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia, fim: estado.fim });
   const fases = htmlFases(ind, pts, estado.mandatos, periodicidade);
 
   return `<div class="det__barra">
@@ -340,7 +359,7 @@ function htmlDetalhe(ind) {
         <div class="ind__per">${esc(nome)} · ${esc(rotuloPeriodo(ult.periodo, periodicidade))}</div>
       </div>` : ''}
     </div>
-    <div id="det-seg-pand">${htmlSegPandemia(estado.semPandemia)}</div>
+    <div id="det-seg-pand">${htmlSegPandemia(estado.semPandemia, estado.fim)}</div>
     <div id="det-duelo">${duelo}</div>
     <div id="det-fases">${fases}</div>
     <div class="det__ctrl">
@@ -413,6 +432,8 @@ function urlDe(id, uf) {
   if (id && estado.periodo !== (estado.modo === 'historico' ? 'tudo' : 'duelo')) p.set('p', estado.periodo);
   p.delete('sp');
   if (estado.semPandemia && estado.modo !== 'historico') p.set('sp', '1');
+  p.delete('fim');
+  if (estado.fim && estado.modo !== 'historico') p.set('fim', '1');
   const q = p.toString();
   return location.pathname + (q ? '?' + q : '') + location.hash;
 }
@@ -483,7 +504,7 @@ function trocarUF(uf) {
   }
   $('#tab-titulo').textContent = `Por mandato${estado.uf ? ` — ${nome}` : ''}`;
   $('#tabela').innerHTML = htmlTabela(ind, pts, periodicidade);
-  $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia });
+  $('#det-duelo').innerHTML = htmlDuelo(ind, pts, estado.mandatos, periodicidade, { compacto: false, semPandemia: estado.semPandemia, fim: estado.fim });
   $('#det-fases').innerHTML = htmlFases(ind, pts, estado.mandatos, periodicidade);
   animarNumeros($('#det-duelo'), ind, reduzMov.matches);
   animarNumeros($('#det-fases'), ind, reduzMov.matches);
@@ -620,6 +641,7 @@ async function iniciar() {
   ]);
   estado.modo = ABAS.includes(qs.get('ver')) ? qs.get('ver') : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
+  estado.fim = qs.get('fim') === '1';
   definirPandemia(indice.contexto || []);
   estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'historico' ? 'tudo' : 'duelo';
   mostrarModo();

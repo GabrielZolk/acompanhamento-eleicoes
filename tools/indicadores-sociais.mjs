@@ -3,6 +3,9 @@
 //   - MDS, VIS DATA / MI Social (aplicacoes.mds.gov.br/sagi/servicos/misocial): base Solr pública com uma linha
 //     por município e mês. A soma nacional sai das estatísticas do próprio Solr (stats.field com stats.facet por
 //     mês), sem baixar os 5.570 municípios. Bolsa Família desde jan/2004; Auxílio Brasil de nov/2021 a fev/2023.
+//   - MDS, VIS DATA 3 (aplicacoes.cidadania.gov.br/vis/data3/v.php): pessoas em situação de rua inscritas no
+//     Cadastro Único, total do Brasil por mês desde jan/2015 (base mi_cecad_prod, coluna v70390). A MI Social só
+//     tem as famílias em situação de rua que recebem o Bolsa Família, que é outra coisa.
 //   - INEP, Ideb (download.inep.gov.br/ideb/resultados/divulgacao_brasil_ideb_{edição}.zip): ZIP com a planilha
 //     XLSX "Brasil" (abas Anos Iniciais, Anos Finais e EM, uma linha por rede), lida por tools/xlsx.mjs.
 //   - Ministério da Saúde, SIM via DATASUS/TabNet (tabnet.datasus.gov.br, sim/cnv/ext10uf.def): óbitos por
@@ -94,6 +97,32 @@ function dadosMDS() {
     mdsDados.catch(() => { mdsDados = null; });
   }
   return mdsDados;
+}
+
+// Pessoas em situação de rua no Cadastro Único (VIS DATA 3). O parâmetro q[] é o link público do indicador no
+// Data Explorer do VIS DATA ("Pessoas em situação de rua inscritas no Cadastro Único"); com wt=json a mesma URL
+// devolve a série do Brasil, uma linha por mês: [código, "AAAA-MM-01", "MM/AAAA", pessoas].
+const VIS3 = 'https://aplicacoes.cidadania.gov.br/vis/data3/v.php';
+const RUA_Q = 'oNOclsLerpibuKep3bV%2Bg2hi05Kv2rmg2a19ZXF1ZWumaX6JaV2Jl2CadmCNrMmqc3hoc6l0s6%2BjoLycmcuppsK2iJqdtKiftHTAw6SppSTt16KlzJuxmVy4mq3sqK7BV5LEgabTsai%2BPvT337dVnt5Zv8OYTcDPps2vnNHcwFSqt1V92p2uwaufxoH2BKucwOrJpHfEsba0';
+const RUA_COLUNA = 'v70390';
+
+async function pessoasSituacaoRua() {
+  const url = `${VIS3}?wt=json&wt_dsf=1&wt_cag=1&wt_ctpc=1&saida_dados_sem_formatacao=1&rows=999999999&q[]=${RUA_Q}`;
+  const json = await baixar(url, async (res) => JSON.parse(await res.text()), { headers: { Accept: 'application/json' } });
+  // Confere que a resposta é o indicador certo (coluna e título), e não outro metadado do VIS DATA.
+  const col = (json?.colunas_ag || []).at(-1);
+  if (col?.coluna !== RUA_COLUNA || !/situa[çc][ãa]o de rua/i.test(col?.cabecalho || '')) {
+    throw new Error(`VIS DATA: coluna inesperada (${col?.coluna} — ${col?.cabecalho})`);
+  }
+  const serie = new Map();
+  for (const linha of json.data || []) {
+    const [codigo, data, , v] = linha;
+    if (Number(codigo) !== 0) throw new Error(`VIS DATA: linha fora do total Brasil (${JSON.stringify(linha)})`);
+    if (!/^\d{4}-\d{2}-01$/.test(data) || typeof v !== 'number' || !(v > 0)) throw new Error(`VIS DATA: linha inválida ${JSON.stringify(linha)}`);
+    serie.set(data.slice(0, 7), v);
+  }
+  if (serie.size < 100) throw new Error(`VIS DATA: só ${serie.size} meses de pessoas em situação de rua`);
+  return serie;
 }
 
 const NOTA_PROGRAMA = 'O programa se chamou Bolsa Família de out/2003 a out/2021, Auxílio Brasil de nov/2021 a fev/2023 ' +
@@ -284,6 +313,29 @@ export function indicadoresSociais({ indiceIPCA }) {
           serie,
           meta: { descricao: `Valor médio pago por família no mês, em reais de ${mesPorExtenso(ultimo)} (corrigido pelo IPCA).` },
         };
+      },
+    },
+    {
+      id: 'situacao_rua',
+      titulo: 'Pessoas em situação de rua inscritas no Cadastro Único',
+      curto: 'Situação de rua',
+      tema: 'social',
+      unidade: 'mil pessoas',
+      casas: 0,
+      periodicidade: 'mensal',
+      descricao: 'Número de pessoas que se declararam em situação de rua no Cadastro Único para Programas Sociais ' +
+        '(CadÚnico) do governo federal no mês, em milhares.',
+      fonte: 'Ministério do Desenvolvimento e Assistência Social (MDS) — VIS DATA 3, Cadastro Único (Departamento do Cadastro Único)',
+      fonteUrl: `${VIS3}?q[]=${RUA_Q}`,
+      nota: 'Conta inscrições no Cadastro Único, não é um censo: quem vive na rua e nunca se cadastrou fica de fora, ' +
+        'e parte do crescimento vem de mais gente sendo cadastrada (busca ativa dos municípios), não só de mais ' +
+        'gente na rua. O Ministério dos Direitos Humanos (MDHC) aponta que a atualização dos cadastros ' +
+        'enfraqueceu de 2019 a 2022. A pesquisa do IBGE usada para pobreza (PNAD Contínua) não inclui quem vive ' +
+        'na rua, porque entrevista moradores de domicílios. Série do MDS desde jan/2015; os números de meses ' +
+        'passados podem ser revistos pelo ministério.',
+      async montar() {
+        const serie = await pessoasSituacaoRua();
+        return { serie: ordenar(new Map([...serie].map(([p, n]) => [p, arred(n / 1e3, 1)]))) };
       },
     },
     entradaIdeb('ideb_iniciais', 'iniciais', 'Ideb dos anos iniciais do ensino fundamental (rede pública)', 'Ideb anos iniciais', 'anos iniciais do ensino fundamental (1º ao 5º ano)'),

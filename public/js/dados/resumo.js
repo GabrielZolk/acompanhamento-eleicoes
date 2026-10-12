@@ -28,12 +28,12 @@ const numNeutro = (n, rot) => `<div class="rnum rnum--neutro"><b>${n}</b><span>$
 const vs = '<span class="rvs">×</span>';
 
 // ------------------------------------------------------------------ Comparação
-function placarIndicadores(indicadores, dados, mandatos, semPandemia) {
+function placarIndicadores(indicadores, dados, mandatos, semPandemia, fim = false) {
   const r = { venc: [[], []], igual: [], sem: [], cmps: [] };
   for (const ind of indicadores) {
     const d = dados.get(ind.id);
     if (!d) continue;
-    const cmp = compararIndicador(ind, prepararSerie(d.serie, ind.periodicidade), mandatos, { semPandemia });
+    const cmp = compararIndicador(ind, prepararSerie(d.serie, ind.periodicidade), mandatos, { semPandemia, fim });
     if (!cmp) continue;
     r.cmps.push({ ind, cmp });
     if (!cmp.regra.melhor) r.sem.push(ind);
@@ -43,11 +43,12 @@ function placarIndicadores(indicadores, dados, mandatos, semPandemia) {
   return r;
 }
 
-export function resumoComparacao({ indicadores, dados, mandatos, semPandemia }) {
+export function resumoComparacao({ indicadores, dados, mandatos, semPandemia, fim }) {
   const gov = mandatosDuelo(mandatos);
   if (gov.length < 2) return '';
-  const p = placarIndicadores(indicadores, dados, mandatos, semPandemia);
+  const p = placarIndicadores(indicadores, dados, mandatos, semPandemia, fim);
   const outro = placarIndicadores(indicadores, dados, mandatos, !semPandemia);
+  const outroFim = placarIndicadores(indicadores, dados, mandatos, false, !fim);
   const total = p.venc[0].length + p.venc[1].length + p.igual.length;
   const placar = numGov(gov[0], p.venc[0].length, 'melhor em') + vs + numGov(gov[1], p.venc[1].length, 'melhor em') + (p.igual.length ? numNeutro(p.igual.length, 'praticamente igual') : '');
   const maiores = (i) => p.cmps
@@ -64,11 +65,11 @@ export function resumoComparacao({ indicadores, dados, mandatos, semPandemia }) 
     ? `<b style="color:${g.cor}">${esc(g.curtoGov)} melhor em:</b> ${esc(lista(p.venc[i].map(nomeCurto)))}.${maiores(i).length ? ` <span class="resumo__dest">Maiores diferenças: ${maiores(i).join('; ')}.</span>` : ''}`
     : '');
   if (p.igual.length) topicos.push(`<b>Praticamente igual:</b> ${esc(lista(p.igual.map(nomeCurto)))}.`);
-  topicos.push(semPandemia
-    ? `Contando a pandemia, o placar seria <b>${outro.venc[0].length} × ${outro.venc[1].length}</b>.`
-    : `Sem os meses da pandemia, o placar fica <b>${outro.venc[0].length} × ${outro.venc[1].length}</b>.`);
+  topicos.push(fim
+    ? `Pela média do mandato, o placar seria <b>${outroFim.venc[0].length} × ${outroFim.venc[1].length}</b>.`
+    : `Comparando como cada governo terminou (fim do mandato × hoje), o placar fica <b>${outroFim.venc[0].length} × ${outroFim.venc[1].length}</b>. ${semPandemia ? `Contando a pandemia: <b>${outro.venc[0].length} × ${outro.venc[1].length}</b>.` : `Sem os meses da pandemia: <b>${outro.venc[0].length} × ${outro.venc[1].length}</b>.`}`);
   return bloco({
-    titulo: `Placar em ${total} indicadores${semPandemia ? ' · sem a pandemia' : ''}`,
+    titulo: `Placar em ${total} indicadores${fim ? ' · como cada um terminou' : semPandemia ? ' · sem a pandemia' : ''}`,
     placar,
     topicos,
     nota: 'Isto NÃO diz qual governo foi melhor no geral. Cada indicador vale 1 ponto e há mais indicadores de renda e social do que de bolso (juros, impostos, crédito), onde o governo Bolsonaro vai melhor. "Melhor na inflação" quer dizer que os preços subiram mais devagar, não que estão mais baratos: o preço de hoje é o mais alto.',

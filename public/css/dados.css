@@ -891,3 +891,13 @@ details.resumo__nota p { margin: 8px 0 0; }
 .ind-barra { min-width: 130px; }
 .ind-barra b { font-size: 13px; }
 @media (max-width: 640px) { .indep { padding: 16px 12px; } }
+.seg--fim { margin-right: 8px; } .seg--fim button { display: inline-flex; align-items: center; gap: 6px; } .seg--fim button small { font-weight: 500; opacity: 0.75; } @media (max-width: 640px) { .seg--fim { display: flex; width: 100%; margin: 0 0 8px; } .seg--fim button { flex: 1; justify-content: center; flex-wrap: wrap; height: 44px; line-height: 1.1; } .seg--fim button small { flex-basis: 100%; text-align: center; font-size: 10.5px; } }
+
+/* ------------------------------------------------------------------ o que a média esconde */
+.alertas { margin: 0 0 18px; padding: 16px 20px; border-radius: 16px; background: rgba(245, 177, 61, 0.06); border: 1px solid rgba(245, 177, 61, 0.45); }
+.alertas__titulo { margin: 0 0 10px; font-size: 18px; font-weight: 800; color: #ffd38a; }
+.alertas ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 22px; }
+.alertas li { position: relative; padding-left: 16px; font-size: 13.5px; line-height: 1.5; color: var(--text-2); }
+.alertas li::before { content: "!"; position: absolute; left: 0; top: 0; font-weight: 900; color: var(--pand); }
+.alertas b { color: var(--text); }
+@media (max-width: 900px) { .alertas ul { grid-template-columns: minmax(0, 1fr); } }
