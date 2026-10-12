@@ -124,6 +124,23 @@ em `tools/indicadores-sociais.mjs`; os de segurança pública (Sinesp e SINARM),
 Os registros de armas de CAC (colecionadores, atiradores e caçadores) ficaram de fora: o SIGMA do Exército não tem
 dados abertos e a Polícia Federal, responsável desde jul/2025, só publica um painel de BI (o CSV do SINARM-CAC está vazio).
 
+Mais indicadores, em `tools/indicadores-mais.mjs`:
+
+| Indicador | Fonte |
+| --- | --- |
+| Despesa primária do governo central (12 meses, % PIB) | Tesouro Nacional — Resultado do Tesouro Nacional, tabela 1.1, linha "4. Despesa total" (R$ milhões correntes), somada em 12 meses ÷ PIB acumulado em 12 meses do Banco Central (SGS 4382) |
+| Preço do óleo diesel e do etanol hidratado (R$/litro, reais, por UF) | ANP, mesma série histórica mensal e mesma correção pelo IPCA da gasolina. Diesel: S-10 desde dez/2012 (quando a ANP passou a pesquisá-lo), óleo diesel comum antes |
+| Investimento direto no país (12 meses, US$ bi) | SGS 22885 (IDP líquido, mensal, BPM6), soma de 12 meses |
+| Saldo da balança comercial (12 meses, US$ bi) | SGS 22707 (bens, balanço de pagamentos, mensal), soma de 12 meses |
+| Produção industrial (variação em 12 meses) | IBGE, PIM-PF — SIDRA 8888, variável 11604, indústria geral (129314) |
+| Volume de vendas do varejo (variação em 12 meses) | IBGE, PMC — SIDRA 8880, variável 11711, volume (56734); varejo restrito |
+| Inadimplência das pessoas físicas, crédito livre (%) | SGS 21112 (atraso acima de 90 dias); desde mar/2011 |
+| Rendimento real da poupança (12 meses) | Rentabilidade com aniversário no dia 1: SGS 25 até mai/2012 e SGS 195 (depósitos desde 4/5/2012) depois, acumulada em 12 meses ÷ IPCA dos mesmos 12 meses (SGS 433) |
+
+Ficaram de fora a tarifa média residencial de energia (a ANEEL só publica os microdados do SAMP, ~300 MB por ano, sem
+tabela de tarifa média) e o número de servidores civis ativos do Executivo federal (o Painel Estatístico de Pessoal é
+um painel interativo, sem série histórica em arquivo).
+
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
 ovo, leite longa vida, pão francês, óleo de soja, açúcar, tomate, batata, banana-prata, alimentação fora do domicílio,
