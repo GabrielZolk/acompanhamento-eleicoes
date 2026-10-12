@@ -25,12 +25,25 @@ function calcular(p, { usd, frete, cambio, uf, certificado }) {
 
 function htmlResultado(dados, v) {
   if (!(v.usd > 0)) return '<p class="minha__vazio">Digite o preço do produto em dólar.</p>';
-  const linhas = dados.periodos.map((p) => ({ p, r: calcular(p, v) }));
+  const linhas = [];
+  for (const p of dados.periodos) {
+    const r = calcular(p, v);
+    // Antes do Remessa Conforme, muita encomenda pequena chegava sem cobrança: mostra os dois casos.
+    if (p.programaRemessaConforme === false) linhas.push({ p, r: { ...r, ii: 0, icms: 0, total: r.aduaneiro }, pratica: true });
+    linhas.push({ p, r });
+  }
   const max = Math.max(...linhas.map((l) => l.r.total));
-  return `<div class="irb">${linhas.map(({ p, r }, i) => {
+  return `<div class="irb">${linhas.map(({ p, r, pratica }, i) => {
       const extra = r.total - r.aduaneiro;
+      if (pratica) {
+        return `<div class="irb__linha" style="--c:${COR[p.governo] || '#8a93a6'}">
+          <span class="irb__mes">${esc(mes(p.inicio))} a ${esc(mes(p.fim))}<small>se não fosse taxado (comum na prática)</small></span>
+          <span class="irb__barra"><i style="width:${((r.total / max) * 100).toFixed(1)}%"></i></span>
+          <span class="irb__val"><b>${reais(r.total)}</b><small>sem imposto</small></span>
+        </div>`;
+      }
       return `<div class="irb__linha" style="--c:${COR[p.governo] || '#8a93a6'}">
-          <span class="irb__mes">${esc(mes(p.inicio))} a ${esc(mes(p.fim))}<small>${esc(p.governo === 'ambos' ? 'Bolsonaro e começo do Lula' : p.governo === 'lula3' ? 'Lula' : 'Bolsonaro')}</small></span>
+          <span class="irb__mes">${esc(mes(p.inicio))} a ${esc(mes(p.fim))}<small>${esc(p.governo === 'ambos' ? 'pela lei (60%)' : p.governo === 'lula3' ? 'Lula' : 'Bolsonaro')}</small></span>
           <span class="irb__barra"><i style="width:${((r.total / max) * 100).toFixed(1)}%;animation-delay:${(i * 0.08).toFixed(2)}s"></i></span>
           <span class="irb__val"><b>${reais(r.total)}</b><small>+${((extra / r.aduaneiro) * 100).toFixed(0)}% de impostos (II ${reais(r.ii)}${r.icms ? ` + ICMS ${reais(r.icms)}` : ''})</small></span>
         </div>`;
