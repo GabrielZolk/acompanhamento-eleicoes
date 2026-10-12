@@ -53,6 +53,7 @@ export const REGRAS = {
   extrema_pobreza: { melhor: 'menor', criterio: 'media' },
   gini: { melhor: 'menor', criterio: 'media', aviso: 'De 0 a 1: quanto maior, mais desigual a renda.' },
   bolsa_familia_familias: { melhor: null, criterio: 'media', aviso: 'Sem selo: mais famílias pode ser mais cobertura ou mais pobreza.' },
+  situacao_rua: { melhor: null, criterio: 'media', aviso: 'Sem selo: conta inscrições no Cadastro Único, e mais inscritos pode ser mais gente na rua ou mais busca ativa.' },
   bolsa_familia_valor: { melhor: 'maior', criterio: 'media', aviso: 'Valor médio por família, corrigido pela inflação.' },
   ideb_iniciais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
   ideb_finais: { melhor: 'maior', criterio: 'media', aviso: 'IDEB sai a cada 2 anos; 2021 foi medido logo depois das escolas fechadas na pandemia.' },
