@@ -38,6 +38,7 @@ const estado = {
   modo: 'duelo', // aba: "duelo", "mercado", "impostos", "leis" ou "historico" (todos os mandatos)
   periodo: 'duelo', // período do gráfico no detalhe: "duelo" (2019–hoje) ou "tudo"
   semPandemia: false, // comparação sem os meses da pandemia (mar/2020–dez/2021)
+  soIndep: false, // só indicadores de fontes fora do governo
   fim: false, // compara como cada governo terminou (último valor) em vez da média do mandato
   contexto: true,
   grafico: null,
@@ -156,7 +157,7 @@ function prepararCartoes(raiz) {
 
 function renderDuelos() {
   const grupos = TEMAS.map((tema) => {
-    const html = cartoesDuelo((i) => temaDe(i) === tema);
+    const html = cartoesDuelo((i) => temaDe(i) === tema && (!estado.soIndep || i.independente));
     return html ? `<h2 class="tema">${esc(tema[0].toUpperCase() + tema.slice(1))}</h2><div class="duelos">${html}</div>` : '';
   }).join('');
   duelos.innerHTML = grupos || '<p class="vazio">Dados indisponíveis no momento.</p>';
@@ -168,13 +169,14 @@ function renderDuelos() {
   const ref = estado.dados.get('ipca');
   const ult = ref?.serie?.[ref.serie.length - 1]?.[0];
   $('#placar').innerHTML = htmlPlacar(estado.mandatos, ult ? rotuloPeriodo(ult, 'mensal') : '');
-  $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia, estado.fim);
+  const nIndep = (estado.indice?.indicadores || []).filter((i) => i.independente).length;
+  $('#seg-pand').innerHTML = htmlSegPandemia(estado.semPandemia, estado.fim) + (nIndep ? `<div class="seg seg--indep" role="group" aria-label="Fontes"><button type="button" data-indep="0" aria-pressed="${!estado.soIndep}">Todas as fontes</button><button type="button" data-indep="1" aria-pressed="${estado.soIndep}">🌐 Só fora do governo <small>${nIndep}</small></button></div>` : '');
   $('#mercado-wrap').innerHTML = htmlMercado(estado.mercado, estado.mandatos, { semPandemia: estado.semPandemia }) || '<p class="vazio">Dados de preços indisponíveis no momento.</p>';
 }
 
 // Placar e tópicos no topo de cada aba (recalculados com o botão "Sem a pandemia").
 function renderResumos() {
-  const base = { indicadores: estado.indice?.indicadores || [], dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia, fim: estado.fim };
+  const base = { indicadores: (estado.indice?.indicadores || []).filter((i) => !estado.soIndep || i.independente), dados: estado.dados, mandatos: estado.mandatos, semPandemia: estado.semPandemia, fim: estado.fim };
   $('#resumo-duelo').innerHTML = resumoComparacao(base);
   $('#resumo-mercado').innerHTML = resumoMercado({ ...base, mercado: estado.mercado });
   $('#resumo-impostos').innerHTML = resumoImpostos({ ...base, impostos: estado.impostos, ir: estado.ir, mercado: estado.mercado });
@@ -209,6 +211,13 @@ document.addEventListener('click', (ev) => {
 
 // "Mandato inteiro | Sem a pandemia": mesmo estado na grade e no detalhe.
 document.addEventListener('click', (ev) => {
+  const ib = ev.target.closest('[data-indep]');
+  if (ib) {
+    estado.soIndep = ib.dataset.indep === '1';
+    history.replaceState(history.state, '', urlDe(estado.atual || '', estado.uf));
+    renderDuelos();
+    return;
+  }
   const fb = ev.target.closest('[data-fim]');
   if (fb) {
     const fim = fb.dataset.fim === '1';
@@ -434,6 +443,8 @@ function urlDe(id, uf) {
   if (estado.semPandemia && estado.modo !== 'historico') p.set('sp', '1');
   p.delete('fim');
   if (estado.fim && estado.modo !== 'historico') p.set('fim', '1');
+  p.delete('indep');
+  if (estado.soIndep) p.set('indep', '1');
   const q = p.toString();
   return location.pathname + (q ? '?' + q : '') + location.hash;
 }
@@ -642,6 +653,7 @@ async function iniciar() {
   estado.modo = ABAS.includes(qs.get('ver')) ? qs.get('ver') : 'duelo';
   estado.semPandemia = qs.get('sp') === '1';
   estado.fim = qs.get('fim') === '1';
+  estado.soIndep = qs.get('indep') === '1';
   definirPandemia(indice.contexto || []);
   estado.periodo = ['duelo', 'tudo'].includes(qs.get('p')) ? qs.get('p') : estado.modo === 'historico' ? 'tudo' : 'duelo';
   mostrarModo();

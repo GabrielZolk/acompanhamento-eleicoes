@@ -258,6 +258,7 @@ export function htmlDuelo(ind, pts, mandatos, periodicidade, { compacto = true, 
   return `<${tag} ${compacto ? 'type="button" ' : ''}class="duelo${compacto ? '' : ' duelo--det'}" data-id="${esc(ind.id)}"${venc ? ` style="--v:${venc.cor}"` : ''}${compacto ? ` aria-label="${esc(resumo)} Abrir detalhes"` : ''}>
       <div class="duelo__topo">
         <h2 class="duelo__titulo">${compacto ? esc(ind.curto || ind.titulo) : 'Bolsonaro × Lula'}</h2>
+        ${ind.independente ? `<span class="indep-selo" title="${esc(ind.fonte || '')}">🌐 fora do governo${ind.fonteTipo ? ` · ${esc(ind.fonteTipo)}` : ''}</span>` : ''}
         ${seloSentido(ind)}
       </div>
       <div class="duelo__lados">

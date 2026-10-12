@@ -901,3 +901,4 @@ details.resumo__nota p { margin: 8px 0 0; }
 .alertas li::before { content: "!"; position: absolute; left: 0; top: 0; font-weight: 900; color: var(--pand); }
 .alertas b { color: var(--text); }
 @media (max-width: 900px) { .alertas ul { grid-template-columns: minmax(0, 1fr); } }
+.indep-selo { padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; color: #a7f3d0; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); white-space: nowrap; } .seg--indep { margin-left: 8px; } .seg--indep button[data-indep="1"][aria-pressed="true"] { background: linear-gradient(180deg, #059669, #047857); color: #fff; } .seg--indep button small { opacity: .75; margin-left: 4px; } @media (max-width: 640px) { .seg--indep { display: flex; width: 100%; margin: 8px 0 0; } .seg--indep button { flex: 1; } }
