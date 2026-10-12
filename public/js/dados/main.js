@@ -13,6 +13,7 @@ import { htmlImpostos } from './impostos.js';
 import { htmlLeis } from './leis.js';
 import { montarMinhaInflacao } from './minha.js';
 import { montarCalcIR } from './ir.js';
+import { montarImportacao } from './importacao.js';
 import { htmlPoder } from './poder.js';
 import { htmlEscada } from './escada.js';
 import { htmlIndependente } from './independente.js';
@@ -644,6 +645,7 @@ async function iniciar() {
     buscarJSON(BASE + 'impostos.json').then((j) => (estado.impostos = j?.medidas?.length ? j : null)),
     buscarJSON(BASE + 'leis.json').then((j) => (estado.leis = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'ir.json').then((j) => (estado.ir = j?.tabelas?.length ? j : null)),
+    buscarJSON(BASE + 'importacao.json').then((j) => (estado.importacao = j?.periodos?.length ? j : null)),
     buscarJSON(BASE + 'minhainflacao.json').then((j) => (estado.minhainflacao = j?.pontos?.length ? j : null)),
     buscarJSON(BASE + 'checagens.json').then((j) => (estado.checagens = j?.itens?.length ? j : null)),
     buscarJSON(BASE + 'propostas.json').then((j) => (estado.propostas = j?.temas?.length ? j : null)),
@@ -669,6 +671,8 @@ async function iniciar() {
   await pedidoMercado;
   montarMinhaInflacao($('#minha-inflacao'), estado.mercado, estado.mandatos);
   montarCalcIR($('#calc-ir'), estado.ir, estado.mercado);
+  const dolar = estado.dados.get('dolar')?.serie;
+  montarImportacao($('#calc-importacao'), estado.importacao, dolar?.[dolar.length - 1]?.[1]);
   // Aba de leis só aparece quando o levantamento existe.
   modos.querySelector('[data-modo="leis"]').hidden = !estado.leis;
   modos.querySelector('[data-modo="propostas"]').hidden = !estado.propostas;
