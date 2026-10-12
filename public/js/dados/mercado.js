@@ -7,7 +7,8 @@ import { mandatosDuelo, naPandemia, seloPandemia } from './comparar.js';
 import { prepararSerie, rotuloPeriodo, mandatoDoPonto } from './serie.js';
 
 const GRUPOS = [
-  ['referencia', 'Referência'],
+  ['referencia', 'Referência (IBGE)'],
+  ['independentes', 'Outros medidores, fora do IBGE (para conferir)'],
   ['mercado', 'No mercado'],
   ['casa', 'Em casa e no carro'],
 ];

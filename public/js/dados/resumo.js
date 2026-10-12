@@ -79,7 +79,7 @@ export function resumoComparacao({ indicadores, dados, mandatos, semPandemia }) 
 export function resumoMercado({ mercado, mandatos, semPandemia }) {
   const { gov, linhas } = calcularMercado(mercado, mandatos, semPandemia);
   if (!linhas.length) return '';
-  const itens = linhas.filter((l) => l.it.grupo !== 'referencia');
+  const itens = linhas.filter((l) => l.it.grupo !== 'referencia' && l.it.grupo !== 'independentes');
   const cont = [0, 1].map((i) => itens.filter((l) => l.menor === i).length);
   const iguais = itens.filter((l) => l.menor == null).length;
   const placar = numGov(gov[0], cont[0], 'subiu menos') + vs + numGov(gov[1], cont[1], 'subiu menos') + (iguais ? numNeutro(iguais, 'parecido') : '');
@@ -92,7 +92,10 @@ export function resumoMercado({ mercado, mandatos, semPandemia }) {
   const c = contaCarrinho(mercado, mandatos);
   if (c) topicos.push(`<b>Carrinho:</b> R$ 100 de compras em ${esc(rotuloPeriodo(c.b.ini.periodo, 'mensal'))} custam <b>${reais(c.hoje)}</b> hoje. Subiram <b style="color:${c.gov[0].cor}">${reais(c.fimB - 100)}</b> no governo Bolsonaro e <b style="color:${c.gov[1].cor}">${reais(c.hoje - c.fimB)}</b> no governo Lula.`);
   const geral = linhas.find((l) => l.it.id === 'geral');
-  if (geral) topicos.push(`<b>Inflação geral:</b> ${pct(geral.lados[0].anual)} ao ano com Bolsonaro × ${pct(geral.lados[1].anual)} com Lula.`);
+  if (geral) {
+    const outros = linhas.filter((l) => l.it.grupo === 'independentes');
+    topicos.push(`<b>Inflação geral:</b> ${pct(geral.lados[0].anual)} ao ano com Bolsonaro × ${pct(geral.lados[1].anual)} com Lula (IBGE).${outros.length ? ` Medida fora do IBGE: ${outros.map((o) => `${esc(o.it.nome.split(' (')[0])} ${pct(o.lados[0].anual)} × ${pct(o.lados[1].anual)}`).join('; ')}.` : ''}`);
+  }
   const ex = exemplosMinhaInflacao(mercado, mandatos);
   if (ex.length) {
     topicos.push(`<b>🧮 Minha inflação</b> (exemplos): ${ex.map((e) => `${esc(e.nome.toLowerCase())}: <b style="color:${e.gov[0].cor}">${pct(e.r.anualB)}</b> × <b style="color:${e.gov[1].cor}">${pct(e.r.anualL)}</b> ao ano`).join('; ')}. <a href="#minha-inflacao" class="resumo__link">Calcule a sua ↓</a>`);

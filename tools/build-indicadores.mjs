@@ -1175,6 +1175,20 @@ async function montarMercado() {
     const serie = [...m].filter(([p]) => p <= fim).sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([p, v]) => [p, arred(v, 2)]);
     return { id, nome, grupo, serie };
   });
+  // Outros medidores de inflação, fora do IBGE, para conferir o IPCA (variação mensal, via Banco Central).
+  const INDEPENDENTES = [
+    { id: 'ipc_fipe', nome: 'IPC-Fipe (USP, cidade de São Paulo)', codigo: 193 },
+    { id: 'ipc_fgv', nome: 'IPC-Br (FGV)', codigo: 191 },
+  ];
+  for (const { id, nome, codigo } of INDEPENDENTES) {
+    try {
+      const serie = mensal(await sgs(codigo, `${MERCADO_INICIO}-01`), 2).filter(([p]) => p <= fim);
+      validar(id, serie);
+      itens.push({ id, nome, grupo: 'independentes', serie });
+    } catch (err) {
+      console.warn(`  AVISO: ${id} (SGS ${codigo}) não entrou: ${err.message}`);
+    }
+  }
   return {
     atualizadoEm: fim,
     fonte: 'IBGE — IPCA (SIDRA, tabelas 1419 e 7060)',
