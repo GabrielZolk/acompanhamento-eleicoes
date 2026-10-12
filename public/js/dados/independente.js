@@ -23,7 +23,7 @@ export function htmlIndependente(dados, mercado) {
   const linhas = dados.pontos.map((p) => {
     const outros = colunas.map(([id]) => acumulado(mercado, id, p.de, p.ate));
     const maxv = Math.max(p.valor, ...outros.filter((v) => v != null), 1);
-    const barra = (v, cor) => `<span class="ind-barra"><i style="width:${((Math.max(v, 0) / maxv) * 100).toFixed(1)}%;background:${cor}"></i><b>${pct(v)}</b></span>`;
+    const barra = (v, cor) => `<span class="ind-barra"><i style="width:${Math.max(3, (Math.max(v, 0) / maxv) * 70).toFixed(0)}px;background:${cor}"></i><b>${pct(v)}</b></span>`;
     return `<tr>
         <th scope="row">${esc(p.periodo)}<small>${esc(p.tipo)} · <a href="${esc(p.fonte)}" target="_blank" rel="noopener noreferrer">fonte</a></small></th>
         <td>${barra(p.valor, '#f5b13d')}</td>

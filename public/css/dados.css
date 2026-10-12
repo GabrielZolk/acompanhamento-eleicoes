@@ -887,6 +887,7 @@ details.resumo__nota p { margin: 8px 0 0; }
 .indep__tab td, .indep__tab th { vertical-align: middle; }
 .indep__tab small a { color: #8fb2ff; }
 .ind-barra { display: inline-flex; align-items: center; gap: 8px; min-width: 120px; }
-.ind-barra i { display: block; height: 10px; width: 0; border-radius: 4px; max-width: 70px; flex: 0 0 auto; }
+.ind-barra i { display: block; height: 10px; border-radius: 4px; flex: 0 0 auto; }
+.ind-barra { min-width: 130px; }
 .ind-barra b { font-size: 13px; }
 @media (max-width: 640px) { .indep { padding: 16px 12px; } }
