@@ -81,6 +81,37 @@ async function trackerAtualizado(ele, ab, cands = null) {
   return tracker.view();
 }
 
+// Viradas durante a apuração: em cada UF, quem lidera e cada troca de liderança (com o percentual
+// de seções apuradas na hora). Guardado por eleição e cargo; só grava quando algo muda.
+async function viradasAtualizadas(ele, cargoKey, estados) {
+  const chave = `apuracao2026:viradas:${ele}:${cargoKey}`;
+  let salvo = {};
+  try {
+    salvo = (await store.get(chave)) || {};
+  } catch (err) {
+    console.error('[store] leitura falhou:', err.message);
+  }
+  let mudou = false;
+  for (const [uf, e] of Object.entries(estados || {})) {
+    const cs = (e.candidatos || []).filter((c) => c.votos > 0).sort((a, b) => b.votos - a.votos);
+    if (cs.length < 2) continue;
+    const lider = cs[0].n;
+    const r = salvo[uf] || (salvo[uf] = { lider: null, mudancas: [] });
+    if (r.lider === lider) continue;
+    if (r.lider) r.mudancas.push({ em: Date.now(), de: r.lider, para: lider, apurado: e.secoes?.pct || 0, margem: cs[0].votos - cs[1].votos });
+    r.lider = lider;
+    mudou = true;
+  }
+  if (mudou) {
+    try {
+      await store.set(chave, salvo);
+    } catch (err) {
+      console.error('[store] gravação falhou:', err.message);
+    }
+  }
+  return Object.fromEntries(Object.entries(salvo).filter(([, r]) => r.mudancas.length).map(([uf, r]) => [uf, r.mudancas]));
+}
+
 // Identificador da publicação atual do TSE: o TSE numera cada geração de arquivo (idg).
 const versaoDe = (ab, nacional) => `${ab?.idg || ''}-${nacional?.idg || ''}`;
 
@@ -104,6 +135,7 @@ async function montarPainelAtual(cargoKey) {
   const tracker = await trackerAtualizado(cargo.ele, ab, cargo.federal ? fotoCandidatos(dados.nacional, dados.estados.zz) : null);
   const p = montarPainel({ cargoKey, ...dados, ab, tracker, inicio: inicioTotalizacao() });
   p.armazenamento = store.tipo;
+  if (!cargo.proporcional) p.viradas = await viradasAtualizadas(cargo.ele, cargoKey, dados.estados);
   p.versao = versaoDe(ab, dados.nacional);
   return p;
 }

@@ -259,7 +259,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       ${rows.length ? rows.map((r, i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${r.cor}">
         <span class="dot"></span><span class="nome">${esc(r.sigla ? r.nome : nomeProprio(r.nome))}</span><b>${pct(r.pct)}</b></div>`).join('')
         : `<div class="callout__row">Sem dados ainda</div>`}
-      ${uf === 'zz' ? '' : blocoModoNovo(votosUF(uf), t1De(uf))}
+      ${uf === 'zz' ? '' : blocoModoNovo(votosUF(uf), t1De(uf), uf)}${uf !== 'zz' && st.mapaModo === 'virada' && segundoTurnoPres() && t1 && viradasDe(uf).length ? blocoViradasApuracao(uf) : ''}
       ${data.cargo.federal && !['margem', 'virada'].includes(st.mapaModo) && !st.mapaModo.startsWith('ganho:') ? bloco2022(comparacaoUF(uf)) : ''}
       <div class="callout__foot">Seções apuradas: ${pct(e?.secoes?.pct)}</div>
       <div class="callout__bar"><i style="width:${(e?.secoes?.pct || 0).toFixed(2)}%"></i></div>`;
@@ -372,6 +372,15 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     const t = Math.min(1, Math.log10(1 + a.votos - b.votos) / Math.log10(1 + MARGEM_MAX[escala]));
     return mix(mix(cor, SEM, 0.7), cor, t);
   }
+  const corLiderVs = (c) => (data.cargo.federal ? corCand(c.n) : (data.cores[c.sg] || '#94a3b8'));
+  const viradasDe = (uf) => data.viradas?.[uf] || [];
+  // Sem o 1º turno para comparar (ou fora do Presidente): cor forte onde a liderança trocou de mãos
+  // durante a apuração.
+  function corViradaApuracao(vs, uf) {
+    if (!vs?.cs.length) return SEM;
+    const cor = corLiderVs(vs.cs[0]);
+    return uf && viradasDe(uf).length ? cor : mix(cor, SEM, 0.74);
+  }
   function corVirada(vs, ant) {
     if (!vs || !ant) return SEM;
     const agora = vs.cs.find((c) => c.n === '13' || c.n === '22')?.n;
@@ -392,16 +401,23 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     return g.dpp >= 0 ? mix(mix(SEM, corCand(n), 0.18), corCand(n), k) : mix(mix(SEM, '#a7b0c0', 0.18), '#a7b0c0', k);
   }
   // Cor de um lugar nos modos novos (null = não é um desses modos).
-  function corModoNovo(vs, ant, escala) {
+  function corModoNovo(vs, ant, escala, uf) {
     const m = st.mapaModo;
     if (m === 'margem') return corMargem(vs, escala);
-    if (m === 'virada') return corVirada(vs, ant);
+    if (m === 'virada') return segundoTurnoPres() && t1 ? corVirada(vs, ant) : corViradaApuracao(vs, escala === 'uf' ? uf : null);
     if (m.startsWith('ganho:')) return corGanho(ganhoDe(vs, ant, m.slice(6)), m.slice(6));
     return null;
   }
   // Linhas extras do cartão/tooltip nos modos novos.
-  function blocoModoNovo(vs, ant) {
+  function blocoViradasApuracao(uf) {
+    const vs = viradasDe(uf);
+    if (!vs.length) return st.mapaModo === 'virada' ? '<div class="callout__extra">Sem troca de liderança durante a apuração</div>' : '';
+    const nome = (n) => (data.cargo.federal ? nomeCurto(n) : n);
+    return `<div class="callout__extra"><b class="virou">Liderança trocou ${vs.length}x na apuração</b>${vs.slice(-3).map((v) => `<br>${esc(nome(v.para))} passou ${esc(nome(v.de))} com ${pct(v.apurado)} apurado`).join('')}</div>`;
+  }
+  function blocoModoNovo(vs, ant, uf) {
     const m = st.mapaModo;
+    if (m === 'virada' && !(segundoTurnoPres() && t1)) return uf ? blocoViradasApuracao(uf) : '';
     const nome = (c) => (data.cargo.federal ? nomeCurto(c.n) : c.sg);
     if (m === 'margem' && vs?.cs.length >= 2) {
       const [a, b] = vs.cs;
@@ -413,7 +429,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       const agora = vs?.cs.find((c) => c.n === '13' || c.n === '22');
       const outro = vs?.cs.find((c) => (c.n === '13' || c.n === '22') && c !== agora);
       let html = `<div class="callout__extra">1º turno: <b>${esc(nomeCurto(antes))}</b> à frente por ${fmtVotos(marg1)} votos`;
-      if (agora) html += `<br>Agora: <b>${esc(nomeCurto(agora.n))}</b> à frente por ${fmtVotos(agora.votos - (outro?.votos || 0))}${antes !== agora.n ? ' <b class="virou">· VIROU</b>' : ''}`;
+      if (agora) html += `<br>Agora: <b>${esc(nomeCurto(agora.n))}</b> à frente por ${fmtVotos(agora.votos - (outro?.votos || 0))} votos${antes !== agora.n ? ' <b class="virou">· VIROU</b>' : ''}`;
       if (m.startsWith('ganho:')) {
         const n = m.slice(6), g = ganhoDe(vs, ant, n);
         if (g) html += `<br>${esc(nomeCurto(n))}: ${pct(g.pctAntes)} → ${pct(g.pctAgora)} (<b>${g.dpp >= 0 ? '+' : '−'}${Math.abs(g.dpp).toFixed(1).replace('.', ',')} p.p.</b>) · votos: ${fmtVotos(g.votosAntes)} no 1º turno, ${fmtVotos(g.votosAgora)} agora`;
@@ -447,7 +463,14 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       if (nivel === 'mun') { for (const uf of Object.keys(munDados)) for (const cdi of Object.keys(munDados[uf] || {})) conta(votosMun(uf, cdi), t1De(uf, cdi)); }
       else for (const uf of Object.keys(data.estados)) if (uf !== 'zz') conta(votosUF(uf), t1De(uf));
       const lugar = nivel === 'mun' ? 'cidades' : 'estados';
-      return `<div class="legend__title">Quem passou à frente desde o 1º turno</div>
+      const naApuracao = Object.keys(data.viradas || {}).filter((uf) => uf !== 'zz').length;
+      const extraApuracao = naApuracao ? `<div class="legend__item" style="--c:#f5b13d"><span class="legend__dot"></span><span>Contorno amarelo: trocou de líder durante a apuração (${naApuracao})</span></div>` : '';
+      if (!(segundoTurnoPres() && t1)) {
+        return `<div class="legend__title">Viradas durante a apuração</div>
+          <div class="legend__item" style="--c:#f5b13d"><span class="legend__dot"></span><span>Cor forte: liderança trocou de mãos (${naApuracao} ${naApuracao === 1 ? 'estado' : 'estados'})</span></div>
+          <div class="legend__item" style="--c:${mix('#8a93a6', SEM, 0.6)}"><span class="legend__dot"></span><span>Cor clara: mesmo líder desde o começo</span></div>`;
+      }
+      return `<div class="legend__title">Quem passou à frente desde o 1º turno</div>${extraApuracao}
         ${['13', '22'].map((n) => `<div class="legend__item" style="--c:${corCand(n)}"><span class="legend__dot"></span><span>Virou para ${esc(nomeCurto(n))}: <b>${cont[n]}</b> ${lugar}</span></div>`).join('')}
         <div class="legend__item" style="--c:${mix('#8a93a6', SEM, 0.6)}"><span class="legend__dot"></span><span>Cor clara: mesmo líder do 1º turno</span></div>
         <div class="legend__item" style="--c:${SEM}"><span class="legend__dot"></span><span>Sem votos apurados</span></div>`;
@@ -557,7 +580,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       return p > 0 ? mix('#1c2944', '#5b93ff', p) : SEM;
     }
     if (modo === 'var22') return corVariacao(comparacaoUF(uf)?.dVantagem);
-    const novo = uf === 'zz' && modo !== 'margem' ? null : corModoNovo(votosUF(uf), t1De(uf), 'uf');
+    const novo = uf === 'zz' && modo !== 'margem' ? null : corModoNovo(votosUF(uf), t1De(uf), 'uf', uf);
     if (novo) return novo;
     if (modo.startsWith('cand:')) {
       const n = modo.slice(5);
@@ -575,14 +598,16 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     const ops = [];
     const var22 = ['var22', 'Variação desde 2022'];
     const margem = ['margem', 'Diferença de votos (1º × 2º)'];
+    const viradaApuracao = !(segundoTurnoPres() && t1) && Object.keys(data.viradas || {}).length ? [['virada', 'Viradas durante a apuração']] : [];
+    const houveVirada = Object.keys(data.viradas || {}).length > 0;
     const t2 = segundoTurnoPres() && t1 ? [['virada', 'Virada desde o 1º turno'], ...data.nacional.candidatos.slice(0, 2).map((c) => [`ganho:${c.n}`, `Ganho desde o 1º turno: ${nomeProprio(c.nome)}`])] : [];
     if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ...t2, margem, ['secoes', 'Seções apuradas'], ...(data.cargo.federal ? [var22] : [])];
     if (data.cargo.federal) {
-      ops.push(['lider', 'Candidato mais votado'], ...t2, margem, ['secoes', 'Seções apuradas']);
+      ops.push(['lider', 'Candidato mais votado'], ...t2, ...viradaApuracao, margem, ['secoes', 'Seções apuradas']);
       for (const c of data.nacional.candidatos.slice(0, 3)) ops.push([`cand:${c.n}`, `Votação: ${nomeProprio(c.nome)}`]);
       ops.push(var22);
     } else {
-      ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ...(data.cargo.proporcional ? [] : [margem]), ['secoes', 'Seções apuradas']);
+      ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ...(data.cargo.proporcional ? [] : [...viradaApuracao, margem]), ['secoes', 'Seções apuradas']);
     }
     return ops;
   }
@@ -743,6 +768,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
         const fill = corEstado(uf);
         if (p.getAttribute('fill') !== fill) p.setAttribute('fill', fill);
         p.classList.toggle('is-pinned', pins.includes(uf));
+        p.classList.toggle('uf-virou', st.mapaModo === 'virada' && viradasDe(uf).length > 0);
       }
       if (extGrupo) {
         const vis = exteriorVisivel();
