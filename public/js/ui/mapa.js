@@ -23,6 +23,11 @@ const EXT_C = [EXT.x + EXT.w / 2, EXT.y + EXT.h / 2];
 // PL × PT; o centro da escala é claro para não se confundir com o cinza de "sem dados".
 const VAR_MAX = 10;
 const NEUTRO = '#dfe3ea';
+// Modo "Diferença de votos": a cor fica cheia a partir desta vantagem (escala logarítmica).
+const MARGEM_MAX = { uf: 3_000_000, mun: 100_000 };
+// Modo "Ganho desde o 1º turno": cor cheia a partir desta mudança na fatia dos válidos (p.p.).
+const GANHO_MAX = 12;
+const fmtVotos = (v) => Math.round(v).toLocaleString('pt-BR');
 
 export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub, nivelEl, dica, onSelect, onUnpin, onModo, onNivel, onMunicipio }) {
   let geo = null;
@@ -254,7 +259,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       ${rows.length ? rows.map((r, i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${r.cor}">
         <span class="dot"></span><span class="nome">${esc(r.sigla ? r.nome : nomeProprio(r.nome))}</span><b>${pct(r.pct)}</b></div>`).join('')
         : `<div class="callout__row">Sem dados ainda</div>`}
-      ${data.cargo.federal ? bloco2022(comparacaoUF(uf)) : ''}
+      ${uf === 'zz' ? '' : blocoModoNovo(votosUF(uf), t1De(uf))}
+      ${data.cargo.federal && !['margem', 'virada'].includes(st.mapaModo) && !st.mapaModo.startsWith('ganho:') ? bloco2022(comparacaoUF(uf)) : ''}
       <div class="callout__foot">Seções apuradas: ${pct(e?.secoes?.pct)}</div>
       <div class="callout__bar"><i style="width:${(e?.secoes?.pct || 0).toFixed(2)}%"></i></div>`;
   }
@@ -320,6 +326,142 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       <div class="h22-leg">Pontos percentuais dos válidos, ante o ${turno2022(data.turno)}º turno de 2022. No PL: Jair (2022) e Flávio (2026).</div>`;
   }
 
+  // ------------------------------------------------- 2º turno: virada, ganho e diferença de votos
+  // Resultado final do 1º turno (Lula e Flávio por estado e cidade), carregado sob demanda.
+  let t1 = null, pedindoT1 = false;
+  function carregarT1() {
+    if (t1 || pedindoT1) return;
+    pedindoT1 = true;
+    fetch('data/2026/presidente-1t.json').then((r) => r.json()).then((j) => {
+      t1 = j;
+      if (data && geo) api.update(data, st);
+    }).catch(() => { pedindoT1 = false; });
+  }
+  const segundoTurnoPres = () => data?.cargo.federal && data.turno === 2;
+  const nomeCurto = (n) => nomeProprio(candidatoNac()[n]?.nome || n);
+  const corCand = (n) => candidatoNac()[n]?.cor || '#94a3b8';
+
+  // Votos de cada candidato num estado e na cidade (na cidade, a partir do % e dos válidos).
+  function votosUF(uf) {
+    const e = data.estados[uf];
+    if (!(e?.secoes?.apuradas > 0)) return null;
+    const cs = (e.candidatos || []).filter((c) => c.votos > 0).map((c) => ({ n: c.n, sg: c.partido, votos: c.votos, pct: c.pct }));
+    return cs.length ? { cs: cs.sort((a, b) => b.votos - a.votos), validos: e.votos?.validos || 0 } : null;
+  }
+  function votosMun(uf, cdi) {
+    const r = munDados[uf]?.[cdi];
+    if (!(r?.a > 0) || !(r.v > 0) || !r.c?.length) return null;
+    return { cs: r.c.map(([n, p, sg]) => ({ n, sg, pct: p, votos: (p * r.v) / 100 })), validos: r.v };
+  }
+  // Líder entre os dois finalistas do 2º turno no 1º turno (13 × 22).
+  function t1De(uf, cdi) {
+    if (!t1) return null;
+    if (cdi == null) {
+      const x = t1.uf[uf];
+      return x ? { v: x.v, c: x.c } : null;
+    }
+    const x = t1.mun[uf]?.[cdi];
+    return x ? { v: x[0], c: { 13: x[1], 22: x[2] } } : null;
+  }
+  const liderEntre = (c) => (c['13'] == null && c['22'] == null ? null : (c['13'] || 0) >= (c['22'] || 0) ? '13' : '22');
+
+  function corMargem(vs, escala) {
+    if (!vs || vs.cs.length < 2) return SEM;
+    const [a, b] = vs.cs;
+    const cor = data.cargo.federal ? corCand(a.n) : (data.cores[a.sg] || '#94a3b8');
+    const t = Math.min(1, Math.log10(1 + a.votos - b.votos) / Math.log10(1 + MARGEM_MAX[escala]));
+    return mix(mix(cor, SEM, 0.7), cor, t);
+  }
+  function corVirada(vs, ant) {
+    if (!vs || !ant) return SEM;
+    const agora = vs.cs.find((c) => c.n === '13' || c.n === '22')?.n;
+    if (!agora) return SEM;
+    const antes = liderEntre(ant.c);
+    return antes && antes !== agora ? corCand(agora) : mix(corCand(agora), SEM, 0.74);
+  }
+  function ganhoDe(vs, ant, n) {
+    if (!vs || !ant || !(ant.v > 0)) return null;
+    const agora = vs.cs.find((c) => c.n === n);
+    const pctAgora = agora ? agora.pct : 0;
+    const pctAntes = ((ant.c[n] || 0) / ant.v) * 100;
+    return { pctAntes, pctAgora, dpp: pctAgora - pctAntes, votosAntes: ant.c[n] || 0, votosAgora: agora?.votos || 0 };
+  }
+  function corGanho(g, n) {
+    if (!g) return SEM;
+    const k = Math.min(1, Math.abs(g.dpp) / GANHO_MAX) ** 0.8;
+    return g.dpp >= 0 ? mix(mix(SEM, corCand(n), 0.18), corCand(n), k) : mix(mix(SEM, '#a7b0c0', 0.18), '#a7b0c0', k);
+  }
+  // Cor de um lugar nos modos novos (null = não é um desses modos).
+  function corModoNovo(vs, ant, escala) {
+    const m = st.mapaModo;
+    if (m === 'margem') return corMargem(vs, escala);
+    if (m === 'virada') return corVirada(vs, ant);
+    if (m.startsWith('ganho:')) return corGanho(ganhoDe(vs, ant, m.slice(6)), m.slice(6));
+    return null;
+  }
+  // Linhas extras do cartão/tooltip nos modos novos.
+  function blocoModoNovo(vs, ant) {
+    const m = st.mapaModo;
+    const nome = (c) => (data.cargo.federal ? nomeCurto(c.n) : c.sg);
+    if (m === 'margem' && vs?.cs.length >= 2) {
+      const [a, b] = vs.cs;
+      return `<div class="callout__extra"><b>${esc(nome(a))}</b> tem <b>${fmtVotos(a.votos - b.votos)}</b> votos a mais que ${esc(nome(b))}${data.cargo.federal || vs.validos ? '' : ''}</div>`;
+    }
+    if ((m === 'virada' || m.startsWith('ganho:')) && ant) {
+      const antes = liderEntre(ant.c);
+      const marg1 = Math.abs((ant.c['13'] || 0) - (ant.c['22'] || 0));
+      const agora = vs?.cs.find((c) => c.n === '13' || c.n === '22');
+      const outro = vs?.cs.find((c) => (c.n === '13' || c.n === '22') && c !== agora);
+      let html = `<div class="callout__extra">1º turno: <b>${esc(nomeCurto(antes))}</b> à frente por ${fmtVotos(marg1)} votos`;
+      if (agora) html += `<br>Agora: <b>${esc(nomeCurto(agora.n))}</b> à frente por ${fmtVotos(agora.votos - (outro?.votos || 0))}${antes !== agora.n ? ' <b class="virou">· VIROU</b>' : ''}`;
+      if (m.startsWith('ganho:')) {
+        const n = m.slice(6), g = ganhoDe(vs, ant, n);
+        if (g) html += `<br>${esc(nomeCurto(n))}: ${pct(g.pctAntes)} → ${pct(g.pctAgora)} (<b>${g.dpp >= 0 ? '+' : '−'}${Math.abs(g.dpp).toFixed(1).replace('.', ',')} p.p.</b>) · votos: ${fmtVotos(g.votosAntes)} no 1º turno, ${fmtVotos(g.votosAgora)} agora`;
+      }
+      return html + '</div>';
+    }
+    return '';
+  }
+  function legendaModoNovo() {
+    const m = st.mapaModo;
+    const escala = nivel === 'mun' ? 'mun' : 'uf';
+    if (m === 'margem') {
+      const lideres = [];
+      if (data.cargo.federal) for (const c of data.nacional.candidatos.slice(0, 2)) lideres.push({ cor: c.cor, nome: nomeProprio(c.nome) });
+      else {
+        const cont = {};
+        for (const [uf, e] of Object.entries(data.estados)) if (uf !== 'zz' && e.lider) cont[e.lider] = (cont[e.lider] || 0) + 1;
+        for (const [sg] of Object.entries(cont).sort((a, b) => b[1] - a[1]).slice(0, 4)) lideres.push({ cor: data.cores[sg], nome: sg });
+      }
+      return `<div class="legend__title">Votos a mais que o 2º colocado</div>
+        ${lideres.map((i) => `<div class="legend__mun"><span class="legend__nm">${esc(i.nome)}</span><span class="legend__ramp" style="background:linear-gradient(90deg,${mix(i.cor, SEM, 0.7)},${i.cor})"></span></div>`).join('')}
+        <div class="legend__scale legend__scale--mun"><span>poucos</span><span>${escala === 'mun' ? '100 mil+' : '3 mi+'}</span></div>
+        <div class="legend__item" style="--c:${SEM}"><span class="legend__dot"></span><span>Sem votos apurados</span></div>`;
+    }
+    if (m === 'virada') {
+      const cont = { '13': 0, '22': 0 };
+      const conta = (vs, ant) => {
+        const agora = vs?.cs.find((c) => c.n === '13' || c.n === '22')?.n;
+        if (agora && ant && liderEntre(ant.c) !== agora) cont[agora]++;
+      };
+      if (nivel === 'mun') { for (const uf of Object.keys(munDados)) for (const cdi of Object.keys(munDados[uf] || {})) conta(votosMun(uf, cdi), t1De(uf, cdi)); }
+      else for (const uf of Object.keys(data.estados)) if (uf !== 'zz') conta(votosUF(uf), t1De(uf));
+      const lugar = nivel === 'mun' ? 'cidades' : 'estados';
+      return `<div class="legend__title">Quem passou à frente desde o 1º turno</div>
+        ${['13', '22'].map((n) => `<div class="legend__item" style="--c:${corCand(n)}"><span class="legend__dot"></span><span>Virou para ${esc(nomeCurto(n))}: <b>${cont[n]}</b> ${lugar}</span></div>`).join('')}
+        <div class="legend__item" style="--c:${mix('#8a93a6', SEM, 0.6)}"><span class="legend__dot"></span><span>Cor clara: mesmo líder do 1º turno</span></div>
+        <div class="legend__item" style="--c:${SEM}"><span class="legend__dot"></span><span>Sem votos apurados</span></div>`;
+    }
+    if (m.startsWith('ganho:')) {
+      const n = m.slice(6);
+      return `<div class="legend__title">${esc(nomeCurto(n))}: fatia dos válidos ante o 1º turno</div>
+        <div class="legend__ramp" style="background:linear-gradient(90deg,#a7b0c0,${SEM},${corCand(n)})"></div>
+        <div class="legend__scale"><span>−${GANHO_MAX} p.p.</span><span>0</span><span>+${GANHO_MAX} p.p.</span></div>
+        <div class="h22-leg">Compara a fatia dos votos válidos de agora com a do 1º turno (04/10). Os votos em número aparecem ao passar o mouse.</div>`;
+    }
+    return null;
+  }
+
   // ------------------------------------------------------------ municípios
   const corDoLider = (n, sg) => (data.cargo.federal ? data.cores[n] : data.cores[sg]);
   function nomeDoCandidato(uf, n, sg) {
@@ -333,6 +475,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     if (!r || !(r.a > 0) || !(r.c?.[0]?.[1] > 0)) return SEM;
     if (st.mapaModo === 'secoes') return mix('#1c2944', '#5b93ff', Math.min(1, r.a / 100));
     if (st.mapaModo === 'var22') return corVariacao(comparacaoMun(uf, cdi)?.dVantagem);
+    const novo = corModoNovo(votosMun(uf, cdi), t1De(uf, cdi), 'mun');
+    if (novo) return novo;
     const [n, p, sg] = r.c[0];
     const cor = corDoLider(n, sg);
     if (!cor) return SEM;
@@ -348,7 +492,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     return `<div class="callout__title"><span>${esc(nomeProprio(r.nm))} (${uf.toUpperCase()})</span></div>
       ${r.c.map(([n, p, sg], i) => `<div class="callout__row ${i === 0 && apurou ? 'callout__row--lider' : ''}" style="--c:${corDoLider(n, sg) || '#94a3b8'}">
         <span class="dot"></span><span class="nome">${esc(nomeDoCandidato(uf, n, sg))}</span><b>${pct(p)}</b></div>`).join('')}
-      ${data.cargo.federal ? bloco2022(comparacaoMun(uf, cdi)) : ''}
+      ${blocoModoNovo(votosMun(uf, cdi), t1De(uf, cdi))}
+      ${data.cargo.federal && st.mapaModo === 'var22' ? bloco2022(comparacaoMun(uf, cdi)) : data.cargo.federal && !['margem', 'virada'].includes(st.mapaModo) && !st.mapaModo.startsWith('ganho:') ? bloco2022(comparacaoMun(uf, cdi)) : ''}
       <div class="callout__foot">Seções apuradas: ${pct(r.a)}${apurou ? '' : ' · sem votos ainda'}</div>
       <div class="callout__bar"><i style="width:${(r.a || 0).toFixed(2)}%"></i></div>`;
   }
@@ -412,6 +557,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       return p > 0 ? mix('#1c2944', '#5b93ff', p) : SEM;
     }
     if (modo === 'var22') return corVariacao(comparacaoUF(uf)?.dVantagem);
+    const novo = uf === 'zz' && modo !== 'margem' ? null : corModoNovo(votosUF(uf), t1De(uf), 'uf');
+    if (novo) return novo;
     if (modo.startsWith('cand:')) {
       const n = modo.slice(5);
       const c = data.nacional.candidatos.find((x) => x.n === n);
@@ -427,19 +574,25 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   function opcoes() {
     const ops = [];
     const var22 = ['var22', 'Variação desde 2022'];
-    if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ['secoes', 'Seções apuradas'], ...(data.cargo.federal ? [var22] : [])];
+    const margem = ['margem', 'Diferença de votos (1º × 2º)'];
+    const t2 = segundoTurnoPres() && t1 ? [['virada', 'Virada desde o 1º turno'], ...data.nacional.candidatos.slice(0, 2).map((c) => [`ganho:${c.n}`, `Ganho desde o 1º turno: ${nomeProprio(c.nome)}`])] : [];
+    if (nivel === 'mun') return [['lider', 'Vencedor em cada cidade'], ...t2, margem, ['secoes', 'Seções apuradas'], ...(data.cargo.federal ? [var22] : [])];
     if (data.cargo.federal) {
-      ops.push(['lider', 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
+      ops.push(['lider', 'Candidato mais votado'], ...t2, margem, ['secoes', 'Seções apuradas']);
       for (const c of data.nacional.candidatos.slice(0, 3)) ops.push([`cand:${c.n}`, `Votação: ${nomeProprio(c.nome)}`]);
       ops.push(var22);
     } else {
-      ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ['secoes', 'Seções apuradas']);
+      ops.push(['lider', data.cargo.proporcional ? 'Partido mais votado' : 'Candidato mais votado'], ...(data.cargo.proporcional ? [] : [margem]), ['secoes', 'Seções apuradas']);
     }
     return ops;
   }
 
   function subtitulo() {
     const m = st.mapaModo;
+    const onde = nivel === 'mun' ? 'cidade' : 'estado';
+    if (m === 'margem') return `Quantos votos o 1º colocado tem a mais que o 2º em cada ${onde}`;
+    if (m === 'virada') return `Onde quem lidera agora é diferente de quem liderava no 1º turno (cor forte = virou)`;
+    if (m.startsWith('ganho:')) return `Quanto ${nomeCurto(m.slice(6))} ganhou ou perdeu da fatia dos votos desde o 1º turno, em cada ${onde}`;
     if (m === 'var22') return `Quanto a vantagem do PL sobre o PT mudou desde 2022 em cada ${nivel === 'mun' ? 'cidade' : 'estado'}`;
     if (nivel === 'mun') return m === 'secoes' ? 'Percentual de seções apuradas em cada cidade' : 'Candidato mais votado em cada cidade; quanto mais forte a cor, maior a vantagem';
     if (m === 'secoes') return 'Percentual de seções apuradas em cada estado';
@@ -459,6 +612,8 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   function htmlLegenda() {
     const m = st.mapaModo;
     if (m === 'var22') return legendaVariacao();
+    const nova = legendaModoNovo();
+    if (nova) return nova;
     if (nivel === 'mun' && m !== 'secoes') return legendaMun();
     if (m === 'secoes') {
       return `<div class="legend__title">Seções apuradas</div>
@@ -543,6 +698,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       data = d;
       st = state;
       definirTurno2026(d.turno);
+      if (d.cargo.federal && d.turno === 2) carregarT1();
       if (!geo) return;
       // Pulso de luz nos estados com seções novas desde a última atualização exibida.
       const recentes = d.atualizacoes || [];
