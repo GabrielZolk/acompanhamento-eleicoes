@@ -14,13 +14,8 @@ import { obterMapaMunicipios } from './municipios.js';
 import { Tracker } from './tracker.js';
 import { store } from './store.js';
 import { mapLimit } from './util.js';
+import { eleDo, inicioTotalizacao } from './turno.js';
 
-// Códigos de eleição do TSE. Para o 2º turno (25/10) use TSE_ELE_FEDERAL=6258 e TSE_ELE_ESTADUAL=6260.
-if (process.env.TSE_ELE_FEDERAL) CARGOS.presidente.ele = process.env.TSE_ELE_FEDERAL;
-if (process.env.TSE_ELE_ESTADUAL) for (const k of ['governador', 'senado', 'camara', 'assembleia']) CARGOS[k].ele = process.env.TSE_ELE_ESTADUAL;
-
-// Início da totalização: 17h de Brasília no dia da eleição.
-const INICIO = Date.parse(`${process.env.ELEICAO_DATA || '2026-10-04'}T17:00:00-03:00`);
 const UF_LIST = UFS.map((u) => u.uf);
 
 const parsed = new Map(); // url -> objeto normalizado (reaproveitado quando o TSE responde 304)
@@ -31,7 +26,7 @@ async function load(url, parse) {
   return parsed.get(url);
 }
 
-const fotoDe = (cargo, uf) => (sq) => urls.foto(cargo.ele, cargo.federal ? 'br' : uf, sq);
+const fotoDe = (cargo, uf) => (sq) => urls.foto(eleDo(cargo, uf), cargo.federal ? 'br' : uf, sq);
 
 // Resultado de um lugar inteiro. Marca quem já tem a vitória matematicamente garantida, menos no
 // Presidente por UF (não elege ninguém). Todo load() do mesmo arquivo usa esta função: o objeto
@@ -39,7 +34,7 @@ const fotoDe = (cargo, uf) => (sq) => urls.foto(cargo.ele, cargo.federal ? 'br' 
 const parseLugar = (cargo, uf) => (d) => parseUnificado(d, { foto: fotoDe(cargo, uf), garantia: !cargo.federal || uf === 'br' });
 const carregarNacional = (cargo) => load(urls.unificado(cargo.ele, cargo.cd, 'br'), parseLugar(cargo, 'br'));
 
-const carregarUF = (cargo, uf) => load(urls.unificado(cargo.ele, cdDoCargo(cargo, uf), uf), parseLugar(cargo, uf));
+const carregarUF = (cargo, uf) => load(urls.unificado(eleDo(cargo, uf), cdDoCargo(cargo, uf), uf), parseLugar(cargo, uf));
 
 async function carregarCargo(cargo) {
   const ufs = cargo.federal ? [...UF_LIST, 'zz'] : UF_LIST;
@@ -107,7 +102,7 @@ async function montarPainelAtual(cargoKey) {
   ]);
   if (!ab && !dados.nacional && !Object.keys(dados.estados).length) return null;
   const tracker = await trackerAtualizado(cargo.ele, ab, cargo.federal ? fotoCandidatos(dados.nacional, dados.estados.zz) : null);
-  const p = montarPainel({ cargoKey, ...dados, ab, tracker, inicio: INICIO });
+  const p = montarPainel({ cargoKey, ...dados, ab, tracker, inicio: inicioTotalizacao() });
   p.armazenamento = store.tipo;
   p.versao = versaoDe(ab, dados.nacional);
   return p;
@@ -136,7 +131,7 @@ export function obterPainel(cargoKey) {
 }
 
 async function obterPainelAgora(cargoKey) {
-  const chave = `apuracao2026:painel:${cargoKey}`;
+  const chave = `apuracao2026:painel:${cargoKey}:${CARGOS[cargoKey].ele}`; // por turno: o painel guardado do 1º turno não volta no 2º
   try {
     const p = await montarPainelAtual(cargoKey);
     if (p && versaoGuardada[cargoKey] !== p.versao) {
@@ -172,7 +167,7 @@ export async function obterMunicipio({ cargo: cargoKey, uf, mun }) {
   if (!UF_BY_CODE[uf] || !mun) return { status: 400, body: { erro: 'Parâmetros uf e mun são obrigatórios.' } };
   if (cargoKey !== 'presidente' && uf === 'zz') return { status: 404, body: { erro: 'No exterior só há votação para Presidente.' } };
   const cargo = CARGOS[cargoKey];
-  const { data } = await fetchJson(urls.unificado(cargo.ele, cdDoCargo(cargo, uf), uf, mun));
+  const { data } = await fetchJson(urls.unificado(eleDo(cargo, uf), cdDoCargo(cargo, uf), uf, mun));
   const r = parseUnificado(data, { foto: fotoDe(cargo, uf) });
   if (!r) return { status: 404, body: { erro: 'Resultado do município indisponível no momento.' } };
   let cores;

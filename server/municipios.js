@@ -8,6 +8,7 @@
 // várias instâncias não repitam o trabalho.
 import { CARGOS, UF_BY_CODE, cdDoCargo } from '../public/js/ufs.js';
 import { fetchJson, urls, stats, comLimite, frear, pausado } from './tse.js';
+import { eleDo } from './turno.js';
 import { store } from './store.js';
 import { num, int, mapLimit } from './util.js';
 
@@ -91,7 +92,8 @@ async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
   if (!cargo || cargo.proporcional) return { status: 400, body: { erro: 'Mapa por cidade disponível para Presidente, Governador e Senado.' } };
   if (!UF_BY_CODE[uf] || uf === 'zz') return { status: 400, body: { erro: 'UF inválida.' } };
 
-  const chave = `apuracao2026:mun:${cargo.ele}:${cargo.cd}:${uf}`;
+  const ele = eleDo(cargo, uf);
+  const chave = `apuracao2026:mun:${ele}:${cargo.cd}:${uf}`;
   const guardado = await ler(chave);
   const fresco = guardado && !guardado.parcial && Date.now() - guardado.geradoEm < FRESCO_MS;
   if (guardado && (fresco || pausado('baixa') || !(await store.travar(`${chave}:trava`, 60).catch(() => true)))) {
@@ -99,8 +101,8 @@ async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
   }
 
   const [lista, abResp] = await Promise.all([
-    municipiosDaEleicao(cargo.ele),
-    fetchJson(urls.acompanhamento(cargo.ele, uf)),
+    municipiosDaEleicao(ele),
+    fetchJson(urls.acompanhamento(ele, uf)),
   ]);
   const doUF = lista[uf] || {};
   const ab = abResp.data;
@@ -125,7 +127,7 @@ async function obterMapaMunicipiosAgora({ cargo: cargoKey, uf }) {
   let pendentes = 0;
   await mapLimit(mudaram, 8, async (m) => {
     if (Date.now() > prazo || pausado('baixa')) return void pendentes++;
-    const r = await baixarResumo(urls.unificado(cargo.ele, cd, uf, m.cd));
+    const r = await baixarResumo(urls.unificado(ele, cd, uf, m.cd));
     if (r) {
       municipios[m.cdi] = { cd: m.cd, nm: m.nm, ...r };
       st[m.cdi] = m.apuradas;
