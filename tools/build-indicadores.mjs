@@ -53,6 +53,7 @@ import { indicadoresExtra } from './indicadores-extra.mjs';
 import { indicadoresSeguranca } from './indicadores-seguranca.mjs';
 import { indicadoresMais } from './indicadores-mais.mjs';
 import { indicadoresIndependentes } from './indicadores-independentes.mjs';
+import { indicadoresEmpresas } from './indicadores-empresas.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const outDir = path.join(root, 'public', 'data', 'indicadores');
@@ -1117,6 +1118,7 @@ INDICADORES.push(...indicadoresSeguranca());
 INDICADORES.push(...indicadoresMais({ indiceIPCA, sgs, combustivel, rtnMensal, sidra, serieSidra, periodoMovel })); // tools/indicadores-mais.mjs
 // Indicadores de fontes fora do governo federal (FAO, DIEESE, B3, Fipe, FGV, CNI, CNC, Fecomercio): tools/indicadores-independentes.mjs.
 INDICADORES.push(...indicadoresIndependentes({ sgs }));
+INDICADORES.push(...indicadoresEmpresas()); // recuperações judiciais e falências (Serasa): tools/indicadores-empresas.mjs
 
 const MANDATOS = [
   { id: 'lula1', nome: 'Lula (1º mandato)', curto: 'Lula 1', inicio: '2003-01-01', fim: '2006-12-31' },

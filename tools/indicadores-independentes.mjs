@@ -14,8 +14,8 @@
 //     do IGP-M da FGV (189).
 // Ficaram de fora (sem série aberta legível por máquina): Índices de Confiança do Consumidor e da Indústria da FGV
 // (só no FGV Dados, com cadastro; no lugar entram o ICC da Fecomercio-SP e o ICEI da CNI), EMBI+ do J.P. Morgan
-// (a série no Ipeadata está inativa desde julho de 2024) e pedidos de recuperação judicial da Serasa Experian (a
-// planilha pública cobre só os dois últimos anos; o histórico é vendido).
+// (a série no Ipeadata está inativa desde julho de 2024). Recuperações judiciais e falências (Serasa Experian) estão
+// em tools/indicadores-empresas.mjs.
 //
 // Uso: indicadoresIndependentes({ sgs }) devolve entradas no formato de INDICADORES de build-indicadores.mjs
 // (metadados do índice + `montar()`); `sgs` é o leitor de séries do SGS de lá ([{ data: "AAAA-MM-DD", valor }]).

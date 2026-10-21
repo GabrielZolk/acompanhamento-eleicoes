@@ -153,9 +153,12 @@ classe") e `melhor` ("maior", "menor" ou `null`).
 | Famílias endividadas e com contas em atraso (Peic, CNC) | Ipeadata `CNC12_PEICT12` e `CNC12_PEICA12` (desde 2013) |
 | Preço de venda de imóveis (FipeZap, 12 meses) | Ipeadata `FIPE12_VENBR12` (índice Brasil desde 2008) |
 | IPC-Fipe e IGP-M (12 meses) | SGS 193 e 189 (variações mensais encadeadas) |
+| Pedidos de recuperação judicial e falências decretadas (soma de 12 meses, desde mai/2006) | `tools/indicadores-empresas.mjs` — Serasa Experian, Indicador de Falências e Recuperações, total de CNPJs: [planilha atual](https://www.serasaexperian.com.br/conteudos/indicadores-economicos/) (dois últimos anos, achada na página) emendada com a última planilha da série completa (1991–abr/2025, `Falencias-e-Recuperacoes-Abril-2025.xlsx`, lida de cópia fixa no Internet Archive). Em 2024 a contagem atual dá −3,5% (recuperações) e −0,8% (falências) em relação à antiga; quando a planilha atual começar depois de mai/2025, o indicador falha e mantém o arquivo anterior |
+
 Ficaram de fora: os índices de confiança da FGV (só no FGV Dados, com cadastro), o EMBI+ do J.P. Morgan (série do
-Ipeadata inativa desde jul/2024) e os pedidos de recuperação judicial da Serasa Experian (a planilha pública cobre só
-os dois últimos anos).
+Ipeadata inativa desde jul/2024), o indicador de falências da Boa Vista SCPC/Equifax (só em comunicados) e empresas
+abertas e fechadas (baixas de CNPJ) do Mapa de Empresas (só boletins quadrimestrais em PDF e painéis Qlik Sense do
+Serpro; as Estatísticas CNPJ da Redesim dão só o estoque atual).
 
 Fora do índice, `mercado.json` traz a variação mensal do IPCA (Brasil, desde jan/2012; SIDRA 1419 e 7060) do índice
 geral, da alimentação no domicílio e de itens do mercado e da casa (arroz, feijão-carioca, café moído, carnes, frango,
