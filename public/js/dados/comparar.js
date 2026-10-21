@@ -72,6 +72,8 @@ export const REGRAS = {
   imoveis_fipezap: { melhor: null, criterio: 'media', aviso: 'Sem selo: imóvel subindo é bom para quem tem e ruim para quem quer comprar.' },
   ipcfipe_12m: { melhor: 'menor', criterio: 'media', aviso: 'Inflação medida pela Fipe/USP na cidade de São Paulo.' },
   igpm_12m: { melhor: 'menor', criterio: 'media', aviso: 'Índice da FGV usado para reajustar aluguel; pesa muito o atacado e o dólar.' },
+  recuperacoes_judiciais: { melhor: 'menor', criterio: 'media', aviso: 'Serasa Experian: empresas que pediram recuperação judicial em 12 meses. Juros altos e uma lei de 2020 que facilitou o pedido (inclusive para produtores rurais) pesam na alta recente.' },
+  falencias: { melhor: 'menor', criterio: 'media', aviso: 'Serasa Experian: falências decretadas pela Justiça em 12 meses.' },
   despesa_primaria: { melhor: 'menor', criterio: 'media', aviso: 'Quanto o governo federal gasta (sem juros), em proporção do PIB. Bolsonaro inclui os gastos da pandemia em 2020.' },
   diesel: { melhor: 'menor', criterio: 'media', aviso: 'Preço na bomba corrigido pela inflação. Diesel pesa no frete e, por isso, no preço de quase tudo.' },
   etanol: { melhor: 'menor', criterio: 'media', aviso: 'Preço na bomba corrigido pela inflação.' },
