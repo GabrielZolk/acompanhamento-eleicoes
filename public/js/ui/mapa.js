@@ -413,7 +413,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
     const vs = viradasDe(uf);
     if (!vs.length) return st.mapaModo === 'virada' ? '<div class="callout__extra">Sem troca de liderança durante a apuração</div>' : '';
     const nome = (n) => (data.cargo.federal ? nomeCurto(n) : n);
-    return `<div class="callout__extra"><b class="virou">Liderança trocou ${vs.length}x na apuração</b>${vs.slice(-3).map((v) => `<br>${esc(nome(v.para))} passou ${esc(nome(v.de))} com ${pct(v.apurado)} apurado`).join('')}</div>`;
+    return `<div class="callout__extra"><b class="virou">Liderança trocou ${vs.length}x na apuração</b>${vs.slice(-2).map((v) => `<br>${esc(nome(v.para))} passou ${esc(nome(v.de))} com ${pct(v.apurado)} apurado`).join('')}</div>`;
   }
   function blocoModoNovo(vs, ant, uf) {
     const m = st.mapaModo;
@@ -464,7 +464,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
       else for (const uf of Object.keys(data.estados)) if (uf !== 'zz') conta(votosUF(uf), t1De(uf));
       const lugar = nivel === 'mun' ? 'cidades' : 'estados';
       const naApuracao = Object.keys(data.viradas || {}).filter((uf) => uf !== 'zz').length;
-      const extraApuracao = naApuracao ? `<div class="legend__item" style="--c:#f5b13d"><span class="legend__dot"></span><span>Contorno amarelo: trocou de líder durante a apuração (${naApuracao})</span></div>` : '';
+      const extraApuracao = naApuracao ? `<div class="legend__item" style="--c:#f5b13d"><span class="legend__dot"></span><span>Contorno amarelo: líder trocou na apuração (${naApuracao})</span></div>` : '';
       if (!(segundoTurnoPres() && t1)) {
         return `<div class="legend__title">Viradas durante a apuração</div>
           <div class="legend__item" style="--c:#f5b13d"><span class="legend__dot"></span><span>Cor forte: liderança trocou de mãos (${naApuracao} ${naApuracao === 1 ? 'estado' : 'estados'})</span></div>
