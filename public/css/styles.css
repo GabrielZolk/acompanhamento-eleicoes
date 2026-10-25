@@ -1702,3 +1702,37 @@ button.turnos__chip { cursor: pointer; }
 .mapa__modos button.is-on { background: #3b82f6; border-color: #3b82f6; color: #fff; font-weight: 600; }
 .mapa__modos button.is-novo::after { content: 'novo'; margin-left: 6px; padding: 1px 5px; border-radius: 4px; background: #f5b13d; color: #111; font-size: 10px; font-weight: 700; }
 .mapa__modos ~ * .select, .mapa.tem-modos .mapa__ctrl .select { display: none; }
+
+/* placar de viradas (Lula virou × Flávio virou) */
+.vir { margin-top: 12px; }
+.vir__contador { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(245,177,61,.4); background: linear-gradient(90deg, rgba(245,177,61,.12), transparent); font-size: 15px; color: #fff; }
+.vir__vivo { font-weight: 800; color: #f5b13d; text-transform: uppercase; letter-spacing: .5px; font-size: 13px; }
+.vir__contador span[style] b { color: var(--c); font-size: 22px; font-variant-numeric: tabular-nums; }
+.vir__contador i { color: var(--muted); font-style: normal; }
+.vir__contador small { color: var(--muted); font-size: 12px; }
+.vir__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.vir__col { min-width: 0; padding: 12px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 14%, transparent), transparent 70%); }
+.vir__topo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 10px; }
+.vir__quem { font-size: 18px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: .3px; }
+.vir__num { font-size: 13px; color: var(--muted); }
+.vir__num b { color: var(--c); font-size: 16px; }
+.vir__barra { position: relative; height: 8px; margin: 8px 0 18px; border-radius: 4px; background: rgba(255,255,255,.06); }
+.vir__barra i { display: block; height: 100%; border-radius: 4px; background: var(--c); transition: width .8s ease; }
+.vir__barra small { position: absolute; top: 11px; left: 0; font-size: 11px; color: var(--muted); }
+.vir__rot { margin: 8px 0 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.vir__ufs { display: flex; flex-wrap: wrap; gap: 5px; }
+.vir__uf { padding: 3px 9px; border-radius: 6px; border: 1px solid var(--c); background: color-mix(in srgb, var(--c) 25%, transparent); color: #fff; font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.vir__cid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+.vir__cid.is-aberto { max-height: 320px; overflow-y: auto; scrollbar-width: thin; }
+.vir__cid button { display: flex; width: 100%; justify-content: space-between; gap: 6px; padding: 4px 6px; border: 0; border-radius: 6px; background: none; color: #dfe3ea; font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.vir__cid button:hover { background: rgba(255,255,255,.05); }
+.vir__cid span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vir__cid small { color: var(--muted); }
+.vir__cid em { font-style: normal; color: var(--c); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vir__nada { color: var(--muted); font-size: 12.5px; }
+.vir__todas { margin-top: 6px; padding: 4px 0; border: 0; background: none; color: var(--c); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+@media (max-width: 760px) {
+  .vir__cols { grid-template-columns: 1fr; }
+  .vir__cid { grid-template-columns: 1fr; }
+  .vir__contador { font-size: 13px; }
+}

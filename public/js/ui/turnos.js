@@ -13,16 +13,18 @@ const int = (v) => Math.round(v).toLocaleString('pt-BR');
 
 export function createTurnos(el) {
   let t1 = null, pedindoT1 = false, geo = null, d = null, assinatura = '';
-  const st = { uf: null, nivel: 'uf' };
+  const st = { uf: null, nivel: 'uf', abertos: {} };
   const munGeo = {}, pedindoGeo = {};
   const mun2 = {}; // uf -> { em, dados, carregando }
 
   el.addEventListener('click', (ev) => {
+    const todas = ev.target.closest('[data-t-todas]');
+    if (todas) { st.abertos[todas.dataset.tTodas] = !st.abertos[todas.dataset.tTodas]; pintar(true); return; }
     const b = ev.target.closest('[data-t-nivel],[data-t-uf],[data-t-brasil]');
     const p = ev.target.closest('path[data-uf]');
     if (b?.dataset.tNivel) st.nivel = b.dataset.tNivel;
     else if (b?.dataset.tBrasil != null) st.uf = null;
-    else if (b?.dataset.tUf) st.uf = b.dataset.tUf;
+    else if (b?.dataset.tUf) { st.uf = b.dataset.tUf; pintar(true); el.querySelector('.turnos__mapas')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     else if (p && !st.uf) st.uf = p.dataset.uf;
     else return;
     pintar(true);
@@ -153,11 +155,56 @@ export function createTurnos(el) {
     return `<svg class="turnos__svg${porCidade ? ' is-mun' : ''}" viewBox="${vb}" preserveAspectRatio="xMidYMid meet">${corpo}${contornos}${rotulos}</svg>`;
   }
 
+  // Placar "Lula virou × Flávio virou": estados e cidades (Brasil todo), maiores cidades primeiro.
+  function placarViradas(ufs) {
+    const c = cores();
+    const lados = { 13: { ufs: [], cid: [] }, 22: { ufs: [], cid: [] } };
+    for (const uf of ufs) {
+      const a = f(ufT1(uf)), b = f(ufT2(uf));
+      if (a && b && lider(a) !== lider(b)) lados[lider(b)].ufs.push(uf);
+      for (const cdi of Object.keys(t1.mun[uf] || {})) {
+        const a2 = f(munT1(uf, cdi)), b2 = f(munT2(uf, cdi));
+        if (!a2 || !b2 || lider(a2) === lider(b2)) continue;
+        const n = lider(b2), r = mun2[uf].dados[cdi];
+        lados[n].cid.push({ uf, cdi, nm: nomeProprio(r.nm || ''), eleit: r.t || r.v || 0, ganho: b2[n] - a2[n] });
+      }
+    }
+    const carregadas = ufs.filter((u) => mun2[u]?.dados).length;
+    const total = lados[13].cid.length + lados[22].cid.length;
+    const mil = (v) => v.toLocaleString('pt-BR');
+    const coluna = (n) => {
+      const L = lados[n];
+      L.cid.sort((x, y) => y.eleit - x.eleit);
+      const aberto = st.abertos[n];
+      const lista = aberto ? L.cid : L.cid.slice(0, 8);
+      const parte = total ? (L.cid.length / total) * 100 : 0;
+      return `<div class="vir__col" style="--c:${c[n]}">
+          <div class="vir__topo"><span class="vir__quem">${esc(nome(n))} virou</span>
+            <span class="vir__num"><b>${L.ufs.length}</b> ${L.ufs.length === 1 ? 'estado' : 'estados'} · <b>${mil(L.cid.length)}</b> ${L.cid.length === 1 ? 'cidade' : 'cidades'}</span></div>
+          <div class="vir__barra"><i style="width:${parte.toFixed(1)}%"></i><small>${total ? `${Math.round(parte)}% das cidades que viraram` : ''}</small></div>
+          <div class="vir__rot">Estados</div>
+          <div class="vir__ufs">${L.ufs.length ? L.ufs.map((uf) => `<button class="vir__uf" data-t-uf="${uf}" title="${esc(UF_BY_CODE[uf].nome)}">${uf.toUpperCase()}</button>`).join('') : '<span class="vir__nada">nenhum até agora</span>'}</div>
+          <div class="vir__rot">Maiores cidades</div>
+          <ol class="vir__cid${aberto ? ' is-aberto' : ''}">${lista.length ? lista.map((x) => `<li><button data-t-uf="${x.uf}"><span>${esc(x.nm)} <small>${x.uf.toUpperCase()}</small></span><em>+${x.ganho.toFixed(1).replace('.', ',')} pts</em></button></li>`).join('') : '<li class="vir__nada">nenhuma até agora</li>'}</ol>
+          ${L.cid.length > 8 ? `<button class="vir__todas" data-t-todas="${n}">${aberto ? 'mostrar menos' : `ver todas as ${mil(L.cid.length)}`}</button>` : ''}
+        </div>`;
+    };
+    return `<div class="vir">
+        <div class="vir__contador"><span class="vir__vivo">🔄 Viradas ao vivo</span>
+          <span style="--c:${c[13]}">${esc(nome('13'))} virou <b>${mil(lados[13].cid.length)}</b></span><i>·</i>
+          <span style="--c:${c[22]}">${esc(nome('22'))} virou <b>${mil(lados[22].cid.length)}</b></span>
+          <small>cidades onde o líder mudou desde o 1º turno${carregadas < ufs.length ? ` · carregando ${carregadas}/${ufs.length} estados…` : ''}</small></div>
+        <div class="vir__cols">${coluna('13')}${coluna('22')}</div>
+      </div>`;
+  }
+
   function pintar(forcar) {
     if (!d || !geo || !t1) return;
     const alvo = st.uf ? [st.uf] : st.nivel === 'mun' ? Object.keys(geo.states) : [];
-    for (const uf of alvo) { garantirGeo(uf); garantirMun2(uf); }
-    const sig = [d.atualizadoEm, st.uf, st.nivel, Object.keys(munGeo).length, ...alvo.map((u) => mun2[u]?.em || 0)].join('|');
+    for (const uf of alvo) garantirGeo(uf);
+    // A lista de viradas cobre o Brasil todo: pede as cidades de todos os estados.
+    for (const uf of Object.keys(geo.states)) garantirMun2(uf);
+    const sig = [d.atualizadoEm, st.uf, st.nivel, JSON.stringify(st.abertos), Object.keys(munGeo).length, ...Object.keys(geo.states).map((u) => mun2[u]?.em || 0)].join('|');
     if (!forcar && sig === assinatura) return;
     assinatura = sig;
     el.hidden = false;
@@ -189,6 +236,7 @@ export function createTurnos(el) {
         ${st.uf ? '<button class="turnos__voltar" data-t-brasil>← Brasil</button>' : `<div class="seg"><button data-t-nivel="uf" class="${st.nivel === 'uf' ? 'is-on' : ''}">Estados</button><button data-t-nivel="mun" class="${st.nivel === 'mun' ? 'is-on' : ''}">Cidades</button></div>`}
         <label class="select"><select data-t-sel aria-label="Escolher estado"><option value="">Brasil inteiro</option>${opcoesUF}</select></label>
       </div></div>
+      ${placarViradas(ufs)}
       <div class="turnos__mapas">
         <figure><figcaption>1º turno <small>04/10 · resultado final</small></figcaption>${manchete(x1, 1)}${svgMapa(1, viraram)}</figure>
         <figure><figcaption>2º turno <small>${x2?.apurado != null ? `${pct(x2.apurado, 2)} das urnas apuradas` : 'aguardando'}</small></figcaption>${manchete(x2, 2, x1)}${svgMapa(2, viraram)}</figure>
