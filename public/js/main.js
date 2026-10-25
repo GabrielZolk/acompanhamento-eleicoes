@@ -239,12 +239,13 @@ function render() {
   renderBottom();
 }
 
+const curto = (s) => s.replace('Candidato mais votado', 'Mais votado').replace('Partido mais votado', 'Mais votado').replace('Virada desde o 1º turno', 'Quem virou (1º → 2º turno)').replace('Ganho desde o 1º turno: ', 'Ganho no 2º turno: ').replace('Vantagem do líder (votos à frente do 2º colocado)', 'Vantagem em votos').replace('Viradas durante a apuração', 'Viradas na apuração');
 // Botões visíveis para os modos do mapa (espelham o seletor, que fica escondido quando há botões).
 function renderModos() {
   const sel = $('mapa-modo'), box = $('mapa-modos');
   const ops = [...sel.options];
   const novo = /virada|ganho|margem/;
-  const html = ops.length > 1 ? ops.map((o) => `<button data-modo="${o.value}" class="${o.value === sel.value ? 'is-on' : ''}${novo.test(o.value) ? ' is-novo' : ''}">${o.textContent}</button>`).join('') : '';
+  const html = ops.length > 1 ? ops.map((o) => `<button data-modo="${o.value}" class="${o.value === sel.value ? 'is-on' : ''}${novo.test(o.value) ? ' is-novo' : ''}">${curto(o.textContent)}</button>`).join('') : '';
   if (box.innerHTML !== html) box.innerHTML = html;
   $('mapa').classList.toggle('tem-modos', !!html);
 }
