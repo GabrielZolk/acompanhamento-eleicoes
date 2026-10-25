@@ -597,7 +597,7 @@ export function createMapa({ stage, svg, overlay, tooltip, legenda, select, sub,
   function opcoes() {
     const ops = [];
     const var22 = ['var22', 'Variação desde 2022'];
-    const margem = ['margem', 'Diferença de votos (1º × 2º)'];
+    const margem = ['margem', 'Vantagem do líder (votos à frente do 2º colocado)'];
     const viradaApuracao = !(segundoTurnoPres() && t1) && Object.keys(data.viradas || {}).length ? [['virada', 'Viradas durante a apuração']] : [];
     const houveVirada = Object.keys(data.viradas || {}).length > 0;
     const t2 = segundoTurnoPres() && t1 ? [['virada', 'Virada desde o 1º turno'], ...data.nacional.candidatos.slice(0, 2).map((c) => [`ganho:${c.n}`, `Ganho desde o 1º turno: ${nomeProprio(c.nome)}`])] : [];
