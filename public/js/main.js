@@ -18,7 +18,7 @@ import { criarModoTV } from './ui/tv.js';
 import { abrirEleitos, criarBotaoEleitos } from './ui/eleitos.js';
 import { abrirProjecoes } from './ui/projecoes.js';
 import { abrirSegundoTurno } from './ui/segundoturno.js';
-import { renderTurnos, carregarT1Turnos } from './ui/turnos.js';
+import { createTurnos } from './ui/turnos.js';
 let geoBR = null;
 
 const $ = (id) => document.getElementById(id);
@@ -231,6 +231,7 @@ function render() {
   if (!state.pins) state.pins = pinsPadrao(d);
   morph($('disputa'), renderDisputa(d, state));
   mapa.update(d, state);
+  renderModos();
   morph($('regioes'), renderRegioes(d, state));
   morph($('resumo'), renderResumo(d, state));
   morph($('updates'), renderUpdates(d, state));
@@ -238,11 +239,28 @@ function render() {
   renderBottom();
 }
 
+// Botões visíveis para os modos do mapa (espelham o seletor, que fica escondido quando há botões).
+function renderModos() {
+  const sel = $('mapa-modo'), box = $('mapa-modos');
+  const ops = [...sel.options];
+  const novo = /virada|ganho|margem/;
+  const html = ops.length > 1 ? ops.map((o) => `<button data-modo="${o.value}" class="${o.value === sel.value ? 'is-on' : ''}${novo.test(o.value) ? ' is-novo' : ''}">${o.textContent}</button>`).join('') : '';
+  if (box.innerHTML !== html) box.innerHTML = html;
+  $('mapa').classList.toggle('tem-modos', !!html);
+}
+$('mapa-modos').addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-modo]');
+  if (!b) return;
+  const sel = $('mapa-modo');
+  sel.value = b.dataset.modo;
+  sel.dispatchEvent(new Event('change'));
+  renderModos();
+});
+
+let turnos = null;
 function renderTurnosCard(d) {
-  if (d.cargo?.federal && d.turno === 2) carregarT1Turnos(render);
-  const html = renderTurnos(d, geoBR);
-  $('turnos').hidden = !html;
-  if (html) morph($('turnos'), html);
+  turnos ||= createTurnos($('turnos'));
+  turnos.update(d, geoBR);
 }
 
 function renderBottom() {
