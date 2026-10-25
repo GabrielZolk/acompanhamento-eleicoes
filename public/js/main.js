@@ -18,6 +18,8 @@ import { criarModoTV } from './ui/tv.js';
 import { abrirEleitos, criarBotaoEleitos } from './ui/eleitos.js';
 import { abrirProjecoes } from './ui/projecoes.js';
 import { abrirSegundoTurno } from './ui/segundoturno.js';
+import { renderTurnos, carregarT1Turnos } from './ui/turnos.js';
+let geoBR = null;
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -232,7 +234,15 @@ function render() {
   morph($('regioes'), renderRegioes(d, state));
   morph($('resumo'), renderResumo(d, state));
   morph($('updates'), renderUpdates(d, state));
+  renderTurnosCard(d);
   renderBottom();
+}
+
+function renderTurnosCard(d) {
+  if (d.cargo?.federal && d.turno === 2) carregarT1Turnos(render);
+  const html = renderTurnos(d, geoBR);
+  $('turnos').hidden = !html;
+  if (html) morph($('turnos'), html);
 }
 
 function renderBottom() {
@@ -515,6 +525,7 @@ document.addEventListener('visibilitychange', () => {
 (async () => {
   render();
   const geo = await mapa.init();
+  geoBR = geo;
   prepararIcones(geo, REGIOES.map((r) => ({ id: r.id, ufs: UFS.filter((u) => u.regiao === r.id).map((u) => u.uf) })));
   avisarPresenca();
   carregarProjecaoCidade(true);
