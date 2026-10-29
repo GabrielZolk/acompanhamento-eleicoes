@@ -1,0 +1,109 @@
+/* Auditoria das urnas: complementa dados.css (topo, intro e tokens). */
+#aud { display: flex; flex-direction: column; gap: 16px; padding-bottom: 24px; }
+
+.aud-placar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.aud-placar__item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); animation: aud-sobe .5s var(--ease-out) both; }
+.aud-placar__item:nth-child(2) { animation-delay: .05s; } .aud-placar__item:nth-child(3) { animation-delay: .1s; }
+.aud-placar__item:nth-child(4) { animation-delay: .15s; } .aud-placar__item:nth-child(5) { animation-delay: .2s; } .aud-placar__item:nth-child(6) { animation-delay: .25s; }
+.aud-placar__item > b { flex: 0 0 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; font-size: 15px; font-weight: 800; }
+.aud-placar__item span { font-size: 13px; color: var(--text-2); }
+.aud-placar__item strong { display: block; font-size: 14.5px; color: #fff; margin-bottom: 2px; }
+.aud-placar__item.ok { border-color: rgba(52, 199, 123, .45); background: linear-gradient(135deg, rgba(52, 199, 123, .12), var(--card) 60%); }
+.aud-placar__item.ok > b { background: #34c77b; color: #04140b; }
+.aud-placar__item.alerta { border-color: rgba(245, 177, 61, .55); background: linear-gradient(135deg, rgba(245, 177, 61, .14), var(--card) 60%); }
+.aud-placar__item.alerta > b { background: #f5b13d; color: #1a1204; }
+.aud-placar__item.info > b { background: #2a3550; color: #c9d6ff; }
+.aud-placar__item.nao > b { background: #2c313c; color: #c9cfdb; }
+@keyframes aud-sobe { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.aud-indice { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; background: linear-gradient(var(--bg) 80%, transparent); scrollbar-width: none; }
+.aud-indice a { flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); text-decoration: none; font-size: 13px; color: var(--text-2); }
+.aud-indice a:hover { border-color: var(--accent-2); color: #fff; }
+
+.aud-card { padding: 22px 24px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); scroll-margin-top: 56px; }
+.aud-card h2 { margin: 0 0 10px; font-size: 21px; letter-spacing: -.3px; }
+.aud-card h3 { margin: 18px 0 8px; font-size: 15px; color: #fff; }
+.aud-lead { margin: 0 0 10px; color: var(--text-2); font-size: 14px; max-width: 920px; }
+.aud-nota { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; max-width: 980px; }
+.aud-card--metodo a { color: var(--accent-2); }
+.metodo { margin: 0; padding-left: 20px; color: var(--text-2); display: grid; gap: 6px; }
+.metodo code { background: var(--card-2); padding: 1px 5px; border-radius: 4px; }
+
+.tabela { overflow-x: auto; }
+.tabela table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.tabela th, .tabela td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.tabela thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.tabela tbody th { text-align: left; color: #fff; font-weight: 600; }
+.tabela td.ok { color: #34c77b; font-weight: 700; }
+.tabela td.dif { color: #f5b13d; font-weight: 700; }
+.pt { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+.chipx { display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line-2); }
+.chipx.ok { color: #34c77b; border-color: rgba(52, 199, 123, .4); }
+.chipx.dif { color: #f5b13d; border-color: rgba(245, 177, 61, .5); }
+
+.aud-det { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 255, 255, .015); }
+.aud-det summary { cursor: pointer; padding: 10px 14px; font-weight: 600; font-size: 13.5px; color: var(--text-2); }
+.aud-det[open] summary { border-bottom: 1px solid var(--line); }
+.aud-det > *:not(summary) { margin: 10px 14px; }
+
+.tri { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.tri__b { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line-2); font-size: 13.5px; color: var(--text-2); }
+.tri__b h4 { margin: 0 0 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; }
+.tri__b p { margin: 0 0 6px; }
+.tri__b--diz h4 { color: #c9cfdb; }
+.tri__b--dados { border-color: rgba(109, 134, 255, .45); background: rgba(109, 134, 255, .07); }
+.tri__b--dados h4 { color: #9fb0ff; }
+.tri__b--limite { border-style: dashed; }
+.tri__b--limite h4 { color: var(--muted); }
+
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 6px 0 4px; }
+.kpis:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpi { padding: 12px 14px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--line); }
+.kpi b { display: block; font-size: 26px; font-weight: 800; letter-spacing: -.5px; color: #fff; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 12.5px; color: var(--muted); }
+.kpi--amb b { color: #f5b13d; }
+.kpi--roxo b { color: #b9a4ff; }
+
+.hbar { display: grid; gap: 7px; }
+.hbar__l { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr) 110px; gap: 10px; align-items: center; font-size: 13px; color: var(--text-2); }
+.hbar__l.is-destaque { color: #fff; }
+.hbar__trilho { height: 12px; border-radius: 6px; background: rgba(255, 255, 255, .05); overflow: hidden; }
+.hbar__trilho i { display: block; height: 100%; border-radius: 6px; animation: aud-cresce 1s var(--ease-out) both; transform-origin: left; }
+.hbar__l b { text-align: right; font-variant-numeric: tabular-nums; color: #fff; }
+@keyframes aud-cresce { from { transform: scaleX(0); } }
+
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.vbar { display: flex; align-items: flex-end; gap: 3px; height: 150px; padding-top: 6px; }
+.vbar__c { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
+.vbar__c i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: #6d86ff; animation: aud-ergue .9s var(--ease-out) both; transform-origin: bottom; }
+.vbar__c span { font-size: 10px; color: var(--muted); white-space: nowrap; transform: rotate(-45deg); transform-origin: center; height: 22px; }
+.vbar__c.is-marca span { color: #f5b13d; }
+@keyframes aud-ergue { from { transform: scaleY(0); } }
+
+.curva { position: relative; display: flex; align-items: center; gap: 3px; height: 180px; margin-top: 8px; border-top: 1px dashed var(--line-2); border-bottom: 1px dashed var(--line-2); background: linear-gradient(transparent calc(50% - .5px), var(--line-2) calc(50% - .5px), var(--line-2) calc(50% + .5px), transparent calc(50% + .5px)); }
+.curva__c { position: relative; flex: 1; height: 100%; }
+.curva__c i { position: absolute; left: 10%; right: 10%; border-radius: 3px; }
+.curva__c i.pos { bottom: 50%; background: #e5484d; }
+.curva__c i.neg { top: 50%; background: #3b82f6; }
+.curva__c span { position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--muted); }
+
+.lst { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 13px; color: var(--text-2); max-height: 420px; overflow-y: auto; }
+.lst b { color: #fff; }
+.lst small { display: block; color: var(--muted); font-size: 11.5px; }
+.vazio { color: var(--muted); font-size: 13px; }
+
+.aud-busca { width: 100%; max-width: 420px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--card-2); color: #fff; }
+#busca-res { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 12px; }
+.cid { display: grid; gap: 3px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--card-2); font-size: 13px; color: var(--text-2); }
+.cid strong { color: #fff; font-size: 14.5px; }
+.cid small { color: var(--muted); }
+
+.aud-rodape { margin: 10px 0 30px; color: var(--muted); font-size: 12.5px; text-align: center; max-width: 900px; margin-inline: auto; }
+
+@media (max-width: 860px) {
+  .aud-placar, .tri, .duas { grid-template-columns: 1fr; }
+  .kpis, .kpis:has(> :nth-child(3):last-child) { grid-template-columns: 1fr 1fr; }
+  .hbar__l { grid-template-columns: 1fr 90px; }
+  .hbar__trilho { grid-column: 1 / -1; grid-row: 2; }
+  .aud-card { padding: 16px 14px; }
+}

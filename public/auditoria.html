@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Auditoria independente das urnas — 2º turno 2026</title>
+  <meta name="description" content="Recontagem própria dos boletins de todas as urnas do 2º turno de 2026, votos depois das 17h, liberação sem biometria e conferência dos logs, a partir dos arquivos públicos do TSE." />
+  <meta name="theme-color" content="#0a0e16" />
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/dados.css" />
+  <link rel="stylesheet" href="/css/auditoria.css" />
+</head>
+<body>
+  <div class="pagina">
+    <header class="topo">
+      <a class="marca" href="/" aria-label="Início">
+        <img class="marca__logo" src="/img/logo.svg" alt="" width="52" height="52" />
+        <span class="marca__txt">
+          <span class="marca__titulo">Auditoria das <em>urnas</em></span>
+          <span class="marca__sub">Recontagem própria com os arquivos públicos do TSE</span>
+        </span>
+      </a>
+      <nav class="topo__nav" aria-label="Navegação">
+        <a class="topo__link" href="/">← Início</a>
+        <a class="topo__link" href="/dados">Raio-X do Brasil</a>
+        <a class="topo__link topo__link--destaque" href="/apuracao">Apuração 2026</a>
+      </nav>
+    </header>
+
+    <main id="aud" aria-live="polite"><p class="carregando">Carregando a auditoria…</p></main>
+
+    <footer class="aud-rodape">
+      Feito só com dados públicos do TSE: o arquivo que cada urna gravou (boletim, log e registro digital do voto),
+      a planilha de boletins e o resultado oficial. O código que lê os arquivos é aberto, e qualquer pessoa pode refazer a conta.
+    </footer>
+  </div>
+  <script type="module" src="/js/auditoria.js"></script>
+</body>
+</html>

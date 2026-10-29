@@ -1,0 +1,255 @@
+-- Especificação do Boletim de Urna (BU) publicada pelo TSE (formato-arquivos-bu-rdv-ass-digital.zip, 17/09/2022),
+-- sem os comentários originais.
+ModuloBU DEFINITIONS IMPLICIT TAGS ::= BEGIN
+EXPORTS ALL;
+CodigoMunicipio ::= INTEGER (1..99999)
+DataHoraJE ::= GeneralString(SIZE(15))
+IDEleicao ::= INTEGER (0..99999)
+IDPleito ::= INTEGER (0..99999)
+IDProcessoEleitoral ::= INTEGER (0..99999)
+NumeroCargoConsultaLivre ::= INTEGER (25..99)
+NumeroInternoUrna ::= INTEGER (0..99999999)
+NumeroLocal ::= INTEGER (1..9999)
+NumeroMesa ::= INTEGER (1..999)
+NumeroPartido ::= INTEGER (0..99)
+NumeroSecao ::= INTEGER (1..9999)
+NumeroSerieFlash ::= OCTET STRING (SIZE(4))
+NumeroUrna ::= INTEGER (1..3)
+NumeroVotavel ::= INTEGER (0..99999)
+NumeroZona ::= INTEGER (1..9999)
+QtdEleitores ::= INTEGER (0..9999)
+CargoConstitucional ::= ENUMERATED {
+presidente (1),
+vicePresidente (2),
+governador (3),
+viceGovernador (4),
+senador (5),
+deputadoFederal (6),
+deputadoEstadual (7),
+deputadoDistrital (8),
+primeiroSuplenteSenador (9),
+segundoSuplenteSenador (10),
+prefeito (11),
+vicePrefeito (12),
+vereador (13)
+}
+Fase ::= ENUMERATED {
+simulado (1),
+oficial (2),
+treinamento (3)
+}
+MotivoApuracaoEletronica ::= ENUMERATED {
+naoFoiPossivelReuperarResultado (1),
+urnaNaoChegouMidiaDefeituosa (2),
+urnaNaoChegouMidiaExtraviada (3),
+outros (99)
+}
+MotivoApuracaoManual ::= ENUMERATED {
+urnaComDefeito (1),
+urnaIndisponivelInicio (2),
+urnaOutraSecao (3),
+outros (99)
+}
+MotivoApuracaoMistaComBU ::= ENUMERATED {
+urnaDataHoraIncorreta (1),
+urnaComDefeito (2),
+urnaOutrasecao (3),
+urnaPreparadaIncorretamente (4),
+urnaChegouAposInicioVotacao (5),
+outros (99)
+}
+MotivoApuracaoMistaComMR ::= ENUMERATED {
+naoObteveExitoContingencia (1),
+indisponibilidadeUrnaContingencia (2),
+indisponibilidadeFlashContingencia (3),
+problemaEnergiaEletrica (4),
+naoFoiPossivelTrocarUrna (5),
+naoFoiSolicitadaTrocaUrna (6),
+outros (99)
+}
+TipoApuracao ::= ENUMERATED {
+totalmenteManual (1),
+totalmenteEletronica (2),
+mistaBU (3),
+mistaMR (4)
+}
+TipoArquivo ::= ENUMERATED {
+votacaoUE (1),
+votacaoRED (2),
+saMistaMRParcialCedula (3),
+saMistaBUImpressoCedula (4),
+saManual (5),
+saEletronica (6)
+}
+TipoCargoConsulta ::= ENUMERATED {
+majoritario (1),
+proporcional (2),
+consulta (3)
+}
+TipoEnvelope ::= ENUMERATED {
+envelopeBoletimUrna (1),
+envelopeRegistroDigitalVoto (2),
+envelopeBoletimUrnaImpresso (4),
+envelopeImagemBiometria (5)
+}
+TipoUrna ::= ENUMERATED {
+secao (1),
+contingencia (3),
+reservaSecao (4),
+reservaEncerrandoSecao (6)
+}
+TipoVoto ::= ENUMERATED {
+nominal (1),
+branco (2),
+nulo (3),
+legenda (4),
+cargoSemCandidato (5)
+}
+EntidadeEnvelopeGenerico ::= SEQUENCE {
+cabecalho CabecalhoEntidade,
+fase Fase,
+urna Urna OPTIONAL,
+identificacao IdentificacaoUrna,
+tipoEnvelope TipoEnvelope,
+seguranca Seguranca OPTIONAL,
+conteudo OCTET STRING
+}
+Seguranca ::= SEQUENCE {
+idTipoArquivo INTEGER (0..2),
+idCriptografia INTEGER (1..3),
+idArquivoCD INTEGER (0..255),
+idArquivoChave OCTET STRING
+}
+EntidadeBoletimUrna ::= SEQUENCE {
+cabecalho CabecalhoEntidade,
+fase Fase,
+urna Urna,
+identificacaoSecao IdentificacaoSecaoEleitoral,
+dataHoraEmissao DataHoraJE,
+dadosSecaoSA DadosSecaoSA,
+qtdEleitoresLibCodigo [1] QtdEleitores OPTIONAL,
+qtdEleitoresCompBiometrico [2] QtdEleitores OPTIONAL,
+resultadosVotacaoPorEleicao [3] SEQUENCE OF ResultadoVotacaoPorEleicao,
+historicoCorrespondencias [4] SEQUENCE OF CorrespondenciaResultado OPTIONAL,
+historicoVotoImpresso [5] SEQUENCE OF HistoricoVotoImpresso OPTIONAL,
+chaveAssinaturaVotosVotavel OCTET STRING
+}
+ApuracaoEletronica ::= SEQUENCE {
+tipoapuracao TipoApuracao,
+motivoApuracao MotivoApuracaoEletronica
+}
+ApuracaoMistaBUAE ::= SEQUENCE {
+tipoapuracao TipoApuracao,
+motivoApuracao MotivoApuracaoMistaComBU
+}
+ApuracaoMistaMR ::= SEQUENCE {
+tipoApuracao TipoApuracao,
+motivoApuracao MotivoApuracaoMistaComMR
+}
+ApuracaoTotalmenteManualDigitacaoAE ::= SEQUENCE {
+tipoapuracao TipoApuracao,
+motivoApuracao MotivoApuracaoManual
+}
+CabecalhoEntidade ::= SEQUENCE {
+dataGeracao DataHoraJE,
+idEleitoral IDEleitoral
+}
+Carga ::= SEQUENCE {
+numeroInternoUrna NumeroInternoUrna,
+numeroSerieFC NumeroSerieFlash,
+dataHoraCarga DataHoraJE,
+codigoCarga GeneralString
+}
+CodigoCargoConsulta ::= CHOICE {
+cargoConstitucional [1] CargoConstitucional,
+numeroCargoConsultaLivre [2] NumeroCargoConsultaLivre
+}
+CorrespondenciaResultado ::= SEQUENCE {
+identificacao IdentificacaoUrna,
+carga Carga
+}
+DadosSA ::= SEQUENCE {
+juntaApuradora INTEGER (0..9999),
+turmaApuradora INTEGER (0..9999),
+numeroInternoUrnaOrigem NumeroInternoUrna OPTIONAL
+}
+DadosSecao ::= SEQUENCE {
+dataHoraAbertura DataHoraJE,
+dataHoraEncerramento DataHoraJE,
+dataHoraDesligamentoVotoImpresso DataHoraJE OPTIONAL
+}
+DadosSecaoSA ::= CHOICE {
+dadosSecao [0] DadosSecao,
+dadosSA [1] DadosSA
+}
+HistoricoVotoImpresso ::= SEQUENCE {
+idImpressoraVotos INTEGER (0..99999999),
+idRepositorioVotos INTEGER (0..99999999),
+dataHoraLigamento DataHoraJE
+}
+IDEleitoral ::= CHOICE {
+idProcessoEleitoral [1] IDProcessoEleitoral,
+idPleito [2] IDPleito,
+idEleicao [3] IDEleicao
+}
+IdentificacaoContingencia ::= SEQUENCE {
+municipioZona MunicipioZona
+}
+IdentificacaoMesaJustificativa ::= SEQUENCE {
+municipioZona MunicipioZona,
+mesa NumeroMesa,
+urna NumeroUrna
+}
+IdentificacaoSecaoEleitoral ::= SEQUENCE {
+municipioZona MunicipioZona,
+local NumeroLocal,
+secao NumeroSecao
+}
+IdentificacaoUrna ::= CHOICE {
+identificacaoSecaoEleitoral [0] IdentificacaoSecaoEleitoral,
+identificacaoContingencia [1] IdentificacaoContingencia
+}
+IdentificacaoVotavel ::= SEQUENCE {
+partido NumeroPartido,
+codigo NumeroVotavel
+}
+MunicipioZona ::= SEQUENCE {
+municipio CodigoMunicipio,
+zona NumeroZona
+}
+ResultadoVotacao ::= SEQUENCE {
+tipoCargo TipoCargoConsulta,
+qtdComparecimento QtdEleitores,
+totaisVotosCargo SEQUENCE OF TotalVotosCargo
+}
+ResultadoVotacaoPorEleicao ::= SEQUENCE {
+idEleicao IDEleicao,
+qtdEleitoresAptos QtdEleitores,
+resultadosVotacao SEQUENCE OF ResultadoVotacao
+}
+TipoApuracaoSA ::= CHOICE {
+apuracaoMistaMR [0] ApuracaoMistaMR,
+apuracaoMistaBUAE [1] ApuracaoMistaBUAE,
+apuracaoTotalmenteManual [2] ApuracaoTotalmenteManualDigitacaoAE,
+apuracaoEletronica [3] ApuracaoEletronica
+}
+TotalVotosCargo ::= SEQUENCE {
+codigoCargo CodigoCargoConsulta,
+ordemImpressao INTEGER(1..99),
+votosVotaveis SEQUENCE OF TotalVotosVotavel
+}
+TotalVotosVotavel ::= SEQUENCE {
+tipoVoto [1] TipoVoto,
+quantidadeVotos [2] QtdEleitores,
+identificacaoVotavel [3] IdentificacaoVotavel OPTIONAL,
+assinatura OCTET STRING
+}
+Urna ::= SEQUENCE {
+tipoUrna TipoUrna,
+versaoVotacao GeneralString,
+correspondenciaResultado CorrespondenciaResultado,
+tipoArquivo TipoArquivo,
+numeroSerieFV NumeroSerieFlash,
+motivoUtilizacaoSA TipoApuracaoSA OPTIONAL
+}
+END
