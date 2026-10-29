@@ -148,7 +148,7 @@ function secBiometria(d) {
   const ufs = Object.entries(d.uf).filter(([uf]) => uf !== 'zz')
     .map(([uf, u]) => ({ k: uf, rot: UFN[uf], v: (100 * ((u.hab_bio_falhou || 0) + (u.hab_codigo || 0))) / Math.max(1, u.comparecimento), cor: '#a78bfa' })).sort((a, b2) => b2.v - a.v);
   const dm = b.dentro_municipio;
-  const curva = Object.entries(dm.curva).map(([k, v]) => [`${+k > 0 ? '+' : ''}${k}`, v]);
+  const curva = Object.entries(dm.curva).sort((x, y) => +x[0] - +y[0]).map(([k, v]) => [`${+k > 0 ? '+' : ''}${k}`, v]);
   const maxAbs = Math.max(1, ...curva.map(([, v]) => Math.abs(v)));
   const dist = Object.entries(b.distribuicao).map(([k, v]) => [`${k}%`, v]);
   return `<section class="aud-card" id="biometria">

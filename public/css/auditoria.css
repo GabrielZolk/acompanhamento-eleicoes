@@ -80,7 +80,7 @@
 .vbar__c.is-marca span { color: #f5b13d; }
 @keyframes aud-ergue { from { transform: scaleY(0); } }
 
-.curva { position: relative; display: flex; align-items: center; gap: 3px; height: 180px; margin-top: 8px; border-top: 1px dashed var(--line-2); border-bottom: 1px dashed var(--line-2); background: linear-gradient(transparent calc(50% - .5px), var(--line-2) calc(50% - .5px), var(--line-2) calc(50% + .5px), transparent calc(50% + .5px)); }
+.curva { position: relative; display: flex; align-items: center; gap: 3px; height: 180px; margin: 8px 0 28px; border-top: 1px dashed var(--line-2); border-bottom: 1px dashed var(--line-2); background: linear-gradient(transparent calc(50% - .5px), var(--line-2) calc(50% - .5px), var(--line-2) calc(50% + .5px), transparent calc(50% + .5px)); }
 .curva__c { position: relative; flex: 1; height: 100%; }
 .curva__c i { position: absolute; left: 10%; right: 10%; border-radius: 3px; }
 .curva__c i.pos { bottom: 50%; background: #e5484d; }
